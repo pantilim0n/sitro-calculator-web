@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: sitro-slicer
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./services/slicer/Dockerfile
+    dockerContext: ./services/slicer
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: BAMBU_STUDIO_BIN
+        value: /opt/bambu/BambuStudio
+      - key: SITRO_PROFILE_DIR
+        value: /app/profiles
