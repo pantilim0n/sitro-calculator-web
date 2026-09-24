@@ -2,7 +2,7 @@ function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
 function first(obj,keys){for(const k of keys){if(obj&&obj[k]!=null)return obj[k]}return null}
 function seconds(v){if(v==null)return null;if(typeof v==='number')return v;const s=String(v).trim();if(/^\d+(\.\d+)?$/.test(s))return Number(s);let t=0;const h=s.match(/(\d+(?:\.\d+)?)\s*h/i),m=s.match(/(\d+(?:\.\d+)?)\s*m/i),sec=s.match(/(\d+(?:\.\d+)?)\s*s/i);if(h)t+=Number(h[1])*3600;if(m)t+=Number(m[1])*60;if(sec)t+=Number(sec[1]);return t||null}
 function grams(v){const x=n(v);return x==null?null:x}
-module.exports = async function handler(req,res){
+export default async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate=600');
  const raw=String(req.query?.url||'').trim();let u;
  try{u=new URL(raw.includes('://')?raw:'https://'+raw)}catch{return res.status(400).json({error:'Некорректная ссылка MakerWorld'})}
