@@ -1,0 +1,27 @@
+function n(v){const x=Number(v);return Number.isFinite(x)?x:null}
+function first(obj,keys){for(const k of keys){if(obj&&obj[k]!=null)return obj[k]}return null}
+function seconds(v){if(v==null)return null;if(typeof v==='number')return v;const s=String(v).trim();if(/^\d+(\.\d+)?$/.test(s))return Number(s);let t=0;const h=s.match(/(\d+(?:\.\d+)?)\s*h/i),m=s.match(/(\d+(?:\.\d+)?)\s*m/i),sec=s.match(/(\d+(?:\.\d+)?)\s*s/i);if(h)t+=Number(h[1])*3600;if(m)t+=Number(m[1])*60;if(sec)t+=Number(sec[1]);return t||null}
+function grams(v){const x=n(v);return x==null?null:x}
+export default async function handler(req,res){
+ res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate=600');
+ const raw=String(req.query?.url||'').trim();let u;
+ try{u=new URL(raw.includes('://')?raw:'https://'+raw)}catch{return res.status(400).json({error:'Некорректная ссылка MakerWorld'})}
+ if(u.hostname!=='makerworld.com'&&!u.hostname.endsWith('.makerworld.com'))return res.status(400).json({error:'Нужна ссылка makerworld.com'});
+ const m=u.pathname.match(/\/models\/(\d+)/);if(!m)return res.status(400).json({error:'В ссылке не найден ID модели'});
+ const designId=m[1];
+ try{
+  const r=await fetch('https://api.bambulab.com/v1/design-service/design/'+designId,{headers:{Accept:'application/json','User-Agent':'SITRO-Calculator/1.0'}});
+  if(!r.ok)return res.status(r.status).json({error:'MakerWorld вернул HTTP '+r.status});
+  const d=await r.json(),instances=Array.isArray(d.instances)?d.instances:[];
+  const profiles=instances.map(x=>{
+   const plates=Array.isArray(x.plates)?x.plates:[];
+   const fils=Array.isArray(x.instanceFilaments)?x.instanceFilaments:[];
+   const plateTime=plates.reduce((a,p)=>a+(seconds(first(p,['prediction','printTime','print_time','time','printTimeSeconds']))||0),0)||null;
+   const directTime=seconds(first(x,['prediction','printTime','print_time','time','printTimeSeconds','estimatedTime']));
+   const filamentWeight=fils.reduce((a,f)=>a+(grams(first(f,['weight','usedWeight','filamentWeight','weightGrams','used_g']))||0),0)||null;
+   const plateWeight=plates.reduce((a,p)=>a+(grams(first(p,['weight','filamentWeight','totalWeight','weightGrams']))||0),0)||null;
+   return {id:x.id??null,profileId:x.profileId??null,title:x.title||'Профиль печати',printer:x.printer?.name||x.printerName||x.deviceName||null,materialCnt:x.materialCnt??null,needAms:x.needAms??null,printTimeSeconds:directTime||plateTime,totalWeightGrams:filamentWeight||plateWeight,filaments:fils.map(f=>({type:first(f,['type','filamentType','material','name']),color:first(f,['color','filamentColor','colour']),weightGrams:grams(first(f,['weight','usedWeight','filamentWeight','weightGrams','used_g']))})),plates};
+  });
+  return res.status(200).json({designId,title:d.title||'',coverUrl:d.coverUrl||'',modelId:d.modelId||'',profiles});
+ }catch(e){return res.status(502).json({error:'Не удалось получить данные MakerWorld'})}
+}
