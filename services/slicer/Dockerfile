@@ -1,6 +1,6 @@
 FROM ubuntu:24.04 AS bambu
-ARG BAMBU_VERSION=02.04.00.70
-ARG BAMBU_APPIMAGE_URL=""
+ARG BAMBU_VERSION=02.08.02.61
+ARG BAMBU_APPIMAGE_URL="https://github.com/bambulab/BambuStudio/releases/download/v02.08.02.61/BambuStudio_ubuntu22.04-v02.08.02.61-20260820225108.AppImage"
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl file && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/bambu
 # Bambu Studio is supplied as an AppImage URL at build time. Extracting it avoids FUSE in the container.
