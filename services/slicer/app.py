@@ -5,6 +5,7 @@ ALLOWED={"PLA","PETG","ABS","ASA","PA"}
 PROFILES={"standard":"standard","strong":"strong","max":"max"}
 BAMBU=os.getenv("BAMBU_STUDIO_BIN","/opt/bambu/BambuStudio")
 CFG=os.getenv("SITRO_PROFILE_DIR","/app/profiles")
+BBL=os.getenv("BAMBU_PROFILE_DIR","/opt/bambu/profiles/BBL")
 
 def parse_slice_info(path):
     with zipfile.ZipFile(path) as z:
@@ -33,7 +34,10 @@ def slice_stl():
     if material not in ALLOWED or profile not in PROFILES: return jsonify(error="Invalid material/profile"),400
     with tempfile.TemporaryDirectory() as td:
         src=os.path.join(td,"model.stl"); out=os.path.join(td,"out.gcode.3mf"); f.save(src)
+        # Prefer SITRO flattened overrides when present. Official Bambu presets are bundled as the source of truth.
         machine=os.path.join(CFG,"machine.json"); process=os.path.join(CFG,profile+".json"); filament=os.path.join(CFG,"filament-"+material.lower()+".json")
+        missing=[p for p in (machine,process,filament) if not os.path.exists(p)]
+        if missing: return jsonify(error="SITRO flattened slicer profiles are not generated yet",missing=[os.path.basename(x) for x in missing],officialProfileRoot=BBL),503
         cmd=[BAMBU,"--orient","--arrange","1","--load-settings",machine+";"+process,"--load-filaments",filament,"--slice","0","--debug","2","--export-3mf",out,src]
         try: cp=subprocess.run(cmd,capture_output=True,text=True,timeout=180)
         except subprocess.TimeoutExpired: return jsonify(error="Slicer timeout"),504
