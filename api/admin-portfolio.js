@@ -38,6 +38,13 @@ export default async function handler(req,res){
       await putFile('portfolio-categories.json',content,'Update portfolio categories from admin');
       return res.status(200).json({ok:true});
     }
+    if(body.action==='uploadOnly'){
+      const {filename,dataBase64}=body;
+      if(!filename||!dataBase64)return res.status(400).json({error:'Нет файла'});
+      const safe=('portfolio/'+Date.now()+'-'+filename).replace(/[^a-zA-Z0-9._\-/]/g,'-');
+      await putFile(safe,dataBase64,'Replace portfolio image');
+      return res.status(200).json({ok:true,src:safe});
+    }
     if(body.action==='upload'){
       const {filename,dataBase64,title,categories}=body;
       if(!filename||!dataBase64)return res.status(400).json({error:'Нет файла'});
