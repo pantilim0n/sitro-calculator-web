@@ -268,10 +268,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
  let items=[],active='Все',expanded=false;
  try{const r=await fetch('/portfolio.json',{cache:'no-store'});items=(await r.json()).filter(x=>x.visible!==false).sort((a,b)=>(a.sort??999)-(b.sort??999));}
  catch(e){grid.innerHTML='<p class="sub">Не удалось загрузить работы.</p>';toggle.style.display='none';return;}
- const cats=['Все',...new Set(items.map(x=>x.category).filter(Boolean))];
+ const cats=['Все',...new Set(items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean))];
  filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" data-cat="'+c.replace(/"/g,'&quot;')+'">'+c+'</button>').join('');
  function render(){
-   const list=active==='Все'?items:items.filter(x=>x.category===active);
+   const list=active==='Все'?items:items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active));
    const shown=expanded?list:list.slice(0,6);
    grid.innerHTML=shown.map(x=>'<figure class="work"><img src="'+x.src+'" alt="'+(x.title||'Работа СИТРО').replace(/"/g,'&quot;')+'" loading="lazy"><figcaption>'+(x.title||'3D-печать СИТРО')+'</figcaption></figure>').join('');
    toggle.style.display=list.length>6?'inline-flex':'none';
