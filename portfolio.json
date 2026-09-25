@@ -55,27 +55,27 @@
     "featured": true
   },
   {
-    "id": "w6",
-    "src": "IMG_0189.jpeg",
-    "title": "Магниты для доски с логотипом",
-    "visible": true,
-    "sort": 6,
-    "categories": [
-      "Брендинг"
-    ],
-    "featured": true
-  },
-  {
     "id": "w7",
     "src": "IMG_7441.jpeg",
     "title": "Номерной знак авто (Брелок)",
     "visible": true,
-    "sort": 7,
+    "sort": 6,
     "categories": [
       "Сувениры",
       "Авто"
     ],
     "featured": false
+  },
+  {
+    "id": "w6",
+    "src": "IMG_0189.jpeg",
+    "title": "Магниты для доски с логотипом",
+    "visible": true,
+    "sort": 7,
+    "categories": [
+      "Брендинг"
+    ],
+    "featured": true
   },
   {
     "id": "w8",
