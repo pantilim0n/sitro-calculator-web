@@ -71,7 +71,7 @@ fileInput.addEventListener('change',function(){
    list.appendChild(row);
    row.querySelector('.stl-remove')?.addEventListener('click',()=>{row.remove(); if(!list.querySelector('.stl-row')){sliceBtn.style.display='none';fileInfo.textContent='Все модели убраны';}});
  });
- window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:files[0]}));
+ window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:{file:files[0],color:document.querySelector('#stlBatchList .stl-color')?.value||'Чёрный'}}));
  document.querySelectorAll('#stlBatchList .stl-color').forEach(inp=>inp.addEventListener('input',()=>window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:inp.value}))));
  window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:document.querySelector('#stlBatchList .stl-color')?.value||'Оранжевый'}));
 });
@@ -111,15 +111,30 @@ sliceBtn.onclick=function(){
    }catch(e){ if(e?.name!=='AbortError'){await navigator.clipboard.writeText(orderText);window.open('https://taplink.cc/sitro','_blank','noopener');} }
  };
 };
-function calculateMakerWorldPrice(){err.style.display='none';const f=fileInput.files[0];if(!f&&!makerProfile){err.textContent='Выберите профиль MakerWorld или загрузите STL-файл.';err.style.display='block';return}try{const mat=document.getElementById('material').value,r=rates[mat];let cm3=null,grams=null;if(makerProfile&&makerProfile.totalWeightGrams){grams=Number(makerProfile.totalWeightGrams)}else{if(!f){err.textContent='В этом профиле MakerWorld нет данных о расходе.';err.style.display='block';return}err.textContent='Для STL точную стоимость подтверждаем после проверки модели. Используйте кнопку «Отправить STL на расчёт».';err.style.display='block';return}const qty=Math.max(1,Math.floor(+document.getElementById('quantity').value||1));
-const materialCost=grams*r.price*qty;
-const profileHours=makerProfile&&makerProfile.printTimeSeconds?makerProfile.printTimeSeconds/3600:0;
-const machineCost=profileHours*pricing.machineHour*qty;
-const price=Math.max(pricing.minimumOrder,materialCost+machineCost);document.getElementById('volumeOut').textContent=makerProfile?'MakerWorld':'STL';document.getElementById('weightOut').textContent=makerProfile?'Учтён':'Расчётный';document.getElementById('materialOut').textContent=makerProfile?'Профиль печати × '+qty:mat+' × '+qty;document.getElementById('priceOut').textContent='Предварительно '+Math.ceil(price)+' ₽ · '+qty+' шт.';document.getElementById('breakdownOut').textContent=makerProfile?'Стоимость рассчитана автоматически по выбранному профилю MakerWorld.'+ (price===pricing.minimumOrder?' Минимальный заказ — '+pricing.minimumOrder+' ₽.':''):'Предварительный расчёт по STL.'+(price===pricing.minimumOrder?' Минимальный заказ — '+pricing.minimumOrder+' ₽.':'');result.style.display='block';document.getElementById('orderBtn').classList.add('show')}catch{err.textContent='Не удалось обработать модель.';err.style.display='block'}};
+function calculateMakerWorldPrice(){
+ err.style.display='none';
+ if(!makerProfile){err.textContent='Сначала выберите профиль MakerWorld.';err.style.display='block';return}
+ const grams=Number(makerProfile.totalWeightGrams||0);
+ if(!grams){err.textContent='В этом профиле MakerWorld нет данных о расходе.';err.style.display='block';return}
+ const qty=Math.max(1,parseInt(document.getElementById('quantity').value,10)||1);
+ const mat=document.getElementById('material').value;
+ const rate=rates[mat];
+ const seconds=Number(makerProfile.printTimeSeconds||0);
+ const totalGrams=grams*qty;
+ const totalHours=(seconds/3600)*qty;
+ const rawPrice=totalGrams*rate.price+totalHours*pricing.machineHour;
+ const price=Math.max(pricing.minimumOrder,rawPrice);
+ document.getElementById('volumeOut').textContent='MakerWorld × '+qty;
+ document.getElementById('weightOut').textContent=totalGrams.toFixed(1)+' г';
+ document.getElementById('materialOut').textContent=mat+' · '+totalHours.toFixed(2)+' ч';
+ document.getElementById('priceOut').textContent='Предварительно '+Math.ceil(price)+' ₽';
+ document.getElementById('breakdownOut').textContent='Количество: '+qty+' шт. Стоимость рассчитана по выбранному профилю MakerWorld.'+(price===pricing.minimumOrder?' Минимальный заказ — '+pricing.minimumOrder+' ₽.':'');
+ result.style.display='block';
+ document.getElementById('orderBtn').classList.add('show');
+}
 document.getElementById('calculate').onclick=calculateMakerWorldPrice;
 const quantityInput=document.getElementById('quantity');
-quantityInput.oninput=calculateMakerWorldPrice;
-quantityInput.onchange=calculateMakerWorldPrice;
+['input','change','keyup','click'].forEach(ev=>quantityInput.addEventListener(ev,()=>{if(makerProfile)calculateMakerWorldPrice()}));
 
 const lb=document.getElementById('lightbox'),lbi=document.getElementById('lightboxImage');document.querySelectorAll('.work img').forEach(img=>img.addEventListener('click',()=>{lbi.src=img.src;lb.classList.add('open');lb.setAttribute('aria-hidden','false')}));function closeLb(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');lbi.src=''}document.getElementById('lightboxClose').onclick=closeLb;lb.addEventListener('click',e=>{if(e.target===lb)closeLb()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb()});
 </script><script type="module">
@@ -135,9 +150,10 @@ const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamp
 let mesh=null;
 function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 function frame(geometry){geometry.computeBoundingBox();const box=geometry.boundingBox,center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);geometry.translate(-center.x,-center.y,-center.z);const max=Math.max(size.x,size.y,size.z)||1;camera.near=max/1000;camera.far=max*100;camera.position.set(max*1.25,max*.9,max*1.5);camera.updateProjectionMatrix();controls.target.set(0,0,0);controls.update()}
-window.addEventListener('sitro-stl-selected',async e=>{try{const buf=await e.detail.arrayBuffer();const geometry=new STLLoader().parse(buf);geometry.computeVertexNormals();if(mesh){scene.remove(mesh);mesh.geometry.dispose();mesh.material.dispose()}mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0xff7900,roughness:.55,metalness:.05}));scene.add(mesh);host.classList.add('show');resize();frame(geometry)}catch{host.classList.remove('show')}});
+let currentPreviewColor='Чёрный';
+window.addEventListener('sitro-stl-selected',async e=>{try{const payload=e.detail?.file?e.detail:{file:e.detail,color:currentPreviewColor};currentPreviewColor=payload.color||currentPreviewColor;const buf=await payload.file.arrayBuffer();const geometry=new STLLoader().parse(buf);geometry.computeVertexNormals();if(mesh){scene.remove(mesh);mesh.geometry.dispose();mesh.material.dispose()}mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0xff7900,roughness:.55,metalness:.05}));scene.add(mesh);previewColor(currentPreviewColor);host.classList.add('show');resize();frame(geometry)}catch{host.classList.remove('show')}});
 const colorMap={'чёрный':0x171717,'черный':0x171717,'белый':0xf2f2f2,'оранжевый':0xff7900,'серый':0x777777,'красный':0xd92d20,'синий':0x2563eb,'зелёный':0x22a447,'зеленый':0x22a447,'жёлтый':0xf2c94c,'желтый':0xf2c94c,'розовый':0xff69b4,'фиолетовый':0x8b5cf6,'голубой':0x38bdf8,'тиффани':0x40e0d0};
-function previewColor(v){if(!mesh)return;const raw=String(v||'').trim().toLowerCase();let c=colorMap[raw];if(c==null&&/^#?[0-9a-f]{6}$/i.test(raw))c=parseInt(raw.replace('#',''),16);if(c==null)c=0xff7900;mesh.material.color.setHex(c);mesh.material.needsUpdate=true}
+function previewColor(v){currentPreviewColor=v||currentPreviewColor;if(!mesh)return;const raw=String(currentPreviewColor||'').trim().toLowerCase();let c=colorMap[raw];if(c==null&&/^#?[0-9a-f]{6}$/i.test(raw))c=parseInt(raw.replace('#',''),16);if(c==null)c=0xff7900;mesh.material.color.setHex(c);mesh.material.needsUpdate=true}
 window.addEventListener('sitro-stl-color',e=>previewColor(e.detail));
 window.addEventListener('resize',resize);
 (function render(){requestAnimationFrame(render);controls.update();renderer.render(scene,camera)})();
