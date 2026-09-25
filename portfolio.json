@@ -17,7 +17,7 @@
     "visible": true,
     "sort": 2,
     "categories": [
-      "Сувениры"
+      "Фигурки"
     ],
     "featured": true
   },
@@ -28,7 +28,7 @@
     "visible": true,
     "sort": 3,
     "categories": [
-      "Технические"
+      "Фигурки"
     ],
     "featured": true
   },
@@ -46,7 +46,7 @@
   {
     "id": "w5",
     "src": "IMG_0188.jpeg",
-    "title": "Брендированное изделие",
+    "title": "Магниты для доски",
     "visible": true,
     "sort": 5,
     "categories": [
@@ -57,54 +57,56 @@
   {
     "id": "w6",
     "src": "IMG_0189.jpeg",
-    "title": "Техническая деталь",
+    "title": "Магниты для доски с логотипом",
     "visible": true,
     "sort": 6,
     "categories": [
-      "Технические"
+      "Брендинг"
     ],
     "featured": true
   },
   {
     "id": "w7",
     "src": "IMG_7441.jpeg",
-    "title": "Фигурка",
+    "title": "Номерной знак авто (Брелок)",
     "visible": true,
     "sort": 7,
     "categories": [
-      "Фигурки"
+      "Сувениры",
+      "Авто"
     ],
     "featured": false
   },
   {
     "id": "w8",
     "src": "IMG_7853.jpeg",
-    "title": "Изделие для авто",
+    "title": "Чехол для телефона",
     "visible": true,
     "sort": 8,
     "categories": [
-      "Авто"
+      "Для дома"
     ],
     "featured": false
   },
   {
     "id": "w9",
     "src": "IMG_8600.jpg",
-    "title": "Техническая деталь",
+    "title": "Волк из ну-погоди",
     "visible": true,
     "sort": 9,
     "categories": [
-      "Технические"
+      "Фигурки"
     ],
     "featured": false
   },
   {
     "id": "w10",
     "src": "IMG_8806.jpeg",
-    "title": "Сувенирное изделие",
+    "title": "Добби",
     "visible": true,
     "sort": 10,
     "categories": [
+      "Фигурки",
       "Сувениры"
     ],
     "featured": false
@@ -123,29 +125,30 @@
   {
     "id": "w12",
     "src": "IMG_9322.jpeg",
-    "title": "Фигурка",
+    "title": "Кейсы для оснастки",
     "visible": true,
     "sort": 12,
     "categories": [
-      "Фигурки"
+      "Технические",
+      "Прочее"
     ],
     "featured": false
   },
   {
     "id": "w13",
     "src": "IMG_9548.jpeg",
-    "title": "Брендированное изделие",
+    "title": "Попугай ара в натуральную величину",
     "visible": true,
     "sort": 13,
     "categories": [
-      "Брендинг"
+      "Фигурки"
     ],
     "featured": false
   },
   {
     "id": "w14",
     "src": "temp.jpeg",
-    "title": "Техническая деталь",
+    "title": "Корпуса для meshtastic",
     "visible": true,
     "sort": 14,
     "categories": [
