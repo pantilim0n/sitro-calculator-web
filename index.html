@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
  const cats=['Все',...new Set([...(Array.isArray(configuredCats)?configuredCats:[]),...items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean)])];
  filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" data-cat="'+c.replace(/"/g,'&quot;')+'">'+c+'</button>').join('');
  function render(){
-   const list=active==='Все'?items:items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active));
+   const list=(active==='Все'?[...items].sort((a,b)=>(Number(!!b.featured)-Number(!!a.featured))||((a.sort??999)-(b.sort??999))):items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active)));
    const shown=expanded?list:list.slice(0,6);
    grid.innerHTML=shown.map(x=>'<figure class="work"><img src="'+x.src+'" alt="'+(x.title||'Работа СИТРО').replace(/"/g,'&quot;')+'" loading="lazy"><figcaption>'+(x.title||'3D-печать СИТРО')+'</figcaption></figure>').join('');
    toggle.style.display=list.length>6?'inline-flex':'none';
