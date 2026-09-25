@@ -64,7 +64,6 @@ fileInput.addEventListener('change',function(){
  });
  window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:files[0]}));
 });
-function getVolume(file){const buf=await file.arrayBuffer();try{return parseBinarySTL(buf)}catch{return parseAsciiSTL(new TextDecoder().decode(buf))}}
 sliceBtn.onclick=function(){
  const files=[...fileInput.files];if(!files.length)return;
  const rows=[...document.querySelectorAll('#stlBatchList .stl-row')];
@@ -83,7 +82,7 @@ sliceBtn.onclick=function(){
  const minimum=pricing?.minimumOrder||300;
  const lines=gs.map(g=>'<div><b>'+g.material+' · '+g.color+'</b> — '+g.count+' шт. · минимальная сумма партии '+minimum+' ₽</div>').join('');
  const minimumTotal=gs.length*minimum;
- const orderText='Здравствуйте! Нужен расчёт 3D-печати STL.\\n'+items.map(x=>'• '+x.file+' × '+x.qty+' — '+x.material+', '+x.color).join('\\n')+'\\nПечатных групп: '+gs.length+'. Минимальная сумма по группам: '+minimumTotal+' ₽.';
+ const customerName=document.getElementById('stlCustomerName')?.value.trim()||''; const customerContact=document.getElementById('stlCustomerContact')?.value.trim()||''; const customerComment=document.getElementById('stlCustomerComment')?.value.trim()||''; const orderText='Здравствуйте! Нужен расчёт 3D-печати STL.\\n'+(customerName?'Имя: '+customerName+'\\n':'')+(customerContact?'Контакт: '+customerContact+'\\n':'')+items.map(x=>'• '+x.file+' × '+x.qty+' — '+x.material+', '+x.color).join('\\n')+'\\nПечатных групп: '+gs.length+'. Минимальная сумма по группам: '+minimumTotal+' ₽.'+(customerComment?'\\nКомментарий: '+customerComment:'');
  result.innerHTML='<div class="result-title">Модели подготовлены к расчёту</div><div class="stl-summary">'+lines+'<div style="margin-top:8px">Минимальная сумма заказа при '+gs.length+' '+(gs.length===1?'печатной группе':'печатных группах')+': <b>'+minimumTotal+' ₽</b></div></div><div class="hint">STL одного материала и цвета можно объединить на одном столе. Минимум '+minimum+' ₽ применяется один раз к каждой группе «материал + цвет». Итог подтверждается после проверки моделей в слайсере.</div><button class="order-btn" id="shareStlOrder" type="button">Отправить заявку с STL</button><button class="order-btn" id="copyStlOrder" type="button">Скопировать состав</button><a class="order-btn" href="https://taplink.cc/sitro" target="_blank" rel="noopener">Открыть контакты</a>';
  result.style.display='block';
  const copy=document.getElementById('copyStlOrder'); if(copy)copy.onclick=async()=>{await navigator.clipboard.writeText(orderText);copy.textContent='Состав скопирован ✓';};
