@@ -56,9 +56,9 @@ const pricing={
  }
 };
 const rates=pricing.materials;
-const fileInput=document.getElementById('modelFile'),fileInfo=document.getElementById('fileInfo'),err=document.getElementById('calcError'),result=document.getElementById('calcResult'),stlResult=document.getElementById('stlResult'),sliceBtn=document.getElementById('sliceStl'),stlVolumes=new Map();let stlVolume=null,stlSlice=null;
+const fileInput=document.getElementById('modelFile'),fileInfo=document.getElementById('fileInfo'),err=document.getElementById('calcError'),result=document.getElementById('calcResult'),stlResult=document.getElementById('stlResult'),sliceBtn=document.getElementById('sliceStl'),stlGeometry=new Map();let stlVolume=null,stlSlice=null;
 fileInput.addEventListener('change',function(){document.getElementById('stlGlobalColorLabel').style.display='block';document.getElementById('stlGlobalColor').style.display='block';
- const files=[...fileInput.files];stlSlice=null;stlVolumes.clear();err.style.display='none';
+ const files=[...fileInput.files];stlSlice=null;stlGeometry.clear();err.style.display='none';
  const list=document.getElementById('stlBatchList');list.innerHTML='';
  stlResult.style.display='none';result.style.display='none';
  if(!files.length){fileInfo.style.display='none';sliceBtn.style.display='none';window.dispatchEvent(new Event('sitro-stl-clear'));return}
