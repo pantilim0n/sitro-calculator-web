@@ -1,21 +1,10 @@
 [
   {
-    "id": "w1",
-    "src": "1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
-    "title": "Доктор",
-    "visible": true,
-    "sort": 1,
-    "categories": [
-      "Технические"
-    ],
-    "featured": true
-  },
-  {
     "id": "w2",
     "src": "3B0AB546-8C8E-420B-9811-F5C1962A443A.PNG",
     "title": "Снуп дог 40 см",
     "visible": true,
-    "sort": 2,
+    "sort": 1,
     "categories": [
       "Фигурки"
     ],
@@ -26,9 +15,20 @@
     "src": "IMG_0124.jpeg",
     "title": "Сувенирное изделие",
     "visible": true,
-    "sort": 3,
+    "sort": 2,
     "categories": [
       "Сувениры"
+    ],
+    "featured": true
+  },
+  {
+    "id": "w1",
+    "src": "1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
+    "title": "Доктор",
+    "visible": true,
+    "sort": 3,
+    "categories": [
+      "Технические"
     ],
     "featured": true
   },
