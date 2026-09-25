@@ -129,7 +129,7 @@ sliceBtn.onclick=async function(){
    const color=(row.querySelector('.stl-color').value||'Без цвета').trim();
    const file=files[i]; if(!file)return null;
    const rate=rates[material];
-   const q=estimateStlQuote({volumeCm3:stlVolumes.get(i)||0,quantity:qty,density:rate.density,materialPrice:rate.price,minimumOrder:0,fillFactor:.45});
+   const q=estimateStlQuote({volumeCm3:stlVolumes.get(i)||0,quantity:qty,density:rate.density,materialPrice:rate.price,minimumOrder:0,fillFactor:.90});
    return {file:file.name,qty,material,color,estimatedGrams:q.estimatedGrams,rawPrice:q.estimatedGrams*rate.price};
  }).filter(Boolean);
  const groupMap=new Map();
