@@ -3,6 +3,12 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 import makerworld from '../api/makerworld.js';
+import {
+  bindQuantityInput,
+  calculateMakerWorldQuote,
+  normalizeQuantity,
+  summarizeStlItems
+} from '../calculator-core.js';
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
@@ -23,6 +29,66 @@ test('STL and MakerWorld keep separate result containers', () => {
   assert.match(indexHtml, /id="stlResult"/);
   assert.match(indexHtml, /id="calcResult"/);
   assert.match(indexHtml, /stlResult\.innerHTML=/);
+});
+
+test('quantity changes recalculate MakerWorld totals for input and change events', () => {
+  const listeners = {};
+  const input = {
+    value: '1',
+    addEventListener(type, listener) {
+      listeners[type] = listener;
+    }
+  };
+  const seen = [];
+  bindQuantityInput(input, quantity => seen.push(quantity));
+
+  input.value = '3';
+  listeners.input();
+  input.value = '2';
+  listeners.change();
+
+  assert.deepEqual(seen, [3, 2]);
+  assert.equal(input.value, '2');
+
+  const quote = calculateMakerWorldQuote({
+    unitGrams: 48,
+    unitSeconds: 14724,
+    quantity: 3,
+    materialPrice: 10,
+    machineHour: 10,
+    minimumOrder: 300
+  });
+  assert.equal(quote.quantity, 3);
+  assert.equal(quote.totalGrams, 144);
+  assert.equal(quote.totalHours, 12.27);
+  assert.equal(Math.ceil(quote.price), 1563);
+
+  const minimumQuote = calculateMakerWorldQuote({
+    unitGrams: 1,
+    unitSeconds: 60,
+    quantity: 1,
+    materialPrice: 8,
+    machineHour: 10,
+    minimumOrder: 300
+  });
+  assert.equal(minimumQuote.price, 300);
+});
+
+test('quantity normalization and minimum order cover decreases and multiple STL rows', () => {
+  assert.equal(normalizeQuantity(0), 1);
+  assert.equal(normalizeQuantity(-4), 1);
+  assert.equal(normalizeQuantity(2.9), 2);
+
+  const batch = summarizeStlItems([
+    {file: 'cube.stl', qty: 2, material: 'PLA', color: 'Чёрный'},
+    {file: 'pyramid.stl', qty: 1, material: 'PLA', color: 'Чёрный'},
+    {file: 'part.stl', qty: 1, material: 'PETG', color: 'Белый'}
+  ], 300);
+
+  assert.deepEqual(batch.groups.map(group => group.count), [3, 1]);
+  assert.equal(batch.minimumTotal, 600);
+  assert.match(indexHtml, /Количество: '\+quote\.quantity\+' шт\./);
+  assert.match(indexHtml, /bindQuantityInput\(row\.querySelector\('\.stl-qty'\)/);
 });
 
 test('MakerWorld API normalizes a current design-service response', async () => {
