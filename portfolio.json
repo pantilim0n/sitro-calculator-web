@@ -3,112 +3,140 @@
     "id": "w1",
     "src": "1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
     "title": "Техническая деталь",
-    "category": "Технические",
     "visible": true,
-    "sort": 1
+    "sort": 1,
+    "categories": [
+      "Технические"
+    ]
   },
   {
     "id": "w2",
     "src": "3B0AB546-8C8E-420B-9811-F5C1962A443A.PNG",
     "title": "Фигурка",
-    "category": "Фигурки",
     "visible": true,
-    "sort": 2
+    "sort": 2,
+    "categories": [
+      "Фигурки"
+    ]
   },
   {
     "id": "w3",
     "src": "IMG_0124.jpeg",
     "title": "Сувенирное изделие",
-    "category": "Сувениры",
     "visible": true,
-    "sort": 3
+    "sort": 3,
+    "categories": [
+      "Сувениры"
+    ]
   },
   {
     "id": "w4",
     "src": "IMG_0184.jpeg",
     "title": "Изделие для дома",
-    "category": "Для дома",
     "visible": true,
-    "sort": 4
+    "sort": 4,
+    "categories": [
+      "Для дома"
+    ]
   },
   {
     "id": "w5",
     "src": "IMG_0188.jpeg",
     "title": "Брендированное изделие",
-    "category": "Брендинг",
     "visible": true,
-    "sort": 5
+    "sort": 5,
+    "categories": [
+      "Брендинг"
+    ]
   },
   {
     "id": "w6",
     "src": "IMG_0189.jpeg",
     "title": "Техническая деталь",
-    "category": "Технические",
     "visible": true,
-    "sort": 6
+    "sort": 6,
+    "categories": [
+      "Технические"
+    ]
   },
   {
     "id": "w7",
     "src": "IMG_7441.jpeg",
     "title": "Фигурка",
-    "category": "Фигурки",
     "visible": true,
-    "sort": 7
+    "sort": 7,
+    "categories": [
+      "Фигурки"
+    ]
   },
   {
     "id": "w8",
     "src": "IMG_7853.jpeg",
     "title": "Изделие для авто",
-    "category": "Авто",
     "visible": true,
-    "sort": 8
+    "sort": 8,
+    "categories": [
+      "Авто"
+    ]
   },
   {
     "id": "w9",
     "src": "IMG_8600.jpg",
     "title": "Техническая деталь",
-    "category": "Технические",
     "visible": true,
-    "sort": 9
+    "sort": 9,
+    "categories": [
+      "Технические"
+    ]
   },
   {
     "id": "w10",
     "src": "IMG_8806.jpeg",
     "title": "Сувенирное изделие",
-    "category": "Сувениры",
     "visible": true,
-    "sort": 10
+    "sort": 10,
+    "categories": [
+      "Сувениры"
+    ]
   },
   {
     "id": "w11",
     "src": "IMG_9173.jpeg",
     "title": "Изделие для дома",
-    "category": "Для дома",
     "visible": true,
-    "sort": 11
+    "sort": 11,
+    "categories": [
+      "Для дома"
+    ]
   },
   {
     "id": "w12",
     "src": "IMG_9322.jpeg",
     "title": "Фигурка",
-    "category": "Фигурки",
     "visible": true,
-    "sort": 12
+    "sort": 12,
+    "categories": [
+      "Фигурки"
+    ]
   },
   {
     "id": "w13",
     "src": "IMG_9548.jpeg",
     "title": "Брендированное изделие",
-    "category": "Брендинг",
     "visible": true,
-    "sort": 13
+    "sort": 13,
+    "categories": [
+      "Брендинг"
+    ]
   },
   {
     "id": "w14",
     "src": "temp.jpeg",
     "title": "Техническая деталь",
-    "category": "Технические",
     "visible": true,
-    "sort": 14
+    "sort": 14,
+    "categories": [
+      "Технические"
+    ]
   }
 ]
