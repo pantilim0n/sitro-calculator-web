@@ -7,6 +7,7 @@ export default async function handler(req,res){
   const body=req.body||{};
   if(body.password!==adminPassword) return res.status(401).json({error:'Неверный пароль'});
   const [owner,name]=repository.split('/');
+  if(/[^\x20-\x7E]/.test(token)) return res.status(503).json({error:'GITHUB_TOKEN в Vercel заполнен неверно: токен должен состоять только из латинских символов и цифр. Вставьте настоящий GitHub Personal Access Token.'});
   const headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
   const apiBase='https://api.github.com/repos/'+owner+'/'+name+'/contents/';
   async function getSha(path){
