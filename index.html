@@ -118,6 +118,7 @@ fileInput.addEventListener('change',function(){document.getElementById('stlGloba
 });
 sliceBtn.onclick=async function(){
  const files=[...fileInput.files];if(!files.length)return;
+ const oldLabel=sliceBtn.textContent;sliceBtn.disabled=true;sliceBtn.textContent='Считаю…';try{
  const rows=[...document.querySelectorAll('#stlBatchList .stl-row')];
  const minimum=pricing?.minimumOrder||300;
  await Promise.all(rows.map(async row=>{const i=+row.dataset.index;if(!stlVolumes.has(i)){try{stlVolumes.set(i,await estimateStlVolumeCm3(files[i]))}catch{stlVolumes.set(i,0)}}}));
@@ -138,7 +139,7 @@ sliceBtn.onclick=async function(){
  const lines=gs.map(g=>'<div><b>'+escapeHtml(g.material)+' · '+escapeHtml(g.color)+'</b> — '+g.count+' шт. · ~'+g.estimatedGrams.toFixed(0)+' г · <b>≈ '+Math.ceil(g.price)+' ₽</b></div>').join('');
  const customerName=document.getElementById('stlCustomerName')?.value.trim()||''; const customerContact=document.getElementById('stlCustomerContact')?.value.trim()||''; const customerComment=document.getElementById('stlCustomerComment')?.value.trim()||''; const orderText='Здравствуйте! Нужен расчёт 3D-печати STL.\\n'+(customerName?'Имя: '+customerName+'\\n':'')+(customerContact?'Контакт: '+customerContact+'\\n':'')+items.map(x=>'• '+x.file+' × '+x.qty+' — '+x.material+', '+x.color).join('\\n')+'\\nПечатных групп: '+gs.length+'. Минимальная сумма по группам: '+minimumTotal+' ₽.'+(customerComment?'\\nКомментарий: '+customerComment:'');
  stlResult.innerHTML='<div class="result-title">Предварительная заявка по STL</div><div class="stl-summary">'+lines+'<div style="margin-top:10px">Предварительно по заказу: <b>≈ '+Math.ceil(minimumTotal)+' ₽</b></div></div><div class="hint"><b>Это ориентировочный расчёт по геометрии STL.</b> Вес оценивается без серверного слайсера, поэтому итог может отличаться. Точную стоимость подтверждаем после проверки модели в Bambu Studio. Минимум '+minimum+' ₽ применяется один раз к каждой группе «материал + цвет».</div><button class="order-btn show" id="shareStlOrder" type="button">Отправить заявку с STL</button><button class="order-btn show" id="copyStlOrder" type="button">Скопировать состав</button><a class="order-btn show" href="https://taplink.cc/sitro" target="_blank" rel="noopener">Открыть контакты</a>';
- result.style.display='none';stlResult.style.display='block';
+ result.style.display='none';stlResult.style.display='block';stlResult.scrollIntoView({behavior:'smooth',block:'start'});
  const copy=document.getElementById('copyStlOrder'); if(copy)copy.onclick=async()=>{await navigator.clipboard.writeText(orderText);copy.textContent='Состав скопирован ✓';};
  const share=document.getElementById('shareStlOrder'); if(share)share.onclick=async()=>{
    const activeRows=[...document.querySelectorAll('#stlBatchList .stl-row')];
@@ -153,6 +154,7 @@ sliceBtn.onclick=async function(){
      }
    }catch(e){ if(e?.name!=='AbortError'){await navigator.clipboard.writeText(orderText);window.open('https://taplink.cc/sitro','_blank','noopener');} }
  };
+ }catch(e){err.textContent='Не удалось рассчитать STL. Попробуйте другой файл.';err.style.display='block';console.error(e)}finally{sliceBtn.disabled=false;sliceBtn.textContent=oldLabel;}
 };
 async function calculatePrice(){err.style.display='none';result.style.display='none';const f=fileInput.files[0];if(!f&&!makerProfile){err.textContent='Выберите профиль MakerWorld или загрузите STL-файл.';err.style.display='block';return}try{const mat=document.getElementById('material').value,r=rates[mat];if(!makerProfile?.totalWeightGrams){if(!f){err.textContent='В этом профиле MakerWorld нет данных о расходе.';err.style.display='block';return}err.textContent='Для STL точную стоимость подтверждаем после проверки модели. Используйте кнопку «Отправить STL на расчёт».';err.style.display='block';return}const quote=calculateMakerWorldQuote({unitGrams:makerProfile.totalWeightGrams,unitSeconds:makerProfile.printTimeSeconds,quantity:document.getElementById('quantity').value,materialPrice:r.price,machineHour:pricing.machineHour,minimumOrder:pricing.minimumOrder});
 document.getElementById('volumeOut').textContent='MakerWorld × '+quote.quantity;document.getElementById('weightOut').textContent=quote.totalGrams.toFixed(1)+' г';document.getElementById('materialOut').textContent=mat+' · '+quote.totalHours.toFixed(2)+' ч';document.getElementById('priceOut').textContent='Предварительно '+Math.ceil(quote.price)+' ₽';document.getElementById('breakdownOut').textContent='Количество: '+quote.quantity+' шт. Стоимость рассчитана по выбранному профилю MakerWorld.'+(quote.price===pricing.minimumOrder?' Минимальный заказ — '+pricing.minimumOrder+' ₽.':'');result.style.display='block';document.getElementById('orderBtn').classList.add('show')}catch{err.textContent='Не удалось обработать модель.';err.style.display='block'}};
