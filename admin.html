@@ -52,6 +52,9 @@
 
 .backup-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
 .backup-tools input[type=file]{display:none}
+
+.work-description-row{display:grid;grid-template-columns:1fr auto;gap:6px}
+.gen-description{padding:8px 10px!important;font-size:12px!important;white-space:nowrap}
 </style></head><body><div class="wrap">
 <div class="login-gate" id="loginGate"><div class="login-card"><h1>Админка СИТРО</h1><p>Введите пароль для управления портфолио.</p><input id="loginPassword" type="password" placeholder="Пароль"><button class="primary" id="loginBtn">Войти</button><div class="login-error" id="loginError"></div></div></div>
 <div class="admin-app" id="adminApp"><h1>Портфолио СИТРО</h1><p class="sub">Добавление работ, категории, названия, порядок и видимость.</p>
@@ -99,8 +102,24 @@ function render(){
    const visibilityOk=!vf||(vf==='visible'?x.visible!==false:x.visible===false);
    return (!q||title.includes(q)||cats.some(c=>c.toLowerCase().includes(q)))&&(!cf||cats.includes(cf))&&visibilityOk&&(!onlyFeatured||x.featured);
  });
- rows.innerHTML=visibleItems.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><input class="row-select" type="checkbox" title="Выбрать"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><div class="thumb-cell"><img src="/'+esc(x.src)+'"><button type="button" class="ghost replace-photo">Заменить</button><input class="replace-input" type="file" accept="image/*"></div><div class="work-text"><input class="t" value="'+esc(x.title)+'" placeholder="Название"><input class="d work-description" value="'+esc(x.description||'')+'" placeholder="Короткое описание (необязательно)"></div>'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');
+ rows.innerHTML=visibleItems.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><input class="row-select" type="checkbox" title="Выбрать"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><div class="thumb-cell"><img src="/'+esc(x.src)+'"><button type="button" class="ghost replace-photo">Заменить</button><input class="replace-input" type="file" accept="image/*"></div><div class="work-text"><input class="t" value="'+esc(x.title)+'" placeholder="Название"><div class="work-description-row"><input class="d work-description" value="'+esc(x.description||'')+'" placeholder="Короткое описание (необязательно)"><button type="button" class="ghost gen-description">Сгенерировать</button></div></div>'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');
 }
+function generateDescription(title,cats){
+ const name=(title||'изделие').trim();
+ const list=Array.isArray(cats)?cats:[];
+ const category=list[0]||'3D-печать';
+ const variants={
+  'Технические':'Функциональная деталь, изготовленная методом 3D-печати. Подходит для практического использования и задач, где важны точность и прочность.',
+  'Фигурки':'Детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления.',
+  'Сувениры':'Оригинальное изделие, изготовленное методом 3D-печати. Подходит в качестве сувенира, подарка или небольшого памятного изделия.',
+  'Для дома':'Практичное изделие для дома, изготовленное методом 3D-печати. Помогает удобно решить повседневную задачу.',
+  'Брендинг':'Брендированное изделие, изготовленное методом 3D-печати. Подходит для оформления бизнеса, мероприятий и корпоративных подарков.',
+  'Авто':'Практичное изделие для автомобиля, изготовленное методом 3D-печати. Разработано для удобного использования в повседневной эксплуатации.'
+ };
+ const base=variants[category]||'Изделие, изготовленное методом 3D-печати по индивидуальной модели.';
+ return name+' — '+base.charAt(0).toLowerCase()+base.slice(1);
+}
+rows.addEventListener('click',e=>{const b=e.target.closest('.gen-description');if(!b)return;const r=b.closest('.row');const x=items.find(v=>String(v.id)===r.dataset.id);if(!x)return;const title=r.querySelector('.t').value;const cats=[...r.querySelectorAll('.row-cats input:checked')].map(i=>i.value);const d=r.querySelector('.d');d.value=generateDescription(title,cats);x.description=d.value;setDirty();});
 rows.addEventListener('input',e=>{setDirty();const r=e.target.closest('.row');if(!r)return;const x=items.find(v=>String(v.id)===r.dataset.id);if(!x)return;if(e.target.classList.contains('t'))x.title=e.target.value;if(e.target.classList.contains('d'))x.description=e.target.value;if(e.target.closest('.row-cats'))x.categories=[...r.querySelectorAll('.row-cats input:checked')].map(i=>i.value);if(e.target.classList.contains('s'))x.sort=+e.target.value||0;if(e.target.classList.contains('f'))x.featured=e.target.checked;if(e.target.classList.contains('v'))x.visible=e.target.checked;updateStats();});
 rows.addEventListener('click',e=>{if(!e.target.classList.contains('del'))return;const r=e.target.closest('.row');const x=items.find(v=>String(v.id)===r.dataset.id);if(!x)return;if(!confirm('Удалить работу «'+(x.title||'без названия')+'» из портфолио?'))return;items=items.filter(v=>String(v.id)!==r.dataset.id);normalizeOrder();setDirty();render();});
 let draggedId=null;
