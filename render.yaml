@@ -2,7 +2,7 @@ services:
   - type: web
     name: sitro-slicer
     runtime: docker
-    plan: starter
+    plan: free
     region: frankfurt
     branch: main
     dockerfilePath: ./services/slicer/Dockerfile
