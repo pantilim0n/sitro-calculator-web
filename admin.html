@@ -55,6 +55,11 @@
 
 .work-description-row{display:grid;grid-template-columns:1fr auto;gap:6px}
 .gen-description{padding:8px 10px!important;font-size:12px!important;white-space:nowrap}
+
+.work-description-wrap{display:grid;gap:5px}
+.work-description-label{font-size:12px;color:#8f8f8f}
+.work-description-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+.gen-description{padding:9px 11px!important;font-size:12px!important;white-space:nowrap}
 </style></head><body><div class="wrap">
 <div class="login-gate" id="loginGate"><div class="login-card"><h1>Админка СИТРО</h1><p>Введите пароль для управления портфолио.</p><input id="loginPassword" type="password" placeholder="Пароль"><button class="primary" id="loginBtn">Войти</button><div class="login-error" id="loginError"></div></div></div>
 <div class="admin-app" id="adminApp"><h1>Портфолио СИТРО</h1><p class="sub">Добавление работ, категории, названия, порядок и видимость.</p>
@@ -102,7 +107,7 @@ function render(){
    const visibilityOk=!vf||(vf==='visible'?x.visible!==false:x.visible===false);
    return (!q||title.includes(q)||cats.some(c=>c.toLowerCase().includes(q)))&&(!cf||cats.includes(cf))&&visibilityOk&&(!onlyFeatured||x.featured);
  });
- rows.innerHTML=visibleItems.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><input class="row-select" type="checkbox" title="Выбрать"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><div class="thumb-cell"><img src="/'+esc(x.src)+'"><button type="button" class="ghost replace-photo">Заменить</button><input class="replace-input" type="file" accept="image/*"></div><div class="work-text"><input class="t" value="'+esc(x.title)+'" placeholder="Название"><div class="work-description-row"><input class="d work-description" value="'+esc(x.description||'')+'" placeholder="Короткое описание (необязательно)"><button type="button" class="ghost gen-description">Сгенерировать</button></div></div>'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');
+ rows.innerHTML=visibleItems.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><input class="row-select" type="checkbox" title="Выбрать"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><div class="thumb-cell"><img src="/'+esc(x.src)+'"><button type="button" class="ghost replace-photo">Заменить</button><input class="replace-input" type="file" accept="image/*"></div><div class="work-text"><input class="t" value="'+esc(x.title)+'" placeholder="Название"><div class="work-description-wrap"><div class="work-description-label">Описание работы</div><div class="work-description-row"><input class="d work-description" value="'+esc(x.description||'')+'" placeholder="Здесь появится описание"><button type="button" class="ghost gen-description">Сгенерировать описание</button></div></div></div>'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');
 }
 function generateDescription(title,cats){
  const name=(title||'изделие').trim();
