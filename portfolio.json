@@ -41,7 +41,7 @@
     "categories": [
       "Прочее"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w5",
@@ -52,7 +52,7 @@
     "categories": [
       "Брендинг"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w7",
@@ -75,7 +75,7 @@
     "categories": [
       "Брендинг"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w8",
