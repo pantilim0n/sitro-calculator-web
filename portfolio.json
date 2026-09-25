@@ -1,0 +1,114 @@
+[
+  {
+    "id": "w1",
+    "src": "1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
+    "title": "Техническая деталь",
+    "category": "Технические",
+    "visible": true,
+    "sort": 1
+  },
+  {
+    "id": "w2",
+    "src": "3B0AB546-8C8E-420B-9811-F5C1962A443A.PNG",
+    "title": "Фигурка",
+    "category": "Фигурки",
+    "visible": true,
+    "sort": 2
+  },
+  {
+    "id": "w3",
+    "src": "IMG_0124.jpeg",
+    "title": "Сувенирное изделие",
+    "category": "Сувениры",
+    "visible": true,
+    "sort": 3
+  },
+  {
+    "id": "w4",
+    "src": "IMG_0184.jpeg",
+    "title": "Изделие для дома",
+    "category": "Для дома",
+    "visible": true,
+    "sort": 4
+  },
+  {
+    "id": "w5",
+    "src": "IMG_0188.jpeg",
+    "title": "Брендированное изделие",
+    "category": "Брендинг",
+    "visible": true,
+    "sort": 5
+  },
+  {
+    "id": "w6",
+    "src": "IMG_0189.jpeg",
+    "title": "Техническая деталь",
+    "category": "Технические",
+    "visible": true,
+    "sort": 6
+  },
+  {
+    "id": "w7",
+    "src": "IMG_7441.jpeg",
+    "title": "Фигурка",
+    "category": "Фигурки",
+    "visible": true,
+    "sort": 7
+  },
+  {
+    "id": "w8",
+    "src": "IMG_7853.jpeg",
+    "title": "Изделие для авто",
+    "category": "Авто",
+    "visible": true,
+    "sort": 8
+  },
+  {
+    "id": "w9",
+    "src": "IMG_8600.jpg",
+    "title": "Техническая деталь",
+    "category": "Технические",
+    "visible": true,
+    "sort": 9
+  },
+  {
+    "id": "w10",
+    "src": "IMG_8806.jpeg",
+    "title": "Сувенирное изделие",
+    "category": "Сувениры",
+    "visible": true,
+    "sort": 10
+  },
+  {
+    "id": "w11",
+    "src": "IMG_9173.jpeg",
+    "title": "Изделие для дома",
+    "category": "Для дома",
+    "visible": true,
+    "sort": 11
+  },
+  {
+    "id": "w12",
+    "src": "IMG_9322.jpeg",
+    "title": "Фигурка",
+    "category": "Фигурки",
+    "visible": true,
+    "sort": 12
+  },
+  {
+    "id": "w13",
+    "src": "IMG_9548.jpeg",
+    "title": "Брендированное изделие",
+    "category": "Брендинг",
+    "visible": true,
+    "sort": 13
+  },
+  {
+    "id": "w14",
+    "src": "temp.jpeg",
+    "title": "Техническая деталь",
+    "category": "Технические",
+    "visible": true,
+    "sort": 14
+  }
+]
