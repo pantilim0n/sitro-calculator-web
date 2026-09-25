@@ -265,10 +265,10 @@ window.addEventListener('resize',resize);
 document.addEventListener('DOMContentLoaded',async()=>{
  const grid=document.getElementById('portfolioGrid'),filters=document.getElementById('portfolioFilters'),toggle=document.getElementById('portfolioToggle');
  if(!grid||!filters||!toggle)return;
- let items=[],active='Все',expanded=false;
- try{const r=await fetch('/portfolio.json',{cache:'no-store'});items=(await r.json()).filter(x=>x.visible!==false).sort((a,b)=>(a.sort??999)-(b.sort??999));}
+ let items=[],active='Все',expanded=false,configuredCats=[];
+ try{const [r,cr]=await Promise.all([fetch('/portfolio.json',{cache:'no-store'}),fetch('/portfolio-categories.json',{cache:'no-store'})]);items=(await r.json()).filter(x=>x.visible!==false).sort((a,b)=>(a.sort??999)-(b.sort??999));configuredCats=cr.ok?await cr.json():[];}
  catch(e){grid.innerHTML='<p class="sub">Не удалось загрузить работы.</p>';toggle.style.display='none';return;}
- const cats=['Все',...new Set(items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean))];
+ const cats=['Все',...new Set([...(Array.isArray(configuredCats)?configuredCats:[]),...items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean)])];
  filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" data-cat="'+c.replace(/"/g,'&quot;')+'">'+c+'</button>').join('');
  function render(){
    const list=active==='Все'?items:items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active));
