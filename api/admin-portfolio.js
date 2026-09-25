@@ -54,13 +54,13 @@ export default async function handler(req,res){
       return res.status(200).json({ok:true,src:safe});
     }
     if(body.action==='upload'){
-      const {filename,dataBase64,title,categories}=body;
+      const {filename,dataBase64,title,description,categories}=body;
       if(!filename||!dataBase64)return res.status(400).json({error:'Нет файла'});
       const safe=('portfolio/'+Date.now()+'-'+filename).replace(/[^a-zA-Z0-9._\-/]/g,'-');
       await putFile(safe,dataBase64,'Add portfolio image');
       const raw=await fetch('https://raw.githubusercontent.com/'+owner+'/'+name+'/main/portfolio.json',{cache:'no-store'});
       const items=raw.ok?await raw.json():[];
-      items.push({id:'w'+Date.now(),src:safe,title:title||'3D-печать СИТРО',categories:Array.isArray(categories)&&categories.length?categories:['Прочее'],featured:false,visible:true,sort:items.length+1});
+      items.push({id:'w'+Date.now(),src:safe,title:title||'3D-печать СИТРО',description:description||'',categories:Array.isArray(categories)&&categories.length?categories:['Прочее'],featured:false,visible:true,sort:items.length+1});
       const content=Buffer.from(JSON.stringify(items,null,2),'utf8').toString('base64');
       await putFile('portfolio.json',content,'Add portfolio item');
       return res.status(200).json({ok:true,src:safe});
