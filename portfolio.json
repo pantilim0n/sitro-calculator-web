@@ -157,5 +157,16 @@
       "Технические"
     ],
     "featured": false
+  },
+  {
+    "id": "w1790373165410",
+    "src": "portfolio/1790373164165-1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
+    "title": "3D-печать СИТРО",
+    "categories": [
+      "Прочее"
+    ],
+    "featured": false,
+    "visible": true,
+    "sort": 15
   }
 ]
