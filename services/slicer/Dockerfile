@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=bambu /opt/bambu/app /opt/bambu/app
 COPY --from=bambu /opt/bambu/source/resources/profiles /opt/bambu/profiles
 COPY . /app
-RUN pip3 install --break-system-packages -r requirements.txt\nRUN mkdir -p /app/profiles && python3 /app/generate_profiles.py
+RUN pip3 install -r requirements.txt
+RUN mkdir -p /app/profiles && python3 /app/generate_profiles.py
 ENV PORT=10000
 ENV BAMBU_STUDIO_BIN=/opt/bambu/app/AppRun
 ENV BAMBU_PROFILE_DIR=/opt/bambu/profiles/BBL
