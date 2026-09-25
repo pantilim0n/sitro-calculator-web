@@ -72,6 +72,8 @@ fileInput.addEventListener('change',function(){
    row.querySelector('.stl-remove')?.addEventListener('click',()=>{row.remove(); if(!list.querySelector('.stl-row')){sliceBtn.style.display='none';fileInfo.textContent='Все модели убраны';}});
  });
  window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:files[0]}));
+ document.querySelectorAll('#stlBatchList .stl-color').forEach(inp=>inp.addEventListener('input',()=>window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:inp.value}))));
+ window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:document.querySelector('#stlBatchList .stl-color')?.value||'Оранжевый'}));
 });
 sliceBtn.onclick=function(){
  const files=[...fileInput.files];if(!files.length)return;
@@ -134,6 +136,9 @@ let mesh=null;
 function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 function frame(geometry){geometry.computeBoundingBox();const box=geometry.boundingBox,center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);geometry.translate(-center.x,-center.y,-center.z);const max=Math.max(size.x,size.y,size.z)||1;camera.near=max/1000;camera.far=max*100;camera.position.set(max*1.25,max*.9,max*1.5);camera.updateProjectionMatrix();controls.target.set(0,0,0);controls.update()}
 window.addEventListener('sitro-stl-selected',async e=>{try{const buf=await e.detail.arrayBuffer();const geometry=new STLLoader().parse(buf);geometry.computeVertexNormals();if(mesh){scene.remove(mesh);mesh.geometry.dispose();mesh.material.dispose()}mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0xff7900,roughness:.55,metalness:.05}));scene.add(mesh);host.classList.add('show');resize();frame(geometry)}catch{host.classList.remove('show')}});
+const colorMap={'чёрный':0x171717,'черный':0x171717,'белый':0xf2f2f2,'оранжевый':0xff7900,'серый':0x777777,'красный':0xd92d20,'синий':0x2563eb,'зелёный':0x22a447,'зеленый':0x22a447,'жёлтый':0xf2c94c,'желтый':0xf2c94c,'розовый':0xff69b4,'фиолетовый':0x8b5cf6,'голубой':0x38bdf8,'тиффани':0x40e0d0};
+function previewColor(v){if(!mesh)return;const raw=String(v||'').trim().toLowerCase();let c=colorMap[raw];if(c==null&&/^#?[0-9a-f]{6}$/i.test(raw))c=parseInt(raw.replace('#',''),16);if(c==null)c=0xff7900;mesh.material.color.setHex(c);mesh.material.needsUpdate=true}
+window.addEventListener('sitro-stl-color',e=>previewColor(e.detail));
 window.addEventListener('resize',resize);
 (function render(){requestAnimationFrame(render);controls.update();renderer.render(scene,camera)})();
 </script></body></html>
