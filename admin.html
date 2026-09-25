@@ -11,9 +11,16 @@
 
 .upload-preview{display:none;margin-top:12px;border:1px solid #2b2b2b;border-radius:14px;padding:12px;background:#0d0d0d;align-items:center;gap:14px}
 .upload-preview.show{display:flex}.upload-preview img{width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid #333}.upload-preview-meta{color:#aaa;font-size:14px;line-height:1.45}
+
+.categories-spoiler{border:1px solid #292929;border-radius:16px;background:#111;margin-bottom:18px;overflow:hidden}
+.categories-spoiler summary{list-style:none;cursor:pointer;padding:16px;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.categories-spoiler summary::-webkit-details-marker{display:none}
+.categories-spoiler summary::after{content:"▾";color:#ff7900;transition:transform .2s ease}
+.categories-spoiler[open] summary::after{transform:rotate(180deg)}
+.categories-spoiler-body{padding:0 16px 16px}
 </style></head><body><div class="wrap"><h1>Портфолио СИТРО</h1><p class="sub">Добавление работ, категории, названия, порядок и видимость.</p>
 <div class="bar"><input id="password" type="password" placeholder="Пароль админки"><button class="primary" id="save">Сохранить изменения</button></div>
-<div class="panel"><h2>Категории</h2><div class="bar"><input id="newCategoryName" placeholder="Новая категория"><button class="primary" id="addCategory">Добавить категорию</button></div><div id="categoryManager" class="rows"></div><div class="status" id="catStatus"></div></div><div class="panel"><h2>Добавить работу</h2><div class="bar"><input id="file" type="file" accept="image/*"><input id="title" placeholder="Название работы"></div><div class="bar"><div class="cat-wrap" id="newCatWrap"><button class="cat-btn" type="button"><span class="cat-summary">Выберите категории</span></button><div class="cat-menu"></div></div><button class="primary" id="upload">Загрузить фото</button></div><div class="upload-preview" id="uploadPreview"><img id="uploadPreviewImg" alt="Предпросмотр"><div class="upload-preview-meta" id="uploadPreviewMeta"></div></div><div class="status" id="uploadStatus"></div></div>
+<details class="categories-spoiler"><summary>Категории</summary><div class="categories-spoiler-body"><div class="bar"><input id="newCategoryName" placeholder="Новая категория"><button class="primary" id="addCategory">Добавить категорию</button></div><div id="categoryManager" class="rows"></div><div class="status" id="catStatus"></div></div></details><div class="panel"><h2>Добавить работу</h2><div class="bar"><input id="file" type="file" accept="image/*"><input id="title" placeholder="Название работы"></div><div class="bar"><div class="cat-wrap" id="newCatWrap"><button class="cat-btn" type="button"><span class="cat-summary">Выберите категории</span></button><div class="cat-menu"></div></div><button class="primary" id="upload">Загрузить фото</button></div><div class="upload-preview" id="uploadPreview"><img id="uploadPreviewImg" alt="Предпросмотр"><div class="upload-preview-meta" id="uploadPreviewMeta"></div></div><div class="status" id="uploadStatus"></div></div>
 <div class="panel"><div class="rows" id="rows"></div><div class="status" id="status"></div></div></div>
 <script>
 const rows=document.getElementById('rows'),statusEl=document.getElementById('status'),upStatus=document.getElementById('uploadStatus'),catStatus=document.getElementById('catStatus');let items=[],categoryOptions=[];
