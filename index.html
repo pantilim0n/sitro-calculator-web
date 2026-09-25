@@ -72,7 +72,7 @@ fileInput.addEventListener('change',function(){
    row.querySelector('.stl-remove')?.addEventListener('click',()=>{row.remove(); if(!list.querySelector('.stl-row')){sliceBtn.style.display='none';fileInfo.textContent='Все модели убраны';}});
  });
  window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:{file:files[0],color:document.querySelector('#stlBatchList .stl-color')?.value||'Чёрный'}}));
- document.querySelectorAll('#stlBatchList .stl-color').forEach(inp=>inp.addEventListener('input',()=>window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:inp.value}))));
+ document.querySelectorAll('#stlBatchList .stl-color').forEach((inp,idx)=>inp.addEventListener('input',()=>{if(idx===0)window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:inp.value}))}));
  window.dispatchEvent(new CustomEvent('sitro-stl-color',{detail:document.querySelector('#stlBatchList .stl-color')?.value||'Оранжевый'}));
 });
 sliceBtn.onclick=function(){
@@ -155,6 +155,13 @@ window.addEventListener('sitro-stl-selected',async e=>{try{const payload=e.detai
 const colorMap={'чёрный':0x171717,'черный':0x171717,'белый':0xf2f2f2,'оранжевый':0xff7900,'серый':0x777777,'красный':0xd92d20,'синий':0x2563eb,'зелёный':0x22a447,'зеленый':0x22a447,'жёлтый':0xf2c94c,'желтый':0xf2c94c,'розовый':0xff69b4,'фиолетовый':0x8b5cf6,'голубой':0x38bdf8,'тиффани':0x40e0d0};
 function previewColor(v){currentPreviewColor=v||currentPreviewColor;if(!mesh)return;const raw=String(currentPreviewColor||'').trim().toLowerCase();let c=colorMap[raw];if(c==null&&/^#?[0-9a-f]{6}$/i.test(raw))c=parseInt(raw.replace('#',''),16);if(c==null)c=0xff7900;mesh.material.color.setHex(c);mesh.material.needsUpdate=true}
 window.addEventListener('sitro-stl-color',e=>previewColor(e.detail));
+function syncExistingStlPreview(){
+ const input=document.getElementById('modelFile');
+ const file=input?.files?.[0];
+ const color=document.querySelector('#stlBatchList .stl-color')?.value||'Чёрный';
+ if(file) window.dispatchEvent(new CustomEvent('sitro-stl-selected',{detail:{file,color}}));
+}
+syncExistingStlPreview();
 window.addEventListener('resize',resize);
 (function render(){requestAnimationFrame(render);controls.update();renderer.render(scene,camera)})();
 </script></body></html>
