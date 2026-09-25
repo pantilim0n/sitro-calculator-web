@@ -6,7 +6,8 @@
     "visible": true,
     "sort": 1,
     "categories": [
-      "Фигурки"
+      "Фигурки",
+      "Сувениры"
     ],
     "featured": true
   },
@@ -17,7 +18,8 @@
     "visible": true,
     "sort": 2,
     "categories": [
-      "Фигурки"
+      "Фигурки",
+      "Сувениры"
     ],
     "featured": true
   },
