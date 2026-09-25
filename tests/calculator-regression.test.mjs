@@ -6,7 +6,9 @@ import makerworld from '../api/makerworld.js';
 import {
   bindQuantityInput,
   calculateMakerWorldQuote,
+  estimateStlVolumeCm3,
   normalizeQuantity,
+  stlCalculationErrorMessage,
   summarizeStlItems
 } from '../calculator-core.js';
 
@@ -89,6 +91,77 @@ test('quantity normalization and minimum order cover decreases and multiple STL 
   assert.equal(batch.minimumTotal, 600);
   assert.match(indexHtml, /Количество: '\+quote\.quantity\+' шт\./);
   assert.match(indexHtml, /bindQuantityInput\(row\.querySelector\('\.stl-qty'\)/);
+});
+
+test('ASCII and binary STL geometry produces a volume estimate', async () => {
+  const ascii = `solid tetra
+facet normal 0 0 0
+outer loop
+vertex 0 0 0
+vertex 10 0 0
+vertex 0 10 0
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 0 0 0
+vertex 0 0 10
+vertex 10 0 0
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 0 0 0
+vertex 0 10 0
+vertex 0 0 10
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 10 0 0
+vertex 0 0 10
+vertex 0 10 0
+endloop
+endfacet
+endsolid tetra`;
+  const triangles = [
+    [[0,0,0],[10,0,0],[0,10,0]],
+    [[0,0,0],[0,0,10],[10,0,0]],
+    [[0,0,0],[0,10,0],[0,0,10]],
+    [[10,0,0],[0,0,10],[0,10,0]]
+  ];
+  const binary = new ArrayBuffer(84 + triangles.length * 50);
+  const view = new DataView(binary);
+  view.setUint32(80, triangles.length, true);
+  triangles.forEach((triangle, index) => {
+    let offset = 84 + index * 50 + 12;
+    triangle.flat().forEach(value => {
+      view.setFloat32(offset, value, true);
+      offset += 4;
+    });
+  });
+
+  const asciiVolume = await estimateStlVolumeCm3(new Blob([ascii]));
+  const binaryVolume = await estimateStlVolumeCm3(new Blob([binary]));
+
+  assert.ok(Math.abs(asciiVolume - 1 / 6) < 1e-9);
+  assert.ok(Math.abs(binaryVolume - 1 / 6) < 1e-9);
+  assert.match(indexHtml, /stlVolumes=new Map\(\)/);
+  assert.match(indexHtml, /stlVolumes\.clear\(\)/);
+});
+
+test('invalid STL errors explain the actual recovery path', async () => {
+  await assert.rejects(
+    estimateStlVolumeCm3(new Blob(['not an STL'])),
+    error => error.code === 'STL_NO_TRIANGLES'
+  );
+  await assert.rejects(
+    estimateStlVolumeCm3(new Blob([''])),
+    error => error.code === 'STL_EMPTY'
+  );
+  assert.match(stlCalculationErrorMessage({code:'STL_ZERO_VOLUME'}), /нет замкнутого объёма/);
+  assert.match(stlCalculationErrorMessage(new ReferenceError('boom')), /Внутренняя ошибка STL-калькулятора/);
+  assert.doesNotMatch(indexHtml, /Не удалось рассчитать STL\. Попробуйте другой файл/);
 });
 
 test('MakerWorld API normalizes a current design-service response', async () => {
