@@ -17,12 +17,19 @@ export default async function handler(req,res){
     return (await r.json()).sha;
   }
   async function putFile(path,content,message){
-    const sha=await getSha(path);
-    const payload={message,content};
-    if(sha)payload.sha=sha;
-    const r=await fetch(apiBase+encodeURI(path),{method:'PUT',headers,body:JSON.stringify(payload)});
-    if(!r.ok)throw new Error('GitHub: '+r.status+' '+await r.text());
-    return await r.json();
+    let lastError='';
+    for(let attempt=0;attempt<3;attempt++){
+      const sha=await getSha(path);
+      const payload={message,content};
+      if(sha)payload.sha=sha;
+      const r=await fetch(apiBase+encodeURI(path),{method:'PUT',headers,body:JSON.stringify(payload)});
+      if(r.ok)return await r.json();
+      const bodyText=await r.text();
+      lastError='GitHub: '+r.status+' '+bodyText;
+      if(r.status!==409)throw new Error(lastError);
+      await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
+    }
+    throw new Error(lastError||'GitHub: конфликт сохранения');
   }
   try{
     if(body.action==='save'){
