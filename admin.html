@@ -18,10 +18,14 @@
 .categories-spoiler summary::after{content:"▾";color:#ff7900;transition:transform .2s ease}
 .categories-spoiler[open] summary::after{transform:rotate(180deg)}
 .categories-spoiler-body{padding:0 16px 16px}
+
+.admin-tools{display:grid;grid-template-columns:1.6fr 1fr auto;gap:10px;margin:0 0 14px}
+.admin-tools .check{justify-content:center;background:#111;border:1px solid #333;border-radius:10px;padding:0 12px}
+@media(max-width:780px){.admin-tools{grid-template-columns:1fr}}
 </style></head><body><div class="wrap"><h1>Портфолио СИТРО</h1><p class="sub">Добавление работ, категории, названия, порядок и видимость.</p>
 <div class="bar"><input id="password" type="password" placeholder="Пароль админки"><button class="primary" id="save">Сохранить изменения</button></div>
 <details class="categories-spoiler"><summary>Категории</summary><div class="categories-spoiler-body"><div class="bar"><input id="newCategoryName" placeholder="Новая категория"><button class="primary" id="addCategory">Добавить категорию</button></div><div id="categoryManager" class="rows"></div><div class="status" id="catStatus"></div></div></details><div class="panel"><h2>Добавить работу</h2><div class="bar"><input id="file" type="file" accept="image/*"><input id="title" placeholder="Название работы"></div><div class="bar"><div class="cat-wrap" id="newCatWrap"><button class="cat-btn" type="button"><span class="cat-summary">Выберите категории</span></button><div class="cat-menu"></div></div><button class="primary" id="upload">Загрузить фото</button></div><div class="upload-preview" id="uploadPreview"><img id="uploadPreviewImg" alt="Предпросмотр"><div class="upload-preview-meta" id="uploadPreviewMeta"></div></div><div class="status" id="uploadStatus"></div></div>
-<div class="panel"><div class="rows" id="rows"></div><div class="status" id="status"></div></div></div>
+<div class="panel"><div class="admin-tools"><input id="workSearch" placeholder="Поиск по названию"><select id="workCategoryFilter"><option value="">Все категории</option></select><label class="check"><input id="featuredOnly" type="checkbox">Только на главной</label></div><div class="rows" id="rows"></div><div class="status" id="status"></div></div></div>
 <script>
 const rows=document.getElementById('rows'),statusEl=document.getElementById('status'),upStatus=document.getElementById('uploadStatus'),catStatus=document.getElementById('catStatus');let items=[],categoryOptions=[];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -33,9 +37,20 @@ function catDropdown(selected=[],extraClass=''){
  const label=selected.length?selected.join(', '):'Выберите категории';
  return '<div class="cat-wrap '+extraClass+'"><button class="cat-btn" type="button"><span class="cat-summary">'+esc(label)+'</span></button><div class="cat-menu">'+all.map(c=>'<label class="cat-option"><input type="checkbox" value="'+esc(c)+'" '+(selected.includes(c)?'checked':'')+'>'+esc(c)+'</label>').join('')+'</div></div>';
 }
-function renderCategoryManager(){const box=document.getElementById('categoryManager');box.innerHTML=(categoryOptions||[]).map((c,i)=>'<div class="row" style="grid-template-columns:1fr 100px" data-ci="'+i+'"><input class="cat-name" value="'+esc(c)+'"><button class="ghost cat-del">Удалить</button></div>').join('');}
+function renderCategoryManager(){const box=document.getElementById('categoryManager');box.innerHTML=(categoryOptions||[]).map((c,i)=>'<div class="row" style="grid-template-columns:1fr 100px" data-ci="'+i+'"><input class="cat-name" value="'+esc(c)+'"><button class="ghost cat-del">Удалить</button></div>').join('');const f=document.getElementById('workCategoryFilter');if(f){const cur=f.value;f.innerHTML='<option value="">Все категории</option>'+(categoryOptions||[]).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');f.value=categoryOptions.includes(cur)?cur:'';}}
 function normalizeOrder(){items.forEach((x,i)=>x.sort=i+1)}
-function render(){items.sort((a,b)=>(a.sort??999)-(b.sort??999));rows.innerHTML=items.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><img src="/'+esc(x.src)+'"><input class="t" value="'+esc(x.title)+'" placeholder="Название">'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');}
+function render(){
+ items.sort((a,b)=>(a.sort??999)-(b.sort??999));
+ const q=(document.getElementById('workSearch')?.value||'').trim().toLowerCase();
+ const cf=document.getElementById('workCategoryFilter')?.value||'';
+ const onlyFeatured=!!document.getElementById('featuredOnly')?.checked;
+ const visibleItems=items.filter(x=>{
+   const title=(x.title||'').toLowerCase();
+   const cats=catsOf(x);
+   return (!q||title.includes(q)||cats.some(c=>c.toLowerCase().includes(q)))&&(!cf||cats.includes(cf))&&(!onlyFeatured||x.featured);
+ });
+ rows.innerHTML=visibleItems.map((x,i)=>'<div class="row" data-id="'+esc(x.id)+'" data-i="'+i+'"><div class="drag-handle" draggable="true" title="Перетащить">⋮⋮</div><img src="/'+esc(x.src)+'"><input class="t" value="'+esc(x.title)+'" placeholder="Название">'+catDropdown(catsOf(x),'row-cats')+'<input class="s" type="number" value="'+(x.sort??i+1)+'" title="Порядок"><label class="check"><input class="f" type="checkbox" '+(x.featured?'checked':'')+'>На главную</label><label class="check"><input class="v" type="checkbox" '+(x.visible!==false?'checked':'')+'>Показывать</label><button class="ghost del">Удалить</button></div>').join('');
+}
 rows.addEventListener('input',e=>{const r=e.target.closest('.row');if(!r)return;const x=items.find(v=>String(v.id)===r.dataset.id);if(!x)return;if(e.target.classList.contains('t'))x.title=e.target.value;if(e.target.closest('.row-cats'))x.categories=[...r.querySelectorAll('.row-cats input:checked')].map(i=>i.value);if(e.target.classList.contains('s'))x.sort=+e.target.value||0;if(e.target.classList.contains('f'))x.featured=e.target.checked;if(e.target.classList.contains('v'))x.visible=e.target.checked;});
 rows.addEventListener('click',e=>{if(!e.target.classList.contains('del'))return;const r=e.target.closest('.row');const x=items.find(v=>String(v.id)===r.dataset.id);if(!x)return;if(!confirm('Удалить работу «'+(x.title||'без названия')+'» из портфолио?'))return;items=items.filter(v=>String(v.id)!==r.dataset.id);normalizeOrder();render();});
 let draggedId=null;
@@ -65,5 +80,8 @@ document.addEventListener('change',e=>{
  w.querySelector('.cat-summary').textContent=vals.length?vals.join(', '):'Выберите категории';
  const r=w.closest('.row');if(r){const x=items[+r.dataset.i];x.categories=vals;}
 });
+document.getElementById('workSearch').addEventListener('input',render);
+document.getElementById('workCategoryFilter').addEventListener('change',render);
+document.getElementById('featuredOnly').addEventListener('change',render);
 load().catch(e=>{statusEl.className='status err';statusEl.textContent='Не удалось загрузить portfolio.json';});
 </script></body></html>
