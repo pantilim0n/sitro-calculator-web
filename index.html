@@ -15,7 +15,7 @@
   <input id="stlCustomerContact" type="text" placeholder="Телефон или Telegram">
   <textarea id="stlCustomerComment" rows="3" placeholder="Комментарий к заказу (необязательно)"></textarea>
 </div><div class="result" id="stlResult"></div><div class="result" id="calcResult"><div class="result-grid"><div class="metric"><span>Источник расчёта</span><strong id="volumeOut">—</strong></div><div class="metric"><span>Расход пластика</span><strong id="weightOut">—</strong></div><div class="metric"><span>Данные печати</span><strong id="materialOut">—</strong></div></div><div class="price" id="priceOut">—</div><div class="hint" id="breakdownOut"></div><a class="order-btn" id="orderBtn" href="https://taplink.cc/sitro" target="_blank" rel="noopener">Заказать печать</a><div class="hint">Расчёт предварительный. Для MakerWorld используются данные выбранного профиля печати; для STL расход оценивается по геометрии модели.</div></div></div></div></section><section id="contacts"><div class="wrap"><div class="contact"><h2>Нужно что-то напечатать?</h2><p>Фабрика 3D-печати СИТРО · Липецк</p><a href="tel:+79056884443">+7 905 688-44-43</a></div></div></section></main><div class="lightbox" id="lightbox" aria-hidden="true"><button class="lightbox-close" id="lightboxClose" aria-label="Закрыть">×</button><img id="lightboxImage" alt="Работа СИТРО крупным планом"></div><footer><div class="wrap">© СИТРО · Фабрика 3D-печати</div></footer><script type="module">
-import {bindQuantityInput, calculateMakerWorldQuote, normalizeQuantity, summarizeStlItems, estimateStlVolumeCm3, estimateStlQuote, stlCalculationErrorMessage} from './calculator-core.js';
+import {bindQuantityInput, calculateMakerWorldQuote, normalizeQuantity, summarizeStlItems, estimateStlGeometry, estimateStlQuote, stlCalculationErrorMessage} from './calculator-core.js';
 let makerProfile=null;
 const mwBtn=document.getElementById('loadMakerworld'),mwUrl=document.getElementById('makerworldUrl'),mwInfo=document.getElementById('makerworldInfo'),stlFields=document.getElementById('stlFields');
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
@@ -121,7 +121,7 @@ sliceBtn.onclick=async function(){
  err.style.display='none';const oldLabel=sliceBtn.textContent;sliceBtn.disabled=true;sliceBtn.textContent='Считаю…';try{
  const rows=[...document.querySelectorAll('#stlBatchList .stl-row')];
  const minimum=pricing?.minimumOrder||300;
- await Promise.all(rows.map(async row=>{const i=+row.dataset.index;if(!stlVolumes.has(i))stlVolumes.set(i,await estimateStlVolumeCm3(files[i]))}));
+ await Promise.all(rows.map(async row=>{const i=+row.dataset.index;if(!stlGeometry.has(i))stlGeometry.set(i,await estimateStlGeometry(files[i]))}));
  const items=rows.map(row=>{
    const i=+row.dataset.index;
    const qty=normalizeQuantity(row.querySelector('.stl-qty').value);
@@ -129,7 +129,7 @@ sliceBtn.onclick=async function(){
    const color=(row.querySelector('.stl-color').value||'Без цвета').trim();
    const file=files[i]; if(!file)return null;
    const rate=rates[material];
-   const q=estimateStlQuote({volumeCm3:stlVolumes.get(i)||0,quantity:qty,density:rate.density,materialPrice:rate.price,minimumOrder:0,fillFactor:.90});
+   const geom=stlGeometry.get(i)||{volumeCm3:0,surfaceAreaCm2:0}; const q=estimateStlQuote({volumeCm3:geom.volumeCm3,surfaceAreaCm2:geom.surfaceAreaCm2,quantity:qty,density:rate.density,materialPrice:rate.price,minimumOrder:0,wallThicknessMm:1.2,infill:.15});
    return {file:file.name,qty,material,color,estimatedGrams:q.estimatedGrams,rawPrice:q.estimatedGrams*rate.price};
  }).filter(Boolean);
  const groupMap=new Map();
