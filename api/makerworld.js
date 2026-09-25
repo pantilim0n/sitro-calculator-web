@@ -34,7 +34,9 @@ export default {
     const directWeight=weightOf(x);
     const filamentWeight=fils.reduce((a,f)=>a+(weightOf(f)||0),0)||null;
     const plateWeight=plates.reduce((a,p)=>a+(p.weightGrams||0),0)||null;
-    return {id:x.id??null,profileId:x.profileId??null,title:x.title||'Профиль печати',coverUrl:first(x,['coverUrl','cover','thumbnailUrl','thumbnail','imageUrl','image']),printer:x.printer?.name||x.printerName||x.deviceName||null,materialCnt:x.materialCnt??null,needAms:x.needAms??null,printTimeSeconds:directTime||plateTime,totalWeightGrams:directWeight||filamentWeight||plateWeight,filaments:fils.map(normalizeFilament),plates};
+    const picture=Array.isArray(x.pictures)&&x.pictures.length?(typeof x.pictures[0]==='string'?x.pictures[0]:first(x.pictures[0],['url','imageUrl','coverUrl'])):null;
+    const plateCover=rawPlates.length?first(rawPlates[0],['cover','coverUrl','thumbnail','thumbnailUrl','imageUrl','image']):null;
+    return {id:x.id??null,profileId:x.profileId??null,title:x.title||'Профиль печати',coverUrl:first(x,['cover','coverUrl','thumbnailUrl','thumbnail','imageUrl','image'])||picture||plateCover,printer:x.printer?.name||x.printerName||x.deviceName||null,materialCnt:x.materialCnt??null,needAms:x.needAms??null,printTimeSeconds:directTime||plateTime,totalWeightGrams:directWeight||filamentWeight||plateWeight,filaments:fils.map(normalizeFilament),plates};
    });
    return json({designId,title:d.title||'',coverUrl:d.coverUrl||'',modelId:d.modelId||'',profiles});
   }catch(e){return json({error:'Не удалось получить данные MakerWorld'},502)}
