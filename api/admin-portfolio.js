@@ -30,6 +30,13 @@ export default async function handler(req,res){
       await putFile('portfolio.json',content,'Update portfolio from admin');
       return res.status(200).json({ok:true});
     }
+    if(body.action==='saveCategories'){
+      if(!Array.isArray(body.categories)) return res.status(400).json({error:'Некорректный список категорий'});
+      const clean=[...new Set(body.categories.map(x=>String(x).trim()).filter(Boolean))];
+      const content=Buffer.from(JSON.stringify(clean,null,2),'utf8').toString('base64');
+      await putFile('portfolio-categories.json',content,'Update portfolio categories from admin');
+      return res.status(200).json({ok:true});
+    }
     if(body.action==='upload'){
       const {filename,dataBase64,title,categories}=body;
       if(!filename||!dataBase64)return res.status(400).json({error:'Нет файла'});
