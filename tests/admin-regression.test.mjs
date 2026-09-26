@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import adminPortfolio from '../api/admin-portfolio.js';
+import adminPortfolio, {MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -11,9 +11,16 @@ import {
   renameCategoryInItems,
   setItemCategories
 } from '../admin-core.js';
+import {
+  MAX_UPLOAD_BASE64_LENGTH,
+  decodeImageFile,
+  estimatedBase64Length,
+  prepareImageForUpload
+} from '../admin-image.js';
 
 const adminHtml = await readFile(new URL('../admin.html', import.meta.url), 'utf8');
 const adminApi = await readFile(new URL('../api/admin-portfolio.js', import.meta.url), 'utf8');
+const adminImage = await readFile(new URL('../admin-image.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
   return {
@@ -82,13 +89,92 @@ test('search includes descriptions and generated descriptions remain category-aw
 test('admin UI keeps required controls, upload optimization and responsive layout', () => {
   assert.match(adminHtml, /id="bulkGenerateDescriptions">Сгенерировать описание выбранным/);
   assert.match(adminHtml, /function renderNewUploadCategories\(\)/);
-  assert.match(adminHtml, /createImageBitmap\(file\)/);
-  assert.match(adminHtml, /canvas\.toBlob\(resolve,'image\/webp',\.86\)/);
+  assert.match(adminHtml, /id="cameraFile"[^>]+capture="environment"/);
+  assert.match(adminHtml, /prepareImageForUpload/);
+  assert.match(adminHtml, /MAX_UPLOAD_REQUEST_BYTES/);
+  assert.match(adminHtml, /response\.status===413/);
+  assert.match(adminImage, /createImageBitmap\(file, \{imageOrientation: 'from-image'\}\)/);
+  assert.match(adminImage, /canvas\.toBlob\(resolve, 'image\/jpeg', quality\)/);
   assert.match(adminHtml, /@media\(max-width:980px\)/);
   assert.match(adminHtml, /action:'saveAll'/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*)<\/script>/)?.[1] || '';
-  assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/m, '')));
+  assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
+});
+
+test('large iPhone JPEG is repeatedly resized until its request is safe', async () => {
+  let encodeCalls = 0;
+  let cleanedUp = false;
+  const encodedSizes = [3_000_000, 2_500_000, 1_800_000];
+  const result = await prepareImageForUpload(
+    {name: 'IMG_1234.JPG', type: 'image/jpeg', size: 12_000_000},
+    {
+      decodeImage: async () => ({source: {}, width: 4032, height: 3024, cleanup: () => { cleanedUp = true; }}),
+      createCanvas: () => ({
+        getContext: () => ({fillRect() {}, drawImage() {}, set fillStyle(value) { void value; }})
+      }),
+      encodeCanvas: async () => {
+        const size = encodedSizes[Math.min(encodeCalls, encodedSizes.length - 1)];
+        encodeCalls += 1;
+        return new Blob([new Uint8Array(size)], {type: 'image/jpeg'});
+      },
+      createFileReader: () => ({
+        readAsDataURL(blob) {
+          this.result = 'data:image/jpeg;base64,' + 'A'.repeat(estimatedBase64Length(blob.size));
+          this.onload();
+        }
+      })
+    }
+  );
+
+  assert.equal(result.filename, 'IMG_1234.jpg');
+  assert.ok(result.dataBase64.length <= MAX_UPLOAD_BASE64_LENGTH);
+  assert.equal(encodeCalls, 3);
+  assert.equal(cleanedUp, true);
+  assert.equal(estimatedBase64Length(2_100_000), 2_800_000);
+});
+
+test('unsupported iPhone HEIC gets a useful conversion message', async () => {
+  await assert.rejects(
+    decodeImageFile(
+      {name: 'IMG_1234.HEIC', type: 'image/heic'},
+      {
+        createImageBitmap: async () => { throw new Error('unsupported'); },
+        createImage: () => ({set src(value) { void value; this.onerror(); }}),
+        createObjectURL: () => 'blob:test',
+        revokeObjectURL() {}
+      }
+    ),
+    error => /HEIC/.test(error.message) && /Наиболее совместимый/.test(error.message)
+  );
+});
+
+test('admin API reports oversized image payloads as HTTP 413', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalEnv = {...process.env};
+  let fetched = false;
+  globalThis.fetch = async () => { fetched = true; return Response.json({}); };
+  process.env.GITHUB_TOKEN = 'test-token';
+  process.env.ADMIN_PASSWORD = 'test-password';
+  process.env.GITHUB_REPO = 'owner/repository';
+  try {
+    const response = responseRecorder();
+    await adminPortfolio({
+      method: 'POST',
+      body: {
+        action: 'uploadOnly',
+        password: 'test-password',
+        filename: 'too-large.jpg',
+        dataBase64: 'A'.repeat(MAX_IMAGE_BASE64_LENGTH + 1)
+      }
+    }, response);
+    assert.equal(response.statusCode, 413);
+    assert.match(response.payload.error, /превышает безопасный лимит/i);
+    assert.equal(fetched, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    process.env = originalEnv;
+  }
 });
 
 test('admin API commits portfolio data atomically without a stale raw GitHub read', () => {
