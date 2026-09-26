@@ -38,18 +38,6 @@
     "sort": 3
   },
   {
-    "id": "w4",
-    "src": "IMG_0184.jpeg",
-    "title": "Тапки для ротпода",
-    "description": "",
-    "categories": [
-      "Прочее"
-    ],
-    "featured": false,
-    "visible": true,
-    "sort": 4
-  },
-  {
     "id": "w5",
     "src": "IMG_0188.jpeg",
     "title": "Магниты для доски",
@@ -59,7 +47,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 5
+    "sort": 4
   },
   {
     "id": "w7",
@@ -72,7 +60,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 6
+    "sort": 5
   },
   {
     "id": "w6",
@@ -84,7 +72,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 7
+    "sort": 6
   },
   {
     "id": "w8",
@@ -96,7 +84,7 @@
     ],
     "featured": true,
     "visible": true,
-    "sort": 8
+    "sort": 7
   },
   {
     "id": "w9",
@@ -108,7 +96,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 9
+    "sort": 8
   },
   {
     "id": "w10",
@@ -121,7 +109,7 @@
     ],
     "featured": true,
     "visible": true,
-    "sort": 10
+    "sort": 9
   },
   {
     "id": "w11",
@@ -133,7 +121,7 @@
     ],
     "featured": true,
     "visible": true,
-    "sort": 11
+    "sort": 10
   },
   {
     "id": "w12",
@@ -146,7 +134,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 12
+    "sort": 11
   },
   {
     "id": "w13",
@@ -158,7 +146,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 13
+    "sort": 12
   },
   {
     "id": "w14",
@@ -170,7 +158,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 14
+    "sort": 13
   },
   {
     "id": "w1790421615044sojc",
@@ -182,6 +170,6 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 15
+    "sort": 14
   }
 ]
