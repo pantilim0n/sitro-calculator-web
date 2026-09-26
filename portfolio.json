@@ -90,7 +90,7 @@
     "categories": [
       "Для дома"
     ],
-    "featured": false
+    "featured": true
   },
   {
     "id": "w9",
@@ -113,7 +113,7 @@
       "Фигурки",
       "Сувениры"
     ],
-    "featured": false
+    "featured": true
   },
   {
     "id": "w11",
@@ -124,7 +124,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": false
+    "featured": true
   },
   {
     "id": "w12",
