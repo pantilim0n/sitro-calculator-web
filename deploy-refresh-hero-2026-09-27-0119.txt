@@ -1,0 +1,1 @@
+Force Vercel rebuild for updated SITRO hero. Calculator untouched.
