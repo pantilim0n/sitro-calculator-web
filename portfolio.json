@@ -159,17 +159,5 @@
     "featured": false,
     "visible": true,
     "sort": 13
-  },
-  {
-    "id": "w1790421615044sojc",
-    "src": "portfolio/1790421614720-zlvhqz-IMG_0192.jpg",
-    "title": "Выдавливатель корма",
-    "description": "",
-    "categories": [
-      "Прочее"
-    ],
-    "featured": false,
-    "visible": true,
-    "sort": 14
   }
 ]
