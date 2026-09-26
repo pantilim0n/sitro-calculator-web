@@ -23,6 +23,11 @@ test('calculator loads editable pricing and keeps current production tariffs', (
   assert.equal(pricing.minimumOrder, 300);
 });
 
+test('calculator directs customers to MakerWorld when they need a model', () => {
+  assert.match(indexHtml, /href="https:\/\/makerworld\.com\/"[^>]*target="_blank"/);
+  assert.match(indexHtml, /Что такое MakerWorld\? Открыть сайт/);
+});
+
 test('STL result exposes all order actions', () => {
   assert.match(indexHtml, /class="order-btn show" id="shareStlOrder"/);
   assert.match(indexHtml, /class="order-btn show" id="copyStlOrder"/);
