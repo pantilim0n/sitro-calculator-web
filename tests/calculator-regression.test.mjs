@@ -20,6 +20,19 @@ test('STL result exposes all order actions', () => {
   assert.match(indexHtml, /class="order-btn show" href="https:\/\/taplink\.cc\/sitro"/);
 });
 
+test('MakerWorld result creates a complete shareable order', () => {
+  assert.match(indexHtml, /id="shareMakerOrder"/);
+  assert.match(indexHtml, /id="copyMakerOrder"/);
+  assert.match(indexHtml, /function buildMakerOrderText\(\)/);
+  assert.match(indexHtml, /Модель:.*Профиль:.*Ссылка:.*Количество:.*Материал:.*Вес:.*Время печати:.*Предварительная стоимость:/s);
+  assert.match(indexHtml, /Укажите телефон или Telegram/);
+});
+
+test('STL order reads customer details when the user sends it', () => {
+  assert.match(indexHtml, /const buildStlOrderText=\(\)=>/);
+  assert.match(indexHtml, /navigator\.share\(\{title:'Заявка на 3D-печать СИТРО',text:buildStlOrderText\(\),files:activeFiles\}\)/);
+});
+
 test('multi-STL preview selection and color sync stay wired', () => {
   assert.match(indexHtml, /row\.addEventListener\('click'.*selectRow\(row,f\)/s);
   assert.match(indexHtml, /sitro-stl-selected.*detail:\{file,color:/s);
