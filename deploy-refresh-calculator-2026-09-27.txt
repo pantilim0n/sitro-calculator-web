@@ -1,0 +1,1 @@
+Force Vercel rebuild after restoring the working calculator code. No application code changed in this commit.
