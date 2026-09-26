@@ -58,7 +58,6 @@ export function summarizeStlItems(items, minimumOrder) {
   };
 }
 
-
 export async function estimateStlGeometry(file) {
   const buffer = await file.arrayBuffer();
   if (!buffer.byteLength) throw stlError('STL_EMPTY', 'STL file is empty');
@@ -203,3 +202,5 @@ if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceSitroHero, {once:true});
   else enhanceSitroHero();
 }
+
+// deployment refresh 2026-09-27
