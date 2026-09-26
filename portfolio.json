@@ -3,162 +3,173 @@
     "id": "w2",
     "src": "3B0AB546-8C8E-420B-9811-F5C1962A443A.PNG",
     "title": "Снуп дог 40 см",
-    "visible": true,
-    "sort": 1,
+    "description": "Снуп дог 40 см — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления.",
     "categories": [
       "Фигурки",
       "Сувениры"
     ],
     "featured": true,
-    "description": "Снуп дог 40 см — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления."
+    "visible": true,
+    "sort": 1
   },
   {
     "id": "w3",
     "src": "IMG_0124.jpeg",
     "title": "Майк Тайсон",
-    "visible": true,
-    "sort": 2,
+    "description": "Майк Тайсон — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления.",
     "categories": [
       "Фигурки",
       "Сувениры"
     ],
     "featured": true,
-    "description": "Майк Тайсон — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления."
+    "visible": true,
+    "sort": 2
   },
   {
     "id": "w1",
     "src": "1D874A82-AD8C-488E-98FD-713842E6ED0C.jpg",
     "title": "Доктор Браун",
-    "visible": true,
-    "sort": 3,
+    "description": "Доктор Браун — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления.",
     "categories": [
       "Фигурки"
     ],
     "featured": true,
-    "description": "Доктор Браун — детализированная фигурка, изготовленная методом 3D-печати. Подходит для коллекции, подарка или декоративного оформления."
+    "visible": true,
+    "sort": 3
   },
   {
     "id": "w4",
     "src": "IMG_0184.jpeg",
     "title": "Тапки для ротпода",
-    "visible": true,
-    "sort": 4,
+    "description": "",
     "categories": [
       "Прочее"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 4
   },
   {
     "id": "w5",
     "src": "IMG_0188.jpeg",
     "title": "Магниты для доски",
-    "visible": true,
-    "sort": 5,
+    "description": "",
     "categories": [
       "Брендинг"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 5
   },
   {
     "id": "w7",
     "src": "IMG_7441.jpeg",
     "title": "Номерной знак авто (Брелок)",
-    "visible": true,
-    "sort": 6,
+    "description": "",
     "categories": [
       "Сувениры",
       "Авто"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 6
   },
   {
     "id": "w6",
     "src": "IMG_0189.jpeg",
     "title": "Магниты для доски с логотипом",
-    "visible": true,
-    "sort": 7,
+    "description": "",
     "categories": [
       "Брендинг"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 7
   },
   {
     "id": "w8",
     "src": "IMG_7853.jpeg",
     "title": "Чехол для телефона",
-    "visible": true,
-    "sort": 8,
+    "description": "",
     "categories": [
       "Для дома"
     ],
-    "featured": true
+    "featured": true,
+    "visible": true,
+    "sort": 8
   },
   {
     "id": "w9",
     "src": "IMG_8600.jpg",
     "title": "Волк из ну-погоди",
-    "visible": true,
-    "sort": 9,
+    "description": "",
     "categories": [
       "Фигурки"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 9
   },
   {
     "id": "w10",
     "src": "IMG_8806.jpeg",
     "title": "Добби",
-    "visible": true,
-    "sort": 10,
+    "description": "",
     "categories": [
       "Фигурки",
       "Сувениры"
     ],
-    "featured": true
+    "featured": true,
+    "visible": true,
+    "sort": 10
   },
   {
     "id": "w11",
     "src": "IMG_9173.jpeg",
     "title": "Изделие для дома",
-    "visible": true,
-    "sort": 11,
+    "description": "",
     "categories": [
       "Фигурки"
     ],
-    "featured": true
+    "featured": true,
+    "visible": true,
+    "sort": 11
   },
   {
     "id": "w12",
     "src": "IMG_9322.jpeg",
     "title": "Кейсы для оснастки",
-    "visible": true,
-    "sort": 12,
+    "description": "",
     "categories": [
       "Технические",
       "Прочее"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 12
   },
   {
     "id": "w13",
     "src": "IMG_9548.jpeg",
     "title": "Попугай ара в натуральную величину",
-    "visible": true,
-    "sort": 13,
+    "description": "",
     "categories": [
       "Фигурки"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 13
   },
   {
     "id": "w14",
     "src": "temp.jpeg",
     "title": "Корпуса для meshtastic",
-    "visible": true,
-    "sort": 14,
+    "description": "",
     "categories": [
       "Технические"
     ],
-    "featured": false
+    "featured": false,
+    "visible": true,
+    "sort": 14
   }
 ]
