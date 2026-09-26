@@ -171,5 +171,17 @@
     "featured": false,
     "visible": true,
     "sort": 14
+  },
+  {
+    "id": "w1790404301234r2l0",
+    "src": "portfolio/1790404300949-vsxgps-IMG_0188.webp",
+    "title": "3D-печать СИТРО",
+    "description": "",
+    "categories": [
+      "Технические"
+    ],
+    "featured": false,
+    "visible": true,
+    "sort": 15
   }
 ]
