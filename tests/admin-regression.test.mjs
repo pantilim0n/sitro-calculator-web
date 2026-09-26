@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import adminPortfolio, {MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
+import adminPortfolio, {cleanPricing, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -201,6 +201,34 @@ test('saveAll writes portfolio and categories in one Git tree update', async () 
     const tree = JSON.parse(treeCall.options.body).tree;
     assert.deepEqual(tree.map(entry => entry.path), ['portfolio.json', 'portfolio-categories.json']);
     assert.equal(mock.calls.filter(call => call.options.method === 'PATCH').length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    process.env = originalEnv;
+  }
+});
+
+test('calculator pricing is validated and written as one atomic file update', async () => {
+  const pricing = cleanPricing({minimumOrder: 300, machineHour: 10, materials: {PLA:{price:10}, PETG:{price:8}, ABS:{price:10}, ASA:{price:24}, PA:{price:20}}});
+  assert.equal(pricing.materials.ASA.price, 24);
+  assert.equal(pricing.materials.PLA.density, 1.24);
+  assert.throws(() => cleanPricing({...pricing, machineHour: 0}), /Работа принтера/);
+  assert.match(adminHtml, /Тарифы калькулятора/);
+  assert.match(adminHtml, /action:'savePricing'/);
+
+  const originalFetch = globalThis.fetch;
+  const originalEnv = {...process.env};
+  const mock = githubFetchMock();
+  globalThis.fetch = mock.fetch;
+  process.env.GITHUB_TOKEN = 'test-token';
+  process.env.ADMIN_PASSWORD = 'test-password';
+  process.env.GITHUB_REPO = 'owner/repository';
+  try {
+    const response = responseRecorder();
+    await adminPortfolio({method: 'POST', body: {action: 'savePricing', password: 'test-password', pricing}}, response);
+    assert.equal(response.statusCode, 200);
+    const treeCall = mock.calls.find(call => new URL(call.url).pathname.endsWith('/git/trees'));
+    const tree = JSON.parse(treeCall.options.body).tree;
+    assert.deepEqual(tree.map(entry => entry.path), ['pricing.json']);
   } finally {
     globalThis.fetch = originalFetch;
     process.env = originalEnv;

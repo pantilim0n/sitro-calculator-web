@@ -13,6 +13,15 @@ import {
 } from '../calculator-core.js';
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta.url), 'utf8'));
+
+test('calculator loads editable pricing and keeps current production tariffs', () => {
+  assert.match(indexHtml, /fetch\('\/pricing\.json\?pricing='/);
+  assert.match(indexHtml, /await pricingReady/);
+  assert.deepEqual(Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price])), {PLA:10, PETG:8, ABS:10, ASA:24, PA:20});
+  assert.equal(pricing.machineHour, 10);
+  assert.equal(pricing.minimumOrder, 300);
+});
 
 test('STL result exposes all order actions', () => {
   assert.match(indexHtml, /class="order-btn show" id="shareStlOrder"/);

@@ -1,0 +1,11 @@
+{
+  "minimumOrder": 300,
+  "machineHour": 10,
+  "materials": {
+    "PLA": { "density": 1.24, "price": 10 },
+    "PETG": { "density": 1.27, "price": 8 },
+    "ABS": { "density": 1.04, "price": 10 },
+    "ASA": { "density": 1.07, "price": 24 },
+    "PA": { "density": 1.14, "price": 20 }
+  }
+}

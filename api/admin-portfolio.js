@@ -1,5 +1,18 @@
 export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
+const MATERIAL_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
+
+export function cleanPricing(value) {
+  if (!value || typeof value !== 'object') throw new Error('Некорректные тарифы');
+  const positive = (input, label) => {
+    const number = Number(input);
+    if (!Number.isFinite(number) || number <= 0 || number > 100000) throw new Error('Проверьте поле «' + label + '»');
+    return Math.round(number * 100) / 100;
+  };
+  const materials = {};
+  for (const [code, density] of Object.entries(MATERIAL_DENSITIES)) materials[code] = {density, price: positive(value.materials?.[code]?.price, code + ', ₽/г')};
+  return {minimumOrder: positive(value.minimumOrder, 'Минимальный заказ'), machineHour: positive(value.machineHour, 'Работа принтера'), materials};
+}
 
 function cleanCategories(values) {
   if (!Array.isArray(values)) throw new Error('Некорректный список категорий');
@@ -122,6 +135,10 @@ export default async function handler(req, res) {
     }
     if (body.action === 'saveCategories') {
       const sha = await commitFiles([{path: 'portfolio-categories.json', content: textToBase64(cleanCategories(body.categories))}], 'Update portfolio categories from admin');
+      return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'savePricing') {
+      const sha = await commitFiles([{path: 'pricing.json', content: textToBase64(cleanPricing(body.pricing))}], 'Update calculator pricing from admin');
       return res.status(200).json({ok: true, sha});
     }
     if (body.action === 'uploadOnly') {
