@@ -88,7 +88,7 @@
     "categories": [
       "Для дома"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w9",
@@ -111,7 +111,7 @@
       "Фигурки",
       "Сувениры"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w11",
@@ -122,7 +122,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": true
+    "featured": false
   },
   {
     "id": "w12",
@@ -157,16 +157,5 @@
       "Технические"
     ],
     "featured": false
-  },
-  {
-    "id": "w1790373205602",
-    "src": "portfolio/1790373204175-281189AA-F892-4B6E-B3FE-583E8BC6FE0C.PNG",
-    "title": "ghj,ybr",
-    "categories": [
-      "Прочее"
-    ],
-    "featured": false,
-    "visible": true,
-    "sort": 15
   }
 ]
