@@ -9,6 +9,6 @@
   </g>
 
   <!-- фирменная нить пластика -->
-  <path d="M 408 351 C 410 360, 418 362, 430 362 C 458 362, 486 361, 520 361"
+  <path d="M 408 351 C 410 360, 418 362, 430 362 C 470 362, 525 361, 590 361 C 610 361, 625 359, 640 356"
         fill="none" stroke="#ff7900" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
