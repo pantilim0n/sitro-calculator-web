@@ -1,4 +1,4 @@
-const MAX_IMAGE_BASE64_LENGTH = 4_000_000;
+export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
 
 function cleanCategories(values) {
@@ -35,7 +35,9 @@ function safeImagePath(filename) {
 function assertImage(filename, dataBase64) {
   if (!filename || !dataBase64) throw new Error('Нет файла');
   if (typeof dataBase64 !== 'string' || dataBase64.length > MAX_IMAGE_BASE64_LENGTH) {
-    throw new Error('Изображение слишком большое. Выберите другое фото или уменьшите его.');
+    const error = new Error('Подготовленное изображение превышает безопасный лимит загрузки. Обрежьте фото и попробуйте снова.');
+    error.statusCode = 413;
+    throw error;
   }
 }
 
@@ -154,7 +156,7 @@ export default async function handler(req, res) {
     return res.status(400).json({error: 'Неизвестное действие'});
   } catch (error) {
     const message = error?.message || 'Ошибка сохранения';
-    const status = message.startsWith('Некоррект') || message.includes('слишком большое') || message === 'Нет файла' ? 400 : 500;
+    const status = error?.statusCode || (message.startsWith('Некоррект') || message === 'Нет файла' ? 400 : 500);
     return res.status(status).json({error: message});
   }
 }
