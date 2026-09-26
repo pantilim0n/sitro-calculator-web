@@ -33,6 +33,20 @@ test('STL and MakerWorld keep separate result containers', () => {
   assert.match(indexHtml, /stlResult\.innerHTML=/);
 });
 
+test('portfolio lightbox supports mouse, keyboard, navigation and mobile swipe', () => {
+  assert.match(indexHtml, /id="lightbox" role="dialog" aria-modal="true"/);
+  assert.match(indexHtml, /id="lightboxPrev"/);
+  assert.match(indexHtml, /id="lightboxNext"/);
+  assert.match(indexHtml, /portfolioGrid\.addEventListener\('keydown'/);
+  assert.match(indexHtml, /\['Enter',' '\]\.includes\(e\.key\)/);
+  assert.match(indexHtml, /e\.key==='ArrowLeft'/);
+  assert.match(indexHtml, /e\.key==='ArrowRight'/);
+  assert.match(indexHtml, /e\.key==='Escape'/);
+  assert.match(indexHtml, /addEventListener\('touchend'/);
+  assert.match(indexHtml, /document\.body\.classList\.add\('lightbox-open'\)/);
+  assert.match(indexHtml, /role="button" tabindex="0" aria-label="Открыть:/);
+});
+
 test('quantity changes recalculate MakerWorld totals for input and change events', () => {
   const listeners = {};
   const input = {
@@ -146,8 +160,8 @@ endsolid tetra`;
 
   assert.ok(Math.abs(asciiVolume - 1 / 6) < 1e-9);
   assert.ok(Math.abs(binaryVolume - 1 / 6) < 1e-9);
-  assert.match(indexHtml, /stlVolumes=new Map\(\)/);
-  assert.match(indexHtml, /stlVolumes\.clear\(\)/);
+  assert.match(indexHtml, /stlGeometry=new Map\(\)/);
+  assert.match(indexHtml, /stlGeometry\.clear\(\)/);
 });
 
 test('invalid STL errors explain the actual recovery path', async () => {
