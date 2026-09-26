@@ -24,9 +24,17 @@ test('calculator loads editable pricing and keeps current production tariffs', (
 });
 
 test('calculator directs customers to MakerWorld when they need a model', () => {
-  assert.match(indexHtml, /href="https:\/\/makerworld\.com\/"[^>]*target="_blank"/);
+  assert.equal((indexHtml.match(/href="https:\/\/makerworld\.com\/en\/3d-models"/g) || []).length, 2);
   assert.match(indexHtml, /Что такое MakerWorld\? Открыть сайт/);
-  assert.match(indexHtml, /профиль <a href="https:\/\/makerworld\.com\/"[^>]*>MakerWorld ↗<\/a>/);
+  assert.match(indexHtml, /профиль <a href="https:\/\/makerworld\.com\/en\/3d-models"[^>]*>MakerWorld ↗<\/a>/);
+  assert.match(indexHtml, /placeholder="https:\/\/makerworld\.com\/models\/3331794"/);
+});
+
+test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
+  assert.match(indexHtml, /type==='reload'/);
+  assert.match(indexHtml, /history\.scrollRestoration='manual'/);
+  assert.match(indexHtml, /history\.replaceState\(null,'',location\.pathname\+location\.search\)/);
+  assert.match(indexHtml, /scrollTo\(0,0\)/);
 });
 
 test('STL result exposes all order actions', () => {
