@@ -34,6 +34,16 @@ export function cleanServices(values) {
   });
 }
 
+function cleanSocials(value) {
+  if (!value || typeof value !== 'object') throw new Error('Некорректные соцсети');
+  const text = (input, max=200) => String(input || '').trim().slice(0, max);
+  const url = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
+  const telegram = text(value.telegram, 80);
+  const email = text(value.email, 200);
+  if (email && (!email.includes('@') || email.length > 200)) throw new Error('Проверьте электронную почту');
+  return {telegram, email, telegramChannel: url(value.telegramChannel), vk: url(value.vk)};
+}
+
 function cleanCategories(values) {
   if (!Array.isArray(values)) throw new Error('Некорректный список категорий');
   return [...new Set(values.map(value => String(value).trim()).filter(Boolean))];
@@ -176,6 +186,10 @@ export default async function handler(req, res) {
     }
     if (body.action === 'saveServices') {
       const sha = await commitFiles([{path: 'services.json', content: textToBase64(cleanServices(body.services))}], 'Update services from admin');
+      return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'saveSocials') {
+      const sha = await commitFiles([{path: 'socials.json', content: textToBase64(cleanSocials(body.socials))}], 'Update social links from admin');
       return res.status(200).json({ok: true, sha});
     }
     if (body.action === 'changePassword') {
