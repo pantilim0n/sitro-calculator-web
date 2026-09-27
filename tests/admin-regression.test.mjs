@@ -246,6 +246,7 @@ test('admin supports dynamic materials and editable services', () => {
   assert.match(adminHtml, /id="serviceAdminList"/);
   assert.match(adminHtml, /action:'saveServices'/);
   assert.match(adminApi, /body\.action === 'saveServices'/);
+  assert.match(adminHtml, /material-admin-row\{grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);
 });
 
 test('upload adds the image and fresh portfolio state in one commit', async () => {
