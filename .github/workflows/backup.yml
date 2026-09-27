@@ -1,0 +1,22 @@
+name: Repository backup
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create backup archive
+        run: tar --exclude=.git -czf sitro-backup-${GITHUB_SHA}.tar.gz .
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitro-backup-${{ github.run_number }}
+          path: sitro-backup-${{ github.sha }}.tar.gz
+          retention-days: 90
