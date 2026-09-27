@@ -97,7 +97,7 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminImage, /canvas\.toBlob\(resolve, 'image\/jpeg', quality\)/);
   assert.match(adminHtml, /@media\(max-width:980px\)/);
   assert.match(adminHtml, /action:'saveAll'/);
-  assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить работу<\/summary>/);
+  assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить фотографию<\/summary>/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Фотографии портфолио<\/summary>/);
   assert.match(adminHtml, /batchFileInput\.multiple=true/);
   assert.match(adminHtml, /id="openMaterialsEditor"/);

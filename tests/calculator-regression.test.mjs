@@ -41,7 +41,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /mobileButton\.onclick/);
   assert.match(indexHtml, /brandLink\.addEventListener\('click'/);
   assert.match(indexHtml, /heroIcons=\[/);
-  assert.match(indexHtml, /hero-detail\.png/);
+  assert.match(indexHtml, /hero-background\.jpg/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
