@@ -18,7 +18,7 @@ const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta
 test('calculator loads editable pricing and keeps current production tariffs', () => {
   assert.match(indexHtml, /fetch\('\/pricing\.json\?pricing='/);
   assert.match(indexHtml, /await pricingReady/);
-  assert.deepEqual(Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price])), {PLA:10, PETG:8, ABS:10, ASA:24, PA:20});
+  assert.deepEqual(Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price])), {PLA:12, PETG:8, ABS:11, ASA:24, PA:20});
   assert.equal(pricing.machineHour, 10);
   assert.equal(pricing.minimumOrder, 300);
 });
@@ -43,6 +43,13 @@ test('calculator separates MakerWorld and STL into clear modes', () => {
   assert.match(indexHtml, /id="modeStl"[^>]+aria-controls="stlFields"/);
   assert.match(indexHtml, /function setCalculatorMode\(mode\)/);
   assert.match(indexHtml, /stlFields\.hidden=maker/);
+});
+
+test('services open full descriptions and mobile portfolio is a horizontal strip', () => {
+  assert.match(indexHtml, /fetch\('\/services\.json\?services='/);
+  assert.match(indexHtml, /id="serviceModal" role="dialog"/);
+  assert.match(indexHtml, /serviceModalDescription/);
+  assert.match(indexHtml, /\.portfolio-grid\{display:flex;overflow-x:auto/);
 });
 
 test('STL result exposes all order actions', () => {

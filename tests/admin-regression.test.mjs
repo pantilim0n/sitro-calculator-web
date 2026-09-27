@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import adminPortfolio, {cleanPricing, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
+import adminPortfolio, {cleanPricing, cleanServices, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -233,6 +233,19 @@ test('calculator pricing is validated and written as one atomic file update', as
     globalThis.fetch = originalFetch;
     process.env = originalEnv;
   }
+});
+
+test('admin supports dynamic materials and editable services', () => {
+  const pricing = cleanPricing({minimumOrder: 300, machineHour: 10, materials: {PLA: {price: 12, density: 1.24}, TPU: {price: 30, density: 1.2}}});
+  assert.deepEqual(Object.keys(pricing.materials), ['PLA', 'TPU']);
+  assert.equal(pricing.materials.TPU.price, 30);
+  const services = cleanServices([{id: 'x', title: 'Печать', short: 'Коротко', description: 'Полное описание', visible: true, sort: 1}]);
+  assert.equal(services[0].description, 'Полное описание');
+  assert.match(adminHtml, /id="materialAdminList"/);
+  assert.match(adminHtml, /id="addMaterial"/);
+  assert.match(adminHtml, /id="serviceAdminList"/);
+  assert.match(adminHtml, /action:'saveServices'/);
+  assert.match(adminApi, /body\.action === 'saveServices'/);
 });
 
 test('upload adds the image and fresh portfolio state in one commit', async () => {

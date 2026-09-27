@@ -1,6 +1,6 @@
 export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
-const MATERIAL_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
+const DEFAULT_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
 
 export function cleanPricing(value) {
   if (!value || typeof value !== 'object') throw new Error('Некорректные тарифы');
@@ -9,9 +9,28 @@ export function cleanPricing(value) {
     if (!Number.isFinite(number) || number <= 0 || number > 100000) throw new Error('Проверьте поле «' + label + '»');
     return Math.round(number * 100) / 100;
   };
+  const source = value.materials && typeof value.materials === 'object' ? value.materials : {};
   const materials = {};
-  for (const [code, density] of Object.entries(MATERIAL_DENSITIES)) materials[code] = {density, price: positive(value.materials?.[code]?.price, code + ', ₽/г')};
+  for (const [rawCode, rawMaterial] of Object.entries(source)) {
+    const code = String(rawCode).trim().toUpperCase().replace(/[^A-ZА-ЯЁ0-9_-]/g, '').slice(0, 12);
+    if (!code || materials[code]) continue;
+    const material = rawMaterial && typeof rawMaterial === 'object' ? rawMaterial : {};
+    materials[code] = {density: positive(material.density ?? DEFAULT_DENSITIES[code] ?? 1, code + ', плотность'), price: positive(material.price, code + ', ₽/г')};
+  }
+  if (!Object.keys(materials).length) throw new Error('Добавьте хотя бы один материал');
   return {minimumOrder: positive(value.minimumOrder, 'Минимальный заказ'), machineHour: positive(value.machineHour, 'Работа принтера'), materials};
+}
+
+export function cleanServices(values) {
+  if (!Array.isArray(values) || values.length > 30) throw new Error('Некорректный список услуг');
+  return values.map((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('Некорректная услуга в строке ' + (index + 1));
+    const title = String(item.title || '').trim().slice(0, 120);
+    const short = String(item.short || '').trim().slice(0, 300);
+    const description = String(item.description || '').trim().slice(0, 2000);
+    if (!title || !short || !description) throw new Error('Заполните название и описание услуги в строке ' + (index + 1));
+    return {id: String(item.id || ('service-' + Date.now() + '-' + index)).replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 60), title, short, description, visible: item.visible !== false, sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index + 1};
+  });
 }
 
 function cleanCategories(values) {
@@ -139,6 +158,10 @@ export default async function handler(req, res) {
     }
     if (body.action === 'savePricing') {
       const sha = await commitFiles([{path: 'pricing.json', content: textToBase64(cleanPricing(body.pricing))}], 'Update calculator pricing from admin');
+      return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'saveServices') {
+      const sha = await commitFiles([{path: 'services.json', content: textToBase64(cleanServices(body.services))}], 'Update services from admin');
       return res.status(200).json({ok: true, sha});
     }
     if (body.action === 'uploadOnly') {
