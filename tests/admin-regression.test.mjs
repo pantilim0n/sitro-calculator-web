@@ -97,6 +97,9 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminImage, /canvas\.toBlob\(resolve, 'image\/jpeg', quality\)/);
   assert.match(adminHtml, /@media\(max-width:980px\)/);
   assert.match(adminHtml, /action:'saveAll'/);
+  assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить работу<\/summary>/);
+  assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
+  assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
