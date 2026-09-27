@@ -36,6 +36,9 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /Материалы и цены/);
   assert.match(indexHtml, /hero-benefits/);
   assert.match(indexHtml, /hero-visual/);
+  assert.match(indexHtml, /floatingHeader\.style\.transform/);
+  assert.match(indexHtml, /floatingMenu\.innerHTML/);
+  assert.match(indexHtml, /1790404416245-xqje24-281189AA-F892-4B6E-B3FE-583E8BC6FE0C\.webp/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
