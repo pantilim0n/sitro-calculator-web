@@ -100,6 +100,7 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить работу<\/summary>/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Фотографии портфолио<\/summary>/);
   assert.match(adminHtml, /batchFileInput\.multiple=true/);
+  assert.match(adminHtml, /id="openMaterialsEditor"/);
   assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
   assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);
 
