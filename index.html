@@ -319,15 +319,15 @@ document.addEventListener('DOMContentLoaded',async()=>{
  try{const stamp='?portfolio='+Date.now();const [r,cr]=await Promise.all([fetch('/portfolio.json'+stamp,{cache:'no-store'}),fetch('/portfolio-categories.json'+stamp,{cache:'no-store'})]);if(!r.ok||!cr.ok)throw new Error('Portfolio HTTP error');items=(await r.json()).filter(x=>x.visible!==false).sort((a,b)=>(a.sort??999)-(b.sort??999));configuredCats=await cr.json();}
  catch(e){grid.innerHTML='<p class="sub">Не удалось загрузить работы.</p>';toggle.style.display='none';return;}
  const cats=['Все',...new Set([...(Array.isArray(configuredCats)?configuredCats:[]),...items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean)])];
- filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>').join('');
+ filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" aria-pressed="'+(c==='Все'?'true':'false')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>').join('');grid.setAttribute('aria-live','polite');
  function render(){
    const list=(active==='Все'?[...items].sort((a,b)=>(Number(!!b.featured)-Number(!!a.featured))||((a.sort??999)-(b.sort??999))):items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active)));
    const shown=expanded?list:list.slice(0,6);
-   grid.innerHTML=shown.map(x=>{const title=x.title||'3D-печать СИТРО';const categories=Array.isArray(x.categories)?x.categories.join(', '):(x.category||'');return '<figure class="work" role="button" tabindex="0" aria-label="Открыть: '+esc(title)+'" data-title="'+esc(title)+'" data-categories="'+esc(categories)+'" data-description="'+esc(x.description||'')+'"><img src="'+esc(x.src)+'" alt="'+esc(title)+'" loading="lazy" decoding="async"><figcaption>'+esc(title)+'</figcaption></figure>';}).join('');
+   grid.innerHTML=shown.length?shown.map(x=>{const title=x.title||'3D-печать СИТРО';const categories=Array.isArray(x.categories)?x.categories.join(', '):(x.category||'');return '<figure class="work" role="button" tabindex="0" aria-label="Открыть: '+esc(title)+'" data-title="'+esc(title)+'" data-categories="'+esc(categories)+'" data-description="'+esc(x.description||'')+'"><img src="'+esc(x.src)+'" alt="'+esc(title)+'" loading="lazy" decoding="async"><figcaption>'+esc(title)+'</figcaption></figure>';}).join(''):'<div class="portfolio-loading" role="status">В этой категории пока нет работ.</div>';
    toggle.style.display=list.length>6?'inline-flex':'none';
    toggle.textContent=expanded?'Скрыть работы':'Показать все работы';
  }
- filters.addEventListener('click',e=>{const b=e.target.closest('.portfolio-filter');if(!b)return;active=b.dataset.cat;expanded=false;filters.querySelectorAll('.portfolio-filter').forEach(x=>x.classList.toggle('active',x===b));render();});
+ filters.addEventListener('click',e=>{const b=e.target.closest('.portfolio-filter');if(!b)return;active=b.dataset.cat;expanded=false;filters.querySelectorAll('.portfolio-filter').forEach(x=>{const selected=x===b;x.classList.toggle('active',selected);x.setAttribute('aria-pressed',String(selected))});render();});
  toggle.addEventListener('click',()=>{expanded=!expanded;render();});
  render();
 });
