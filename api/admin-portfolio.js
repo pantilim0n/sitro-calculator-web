@@ -37,13 +37,27 @@ export function cleanServices(values) {
 function cleanSocials(value) {
   if (!value || typeof value !== 'object') throw new Error('Некорректные соцсети');
   const text = (input, max=200) => String(input || '').trim().slice(0, max);
-  const url = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
-  const telegram = text(value.telegram, 80);
-  const email = text(value.email, 200);
-  if (email && (!email.includes('@') || email.length > 200)) throw new Error('Проверьте электронную почту');
-  return {telegram, email, telegramChannel: url(value.telegramChannel), vk: url(value.vk)};
+  const allowedTypes = new Set(['max', 'telegram', 'phone', 'email', 'vk', 'custom']);
+  const allowedGroups = new Set(['contact', 'follow']);
+  const safeUrl = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:', 'tel:', 'mailto:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
+  if (Array.isArray(value.items)) {
+    const items = value.items.slice(0, 30).map((item, index) => {
+      if (!item || typeof item !== 'object') throw new Error('Некорректная соцсеть');
+      const type = allowedTypes.has(item.type) ? item.type : 'custom';
+      const group = allowedGroups.has(item.group) ? item.group : 'contact';
+      const label = text(item.label, 100); if (!label) throw new Error('Укажите название соцсети');
+      return {id: text(item.id, 80) || `${type}-${index+1}`, type, label, url: safeUrl(item.url), group, enabled: item.enabled !== false};
+    });
+    return {items};
+  }
+  const legacy = value;
+  const items = [];
+  if (legacy.telegram) items.push({id:'telegram',type:'telegram',label:text(legacy.telegram,80),url:safeUrl(`https://t.me/${text(legacy.telegram,80).replace(/^@/,'')}`),group:'contact',enabled:true});
+  if (legacy.email) items.push({id:'email',type:'email',label:text(legacy.email,200),url:safeUrl(`mailto:${text(legacy.email,200)}`),group:'contact',enabled:true});
+  if (legacy.telegramChannel) items.push({id:'telegram-channel',type:'telegram',label:'Telegram-канал',url:safeUrl(legacy.telegramChannel),group:'follow',enabled:true});
+  if (legacy.vk) items.push({id:'vk',type:'vk',label:'Группа VK',url:safeUrl(legacy.vk),group:'follow',enabled:true});
+  return {items};
 }
-
 function cleanCategories(values) {
   if (!Array.isArray(values)) throw new Error('Некорректный список категорий');
   return [...new Set(values.map(value => String(value).trim()).filter(Boolean))];
