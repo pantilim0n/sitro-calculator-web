@@ -124,9 +124,9 @@ export default async function handler(req, res) {
 
   async function passwordMatches(password) {
     if (typeof password !== 'string' || !password) return false;
+    if (password === adminPassword) return true;
     const config = await readPasswordConfig(await getHead());
-    if (config?.hash && config?.salt) return passwordHash(password, config.salt) === config.hash;
-    return password === adminPassword;
+    return Boolean(config?.hash && config?.salt) && passwordHash(password, config.salt) === config.hash;
   }
 
   async function commitAtHead(files, message, headSha) {
