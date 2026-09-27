@@ -360,4 +360,14 @@ if(!document.getElementById('sitroTrust'))document.querySelector('#services')?.i
 if(!document.getElementById('faq'))document.querySelector('#contacts')?.insertAdjacentHTML('beforebegin','<section class="faq-section" id="faq"><div class="wrap"><h2 class="title">Частые вопросы</h2><p class="sub">Коротко отвечаем на основные вопросы перед заказом.</p><div class="faq-list"><details><summary>Какие файлы можно отправить?</summary><p>Подойдут STL-файлы или ссылка на модель MakerWorld. Если модели нет, можно прислать размеры, фото или образец.</p></details><details><summary>Как рассчитывается стоимость?</summary><p>Калькулятор учитывает материал, количество и параметры печати. Для сложных моделей итог подтверждаем после проверки.</p></details><details><summary>Сколько занимает печать?</summary><p>Срок зависит от размера и количества деталей. Ориентировочный срок сообщим вместе с расчётом.</p></details><details><summary>Можно ли заказать доставку?</summary><p>Да, отправляем по России. В Липецке доступен самовывоз.</p></details></div></div></section>');
 
 const menuLinks=document.querySelectorAll('#mobileMenu a,.menu a');if(menuLinks.length&&!document.querySelector('#mobileMenu a[href="#faq"]')){document.querySelector('#mobileMenu')?.insertAdjacentHTML('beforeend','<a href="#faq">Частые вопросы</a>');document.querySelector('.menu')?.insertAdjacentHTML('beforeend','<a href="#faq">FAQ</a>')}
+</script><script>
+const orderFieldsStep=document.getElementById('stlOrderFields'),calcResultStep=document.getElementById('calcResult'),orderActionsStep=document.getElementById('makerOrderActions'),calculateStep=document.getElementById('calculate');
+if(orderFieldsStep&&calcResultStep&&calculateStep&&!document.getElementById('showOrderStep')){
+  orderFieldsStep.style.display='none';orderActionsStep.style.display='none';
+  calcResultStep.insertAdjacentHTML('beforeend','<button class="order-step-button" id="showOrderStep" type="button">Оформить заказ</button>');
+  const showOrderStep=document.getElementById('showOrderStep');
+  showOrderStep.onclick=()=>{orderFieldsStep.style.display='grid';orderActionsStep.style.display='flex';showOrderStep.style.display='none';orderFieldsStep.scrollIntoView({behavior:'smooth',block:'center'});};
+  calculateStep.addEventListener('click',()=>{showOrderStep.style.display='none';orderFieldsStep.style.display='none';orderActionsStep.style.display='none';setTimeout(()=>{if(calcResultStep.style.display!=='none')showOrderStep.style.display='block';},0)});
+  const stepStyle=document.createElement('style');stepStyle.textContent='.order-step-button{display:none;width:100%;margin-top:18px;padding:15px;border:1px solid #ff7900;border-radius:13px;background:#ff7900;color:#111;font-weight:850;font-size:16px;cursor:pointer}.order-step-button:hover{background:#ff9636}';document.head.append(stepStyle);
+}
 </script></body></html>
