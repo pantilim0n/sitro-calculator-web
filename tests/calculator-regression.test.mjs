@@ -33,6 +33,7 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
 test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /От идеи до <span class="orange">готовой детали<\/span> в 3D/);
   assert.match(indexHtml, /class="header-cta"/);
+  assert.match(indexHtml, /Материалы и цены/);
   assert.match(indexHtml, /hero-benefits/);
   assert.match(indexHtml, /hero-visual/);
 });
