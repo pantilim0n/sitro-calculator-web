@@ -99,10 +99,11 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /action:'saveAll'/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить работу<\/summary>/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Фотографии портфолио<\/summary>/);
+  assert.match(adminHtml, /batchFileInput\.multiple=true/);
   assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
   assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);
 
-  const script = adminHtml.match(/<script type="module">([\s\S]*)<\/script>/)?.[1] || '';
+  const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
 });
 

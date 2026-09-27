@@ -30,6 +30,13 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
   assert.match(indexHtml, /placeholder="https:\/\/makerworld\.com\/models\/3331794"/);
 });
 
+test('site follows the supplied СИТРО hero direction', () => {
+  assert.match(indexHtml, /От идеи до <span class="orange">готовой детали<\/span> в 3D/);
+  assert.match(indexHtml, /class="header-cta"/);
+  assert.match(indexHtml, /hero-benefits/);
+  assert.match(indexHtml, /hero-visual/);
+});
+
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
   assert.match(indexHtml, /type==='reload'/);
   assert.match(indexHtml, /history\.scrollRestoration='manual'/);
