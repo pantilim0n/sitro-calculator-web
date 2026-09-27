@@ -1,3 +1,4 @@
+import {createHash, randomBytes} from 'node:crypto';
 export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
 const DEFAULT_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
@@ -85,13 +86,13 @@ export default async function handler(req, res) {
   if (parts.length !== 2 || parts.some(part => !part)) return res.status(503).json({error: 'GITHUB_REPO настроен неверно.'});
   if (/[^\x20-\x7E]/.test(token)) return res.status(503).json({error: 'GITHUB_TOKEN в Vercel заполнен неверно: токен должен состоять только из латинских символов и цифр.'});
 
-  const body = req.body || {};
-  if (body.password !== adminPassword) return res.status(401).json({error: 'Неверный пароль'});
-  if (body.action === 'auth') return res.status(200).json({ok: true});
-
   const [owner, name] = parts;
   const repoApi = 'https://api.github.com/repos/' + owner + '/' + name;
   const headers = {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json'};
+
+  const body = req.body || {};
+  if (!(await passwordMatches(body.password))) return res.status(401).json({error: 'Неверный пароль'});
+  if (body.action === 'auth') return res.status(200).json({ok: true});
 
   async function github(path, options = {}) {
     const response = await fetch(repoApi + path, {...options, headers: {...headers, ...(options.headers || {})}});
@@ -113,6 +114,19 @@ export default async function handler(req, res) {
     const file = await github('/contents/' + path.split('/').map(encodeURIComponent).join('/') + '?ref=' + encodeURIComponent(headSha));
     const content = Buffer.from(String(file.content || '').replace(/\s/g, ''), 'base64').toString('utf8');
     return JSON.parse(content);
+  }
+
+  async function readPasswordConfig(headSha) {
+    try { return await readJsonAt('admin-password.json', headSha); } catch (error) { if (error.status === 404) return null; throw error; }
+  }
+
+  function passwordHash(password, salt) { return createHash('sha256').update(String(salt) + ':' + String(password)).digest('hex'); }
+
+  async function passwordMatches(password) {
+    if (typeof password !== 'string' || !password) return false;
+    const config = await readPasswordConfig(await getHead());
+    if (config?.hash && config?.salt) return passwordHash(password, config.salt) === config.hash;
+    return password === adminPassword;
   }
 
   async function commitAtHead(files, message, headSha) {
@@ -163,6 +177,19 @@ export default async function handler(req, res) {
     if (body.action === 'saveServices') {
       const sha = await commitFiles([{path: 'services.json', content: textToBase64(cleanServices(body.services))}], 'Update services from admin');
       return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'changePassword') {
+      const nextPassword = String(body.newPassword || '');
+      if (nextPassword.length < 8 || nextPassword.length > 200) return res.status(400).json({error: 'Новый пароль должен содержать от 8 до 200 символов.'});
+      const salt = randomBytes(16).toString('hex');
+      const config = {version: 1, salt, hash: passwordHash(nextPassword, salt), updatedAt: new Date().toISOString()};
+      const sha = await commitFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Update admin password');
+      return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'resetPassword') {
+      const config = {version: 1, resetToEnvironment: true, updatedAt: new Date().toISOString()};
+      const sha = await commitFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Reset admin password to environment setting');
+      return res.status(200).json({ok: true, sha, reset: true});
     }
     if (body.action === 'uploadOnly') {
       assertImage(body.filename, body.dataBase64);
