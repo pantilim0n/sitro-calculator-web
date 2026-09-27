@@ -39,6 +39,8 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /floatingHeader\.style\.transform/);
   assert.match(indexHtml, /floatingMenu\.innerHTML/);
   assert.match(indexHtml, /mobileButton\.onclick/);
+  assert.match(indexHtml, /brandLink\.addEventListener\('click'/);
+  assert.match(indexHtml, /heroIcons=\[/);
   assert.match(indexHtml, /hero-detail\.png/);
 });
 
