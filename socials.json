@@ -1,10 +1,52 @@
 {
   "items": [
-    {"id":"max","type":"max","label":"MAX","url":"https://max.ru/","group":"contact","enabled":true},
-    {"id":"telegram","type":"telegram","label":"@SITMAKER","url":"https://t.me/SITMAKER","group":"contact","enabled":true},
-    {"id":"phone","type":"phone","label":"+7 905 688-44-43","url":"tel:+79056884443","group":"contact","enabled":true},
-    {"id":"email","type":"email","label":"sitmaker@yandex.ru","url":"mailto:sitmaker@yandex.ru","group":"contact","enabled":true},
-    {"id":"telegram-channel","type":"telegram","label":"Telegram-канал","url":"https://t.me/sitro48","group":"follow","enabled":true},
-    {"id":"vk","type":"vk","label":"Группа VK","url":"https://vk.ru/sitmaker","group":"follow","enabled":true}
+    {
+      "id": "max",
+      "type": "max",
+      "label": "MAX",
+      "url": "https://max.ru/",
+      "group": "contact",
+      "enabled": true
+    },
+    {
+      "id": "telegram",
+      "type": "telegram",
+      "label": "Телеграм",
+      "url": "https://t.me/SITMAKER",
+      "group": "contact",
+      "enabled": true
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "label": "+7 905 688-44-43",
+      "url": "tel:+79056884443",
+      "group": "contact",
+      "enabled": true
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "label": "Почта",
+      "url": "mailto:sitmaker@yandex.ru",
+      "group": "contact",
+      "enabled": true
+    },
+    {
+      "id": "telegram-channel",
+      "type": "telegram",
+      "label": "Telegram-канал",
+      "url": "https://t.me/sitro48",
+      "group": "follow",
+      "enabled": true
+    },
+    {
+      "id": "vk",
+      "type": "vk",
+      "label": "Группа VK",
+      "url": "https://vk.ru/sitmaker",
+      "group": "follow",
+      "enabled": true
+    }
   ]
 }
