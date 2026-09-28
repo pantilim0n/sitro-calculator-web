@@ -37,7 +37,7 @@ export function cleanServices(values) {
 function cleanSocials(value) {
   if (!value || typeof value !== 'object') throw new Error('Некорректные соцсети');
   const text = (input, max=200) => String(input || '').trim().slice(0, max);
-  const allowedTypes = new Set(['max', 'telegram', 'phone', 'email', 'vk', 'custom']);
+  const allowedTypes = new Set(['max', 'telegram', 'whatsapp', 'phone', 'email', 'vk', 'map', 'web', 'custom']);
   const allowedGroups = new Set(['contact', 'follow']);
   const safeUrl = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:', 'tel:', 'mailto:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
   if (Array.isArray(value.items)) {
@@ -46,16 +46,16 @@ function cleanSocials(value) {
       const type = allowedTypes.has(item.type) ? item.type : 'custom';
       const group = allowedGroups.has(item.group) ? item.group : 'contact';
       const label = text(item.label, 100); if (!label) throw new Error('Укажите название соцсети');
-      return {id: text(item.id, 80) || `${type}-${index+1}`, type, label, url: safeUrl(item.url), group, enabled: item.enabled !== false};
+      const colorRaw=text(item.color, 20); const color=/^#[0-9a-fA-F]{6}$/.test(colorRaw)?colorRaw:''; return {id: text(item.id, 80) || `${type}-${index+1}`, type, label, url: safeUrl(item.url), group, color, enabled: item.enabled !== false};
     });
     return {items};
   }
   const legacy = value;
   const items = [];
-  if (legacy.telegram) items.push({id:'telegram',type:'telegram',label:text(legacy.telegram,80),url:safeUrl(`https://t.me/${text(legacy.telegram,80).replace(/^@/,'')}`),group:'contact',enabled:true});
-  if (legacy.email) items.push({id:'email',type:'email',label:text(legacy.email,200),url:safeUrl(`mailto:${text(legacy.email,200)}`),group:'contact',enabled:true});
-  if (legacy.telegramChannel) items.push({id:'telegram-channel',type:'telegram',label:'Telegram-канал',url:safeUrl(legacy.telegramChannel),group:'follow',enabled:true});
-  if (legacy.vk) items.push({id:'vk',type:'vk',label:'Группа VK',url:safeUrl(legacy.vk),group:'follow',enabled:true});
+  if (legacy.telegram) items.push({id:'telegram',type:'telegram',label:text(legacy.telegram,80),url:safeUrl(`https://t.me/${text(legacy.telegram,80).replace(/^@/,'')}`),group:'contact',color:'#229ED9',enabled:true});
+  if (legacy.email) items.push({id:'email',type:'email',label:text(legacy.email,200),url:safeUrl(`mailto:${text(legacy.email,200)}`),group:'contact',color:'#EA4335',enabled:true});
+  if (legacy.telegramChannel) items.push({id:'telegram-channel',type:'telegram',label:'Telegram-канал',url:safeUrl(legacy.telegramChannel),group:'follow',color:'#229ED9',enabled:true});
+  if (legacy.vk) items.push({id:'vk',type:'vk',label:'Группа VK',url:safeUrl(legacy.vk),group:'follow',color:'#0077FF',enabled:true});
   return {items};
 }
 
