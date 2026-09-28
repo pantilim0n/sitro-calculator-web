@@ -19,6 +19,7 @@ function updateContact(config){
     link.href=config.phoneUrl||fallbackConfig.phoneUrl;
     const label=link.querySelector('span:last-child');if(label)label.textContent=config.phoneLabel||fallbackConfig.phoneLabel;
   });
+  document.querySelectorAll('.mobile-call-button').forEach(link=>{link.href=config.phoneUrl||fallbackConfig.phoneUrl;link.setAttribute('aria-label','Позвонить в СИТРО: '+(config.phoneLabel||fallbackConfig.phoneLabel));link.title=config.phoneLabel||fallbackConfig.phoneLabel});
   const contact=document.querySelector('#contacts .contact');
   const address=contact?.querySelector('.contact-address');
   if(!contact||!address)return;

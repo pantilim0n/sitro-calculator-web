@@ -74,9 +74,12 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
   assert.match(designKit, /@media \(max-width: 760px\)/);
   assert.match(designKit, /\.prompt-mobile-photo::after/);
+  assert.match(designKit, /\.mobile-call-button/);
+  assert.match(indexHtml, /class="mobile-call-button"[^>]+href="tel:\+79056884443"/);
   assert.match(designKit, /\.calc \.color-swatch/);
   assert.match(designKit, /min-width: 761px/);
   assert.match(designKitScript, /icon-clients\.svg/);
+  assert.match(designKitScript, /tel:\+79056884443/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {

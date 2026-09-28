@@ -88,6 +88,10 @@ body {
   color: #17100c !important;
 }
 
+.mobile-call-button {
+  display: none;
+}
+
 .hero {
   position: relative !important;
   min-height: 580px !important;
@@ -438,6 +442,37 @@ section:not(.hero):not(.trust-section) {
     background: rgba(15,18,20,.96) !important;
   }
 
+  .mobile-call-button {
+    position: fixed;
+    z-index: 20;
+    top: 13px;
+    right: 66px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 108px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid rgba(233,115,47,.62);
+    border-radius: 10px;
+    background: rgba(15,18,20,.96);
+    color: var(--sitro-accent);
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0,0,0,.24);
+  }
+
+  .mobile-call-button svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .mobile-menu {
     top: 66px !important;
     max-height: calc(100vh - 66px);
@@ -547,6 +582,18 @@ section:not(.hero):not(.trust-section) {
   }
 }
 
+@media (max-width: 350px) {
+  .mobile-call-button {
+    min-width: 42px;
+    width: 42px;
+    padding: 0;
+  }
+
+  .mobile-call-button span {
+    display: none;
+  }
+}
+
 @media (orientation: landscape) and (max-height: 600px) {
   .top nav {
     min-height: 58px !important;
@@ -558,6 +605,10 @@ section:not(.hero):not(.trust-section) {
 
   .mobile-menu-button {
     top: 9px !important;
+  }
+
+  .mobile-call-button {
+    top: 9px;
   }
 
   .header-actions {
