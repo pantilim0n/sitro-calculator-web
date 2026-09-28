@@ -126,8 +126,10 @@ test('site contacts and real reviews are validated for the admin', () => {
   assert.equal(config.city, 'Липецк');
   assert.throws(() => cleanSiteConfig({...config, routeUrl: 'javascript:alert(1)'}), /Проложить маршрут/);
 
-  const reviews = cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', photo: '/portfolio/work.jpg', visible: true}]});
+  const reviews = cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', photo: '/portfolio/work.jpg', source: '2ГИС', sourceUrl: 'https://2gis.ru/example', visible: true}]});
   assert.equal(reviews.items.length, 1);
+  assert.equal(reviews.items[0].source, '2ГИС');
+  assert.throws(() => cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', sourceUrl: 'javascript:alert(1)'}]}), /источник отзыва/i);
   assert.throws(() => cleanReviews({items: [{name: '', text: ''}]}), /имя и текст/i);
 });
 

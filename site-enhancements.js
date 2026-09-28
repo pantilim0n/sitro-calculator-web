@@ -64,7 +64,9 @@ function renderReviews(data){
     if(text(item.photo)){const image=document.createElement('img');image.className='review-photo';image.src=item.photo;image.alt='Работа для '+item.name;image.loading='lazy';head.appendChild(image)}else{const avatar=document.createElement('span');avatar.className='review-avatar';avatar.textContent=item.name.slice(0,1).toUpperCase();head.appendChild(avatar)}
     const who=document.createElement('div');const name=document.createElement('strong');name.className='review-name';name.textContent=item.name;who.appendChild(name);
     if(text(item.meta)){const meta=document.createElement('span');meta.className='review-meta';meta.textContent=item.meta;who.appendChild(meta)}head.appendChild(who);
-    const quote=document.createElement('p');quote.className='review-text';quote.textContent=item.text;card.append(head,quote);grid.appendChild(card);
+    const quote=document.createElement('p');quote.className='review-text';quote.textContent=item.text;card.append(head,quote);
+    if(text(item.source)&&text(item.sourceUrl)){const source=document.createElement('a');source.className='review-source';source.href=item.sourceUrl;source.target='_blank';source.rel='noopener';source.textContent='Отзыв на '+item.source+' ↗';card.appendChild(source)}
+    grid.appendChild(card);
   });
   wrap.appendChild(grid);section.appendChild(wrap);document.querySelector('#faq')?.before(section);
 }

@@ -56,6 +56,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(siteEnhancements, /fetchJson\('\/site-config\.json'/);
   assert.match(siteEnhancements, /fetchJson\('\/reviews\.json'/);
   assert.match(siteEnhancements, /Отзывы заказчиков/);
+  assert.match(siteEnhancements, /Отзыв на/);
   assert.match(siteEnhancementStyles, /\.reviews-grid/);
 });
 

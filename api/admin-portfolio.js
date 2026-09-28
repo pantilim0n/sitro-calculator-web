@@ -91,6 +91,17 @@ export function cleanSiteConfig(value) {
 
 export function cleanReviews(value) {
   if (!value || typeof value !== 'object' || !Array.isArray(value.items) || value.items.length > 30) throw new Error('Некорректные отзывы');
+  const safeSourceUrl = (input, index) => {
+    const result = String(input || '').trim().slice(0, 800);
+    if (!result) return '';
+    try {
+      const parsed = new URL(result);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
+      return result;
+    } catch {
+      throw new Error('Проверьте ссылку на источник отзыва в строке ' + (index + 1));
+    }
+  };
   return {items: value.items.map((item, index) => {
     if (!item || typeof item !== 'object') throw new Error('Некорректный отзыв в строке ' + (index + 1));
     const name = String(item.name || '').trim().slice(0, 120);
@@ -104,6 +115,8 @@ export function cleanReviews(value) {
       meta: String(item.meta || '').trim().slice(0, 200),
       text,
       photo,
+      source: String(item.source || '').trim().slice(0, 100),
+      sourceUrl: safeSourceUrl(item.sourceUrl, index),
       sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index + 1,
       visible: item.visible !== false
     };

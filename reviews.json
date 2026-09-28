@@ -1,3 +1,70 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "2gis-anastasia-tikhomirova",
+      "name": "Анастасия Тихомирова",
+      "meta": "Чехол по индивидуальной модели · 4 августа 2026",
+      "text": "Всё размер в размер. Печать быстрая и качественная.",
+      "photo": "",
+      "source": "2ГИС",
+      "sourceUrl": "https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews",
+      "sort": 1,
+      "visible": true
+    },
+    {
+      "id": "yandex-alexander-ivanov",
+      "name": "Александр Иванов",
+      "meta": "Изготовление по фотографии · 16 июля 2026",
+      "text": "Позвонил, отправил фото и забрал заказ. Всё переделали без проблем.",
+      "photo": "",
+      "source": "Яндекс Карты",
+      "sourceUrl": "https://yandex.ru/maps/org/sitro/134340194788/reviews/",
+      "sort": 2,
+      "visible": true
+    },
+    {
+      "id": "2gis-dmitry-zaitsev",
+      "name": "Дмитрий Зайцев",
+      "meta": "3 апреля 2026",
+      "text": "Выполнили работу качественно и быстро.",
+      "photo": "",
+      "source": "2ГИС",
+      "sourceUrl": "https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews",
+      "sort": 3,
+      "visible": true
+    },
+    {
+      "id": "yandex-margarita-shapovalova",
+      "name": "Маргарита Шаповалова",
+      "meta": "Декор для террариума · 12 декабря 2024",
+      "text": "Определились с цветом и размером, а на следующий день заказ уже был готов.",
+      "photo": "",
+      "source": "Яндекс Карты",
+      "sourceUrl": "https://yandex.ru/maps/org/sitro/134340194788/reviews/",
+      "sort": 4,
+      "visible": true
+    },
+    {
+      "id": "2gis-anastasia-belousova",
+      "name": "Анастасия Белоусова",
+      "meta": "Игрушки и сувениры · 30 сентября 2024",
+      "text": "Аккуратная и качественная 3D-печать из хорошего пластика.",
+      "photo": "",
+      "source": "2ГИС",
+      "sourceUrl": "https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews",
+      "sort": 5,
+      "visible": true
+    },
+    {
+      "id": "yandex-elena-kukueva",
+      "name": "Елена Кукуева",
+      "meta": "Индивидуальные фишки · 27 июня 2026",
+      "text": "Заказывала индивидуальные фишки — всё быстро и качественно.",
+      "photo": "",
+      "source": "Яндекс Карты",
+      "sourceUrl": "https://yandex.ru/maps/org/sitro/134340194788/reviews/",
+      "sort": 6,
+      "visible": true
+    }
+  ]
 }

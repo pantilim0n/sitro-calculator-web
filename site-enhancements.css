@@ -19,6 +19,7 @@
 .review-avatar{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;border-radius:14px;background:#24170f;color:#f08b43;font-size:20px;font-weight:900}
 .review-name{display:block;font-size:16px}.review-meta{display:block;margin-top:2px;color:#888;font-size:12px}
 .review-text{margin:0;color:#c5c5c5;line-height:1.6}
+.review-source{display:inline-flex;margin-top:15px;color:#f09a5d;font-size:13px;font-weight:750;text-decoration:none}.review-source:hover{text-decoration:underline}
 .trust-note{grid-column:1/-1;margin:4px 0 0;color:#8f8f8f;font-size:13px;text-align:center}
 .result .price,.stl-total-price{margin:0 0 16px;padding:18px;border:1px solid #e8752266;border-radius:14px;background:#21150d;color:#f39a5b;font-size:clamp(28px,6vw,40px);line-height:1.1;text-align:center}
 .quote-edit{width:100%;margin-top:10px;padding:13px 16px;border:1px solid #3a3a3a;border-radius:12px;background:#171717;color:#ddd;font:inherit;font-weight:750;cursor:pointer}
