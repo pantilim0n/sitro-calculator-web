@@ -463,13 +463,28 @@ section:not(.hero):not(.trust-section) {
   }
 
   .prompt-mobile-photo {
+    position: relative;
+    overflow: hidden;
     display: block !important;
     height: clamp(220px, 66vw, 320px) !important;
-    background-image: linear-gradient(0deg, #080a0b 0%, rgba(8,10,11,.08) 36%), url("/design-assets/hero-printing.png") !important;
+    background-image: radial-gradient(circle at 10% 28%, rgba(232,117,34,.16), transparent 34%), linear-gradient(0deg, #080a0b 0%, rgba(8,10,11,.08) 36%), url("/design-assets/hero-printing.png") !important;
     background-position: 72% 52% !important;
     background-size: auto 150% !important;
     background-repeat: no-repeat !important;
     background-color: #080a0b !important;
+  }
+
+  .prompt-mobile-photo::after {
+    content: "";
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    width: 64px;
+    height: 64px;
+    background: url("/design-assets/icon-cube.svg") center / contain no-repeat;
+    opacity: .2;
+    filter: saturate(.7);
+    pointer-events: none;
   }
 
   .hero-layout {

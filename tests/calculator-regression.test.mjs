@@ -57,7 +57,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /src="\/design-kit\.js\?v=/);
   assert.match(indexHtml, /href="https:\/\/yandex\.ru\/maps\/\?rtext=~52\.578173,39\.510493&amp;rtt=automt"/);
   assert.match(indexHtml, /src="\/site-enhancements\.js\?v=/);
-  assert.match(indexHtml, /href="\/site-enhancements\.css"/);
+  assert.match(indexHtml, /href="\/site-enhancements\.css\?v=/);
   assert.match(indexHtml, /streetAddress/);
   assert.match(indexHtml, /rel="canonical"/);
   assert.equal(businessStructuredData['@type'], 'LocalBusiness');
@@ -66,9 +66,14 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(siteEnhancements, /fetchJson\('\/reviews\.json'/);
   assert.match(siteEnhancements, /Отзывы заказчиков/);
   assert.match(siteEnhancements, /Отзыв на/);
+  assert.match(siteEnhancements, /Оставить отзыв в 2ГИС/);
+  assert.match(siteEnhancements, /70000001092449856\/tab\/reviews/);
+  assert.match(siteEnhancements, /134340194788\/reviews\/\?add-review=true/);
   assert.match(siteEnhancementStyles, /\.reviews-grid/);
+  assert.match(siteEnhancementStyles, /\.review-invitation/);
   assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
   assert.match(designKit, /@media \(max-width: 760px\)/);
+  assert.match(designKit, /\.prompt-mobile-photo::after/);
   assert.match(designKit, /\.calc \.color-swatch/);
   assert.match(designKit, /min-width: 761px/);
   assert.match(designKitScript, /icon-clients\.svg/);

@@ -68,7 +68,9 @@ function renderReviews(data){
     if(text(item.source)&&text(item.sourceUrl)){const source=document.createElement('a');source.className='review-source';source.href=item.sourceUrl;source.target='_blank';source.rel='noopener';source.textContent='Отзыв на '+item.source+' ↗';card.appendChild(source)}
     grid.appendChild(card);
   });
-  wrap.appendChild(grid);section.appendChild(wrap);document.querySelector('#faq')?.before(section);
+  const invitation=document.createElement('div');invitation.className='review-invitation';
+  invitation.innerHTML='<div class="review-invitation-copy"><strong>Уже заказывали у нас?</strong><span>Поделитесь впечатлением — это поможет другим клиентам выбрать СИТРО.</span></div><div class="review-actions"><a class="review-action review-action-2gis" href="https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">2ГИС</span><span>Оставить отзыв в 2ГИС</span></a><a class="review-action review-action-yandex" href="https://yandex.ru/maps/org/sitro/134340194788/reviews/?add-review=true" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">Я</span><span>Оставить отзыв на Яндекс Картах</span></a></div>';
+  wrap.append(grid,invitation);section.appendChild(wrap);document.querySelector('#faq')?.before(section);
 }
 
 function addEditButton(result,target){
