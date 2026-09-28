@@ -14,6 +14,21 @@ async function fetchJson(path,fallback){
 
 function text(value){return String(value??'').trim()}
 
+function reviewServiceType(source){
+  const value=text(source).toLowerCase();
+  if(value.includes('2гис')||value.includes('2gis'))return '2gis';
+  if(value.includes('яндекс')||value.includes('yandex'))return 'yandex';
+  return 'custom';
+}
+
+function appendReviewServiceIcon(target,type){
+  const icon=document.createElement('span');
+  icon.className='review-service-icon review-service-'+type;
+  icon.setAttribute('aria-hidden','true');
+  icon.innerHTML=window.SitroSocialIcons?.render(type)||window.SitroSocialIcons?.render('custom')||'';
+  target.appendChild(icon);
+}
+
 function updateContact(config){
   document.querySelectorAll('.header-contact').forEach(link=>{
     link.href=config.phoneUrl||fallbackConfig.phoneUrl;
@@ -66,11 +81,11 @@ function renderReviews(data){
     const who=document.createElement('div');const name=document.createElement('strong');name.className='review-name';name.textContent=item.name;who.appendChild(name);
     if(text(item.meta)){const meta=document.createElement('span');meta.className='review-meta';meta.textContent=item.meta;who.appendChild(meta)}head.appendChild(who);
     const quote=document.createElement('p');quote.className='review-text';quote.textContent=item.text;card.append(head,quote);
-    if(text(item.source)&&text(item.sourceUrl)){const source=document.createElement('a');source.className='review-source';source.href=item.sourceUrl;source.target='_blank';source.rel='noopener';source.textContent='Отзыв на '+item.source+' ↗';card.appendChild(source)}
+    if(text(item.source)&&text(item.sourceUrl)){const source=document.createElement('a');const sourceType=reviewServiceType(item.source);source.className='review-source review-source-'+sourceType;source.href=item.sourceUrl;source.target='_blank';source.rel='noopener';appendReviewServiceIcon(source,sourceType);const sourceLabel=document.createElement('span');sourceLabel.textContent='Отзыв на '+item.source;source.appendChild(sourceLabel);const arrow=document.createElement('span');arrow.className='review-source-arrow';arrow.setAttribute('aria-hidden','true');arrow.textContent='↗';source.appendChild(arrow);card.appendChild(source)}
     grid.appendChild(card);
   });
   const invitation=document.createElement('div');invitation.className='review-invitation';
-  invitation.innerHTML='<div class="review-invitation-copy"><strong>Уже заказывали у нас?</strong><span>Поделитесь впечатлением — это поможет другим клиентам выбрать СИТРО.</span></div><div class="review-actions"><a class="review-action review-action-2gis" href="https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">2ГИС</span><span>Оставить отзыв в 2ГИС</span></a><a class="review-action review-action-yandex" href="https://yandex.ru/maps/org/sitro/134340194788/reviews/?add-review=true" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">Я</span><span>Оставить отзыв на Яндекс Картах</span></a></div>';
+  invitation.innerHTML='<div class="review-invitation-copy"><strong>Уже заказывали у нас?</strong><span>Поделитесь впечатлением — это поможет другим клиентам выбрать СИТРО.</span></div><div class="review-actions"><a class="review-action review-action-2gis" href="https://2gis.ru/lipetsk/firm/70000001092449856/tab/reviews" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">'+(window.SitroSocialIcons?.render('2gis')||'2ГИС')+'</span><span>Оставить отзыв в 2ГИС</span></a><a class="review-action review-action-yandex" href="https://yandex.ru/maps/org/sitro/134340194788/reviews/?add-review=true" target="_blank" rel="noopener"><span class="review-action-mark" aria-hidden="true">'+(window.SitroSocialIcons?.render('yandex')||'Я')+'</span><span>Оставить отзыв на Яндекс Картах</span></a></div>';
   wrap.append(grid,invitation);section.appendChild(wrap);document.querySelector('#faq')?.before(section);
 }
 

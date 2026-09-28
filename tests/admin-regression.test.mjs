@@ -140,6 +140,9 @@ test('admin offers visual contact icons and accepts expanded social types', () =
   assert.match(socialIcons, /instagram:/);
   assert.match(socialIcons, /youtube:/);
   assert.match(socialIcons, /rutube:/);
+  assert.match(socialIcons, /'2gis':/);
+  assert.match(socialIcons, /yandex:/);
+  assert.match(adminHtml, /Иконка сервиса/);
   const cleaned = cleanSocials({items: [{type: 'instagram', label: 'Instagram', url: 'https://instagram.com/sitro', group: 'follow', color: '#E4405F'}]});
   assert.equal(cleaned.items[0].type, 'instagram');
   assert.equal(cleaned.items[0].color, '#E4405F');

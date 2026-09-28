@@ -74,6 +74,9 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
   assert.match(designKit, /@media \(max-width: 760px\)/);
   assert.match(designKit, /\.prompt-mobile-photo::after/);
+  assert.match(designKit, /background-size: 100% 100%, 100% auto/);
+  assert.match(siteEnhancements, /review-service-icon/);
+  assert.match(siteEnhancements, /SitroSocialIcons\?\.render\('2gis'\)/);
   assert.match(designKit, /\.mobile-call-button/);
   assert.match(indexHtml, /class="mobile-call-button"[^>]+href="tel:\+79056884443"/);
   assert.match(designKit, /\.calc \.color-swatch/);
