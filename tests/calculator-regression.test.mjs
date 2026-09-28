@@ -23,7 +23,10 @@ const businessStructuredData = JSON.parse(indexHtml.match(/<script type="applica
 test('calculator loads editable pricing and keeps current production tariffs', () => {
   assert.match(indexHtml, /fetch\('\/pricing\.json\?pricing='/);
   assert.match(indexHtml, /await pricingReady/);
-  assert.deepEqual(Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price])), {PLA:12, PETG:8, ABS:11, ASA:24, PA:20});
+  const materialPrices = Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price]));
+  assert.deepEqual(Object.fromEntries(['PLA', 'PETG', 'ABS', 'ASA', 'PA'].map(code => [code, materialPrices[code]])), {PLA:12, PETG:8, ABS:11, ASA:24, PA:20});
+  assert.equal(materialPrices.TPU, 18);
+  assert.ok(Object.values(pricing.materials).every(material => Number(material.price) > 0 && Number(material.density) > 0));
   assert.equal(pricing.machineHour, 10);
   assert.equal(pricing.minimumOrder, 300);
 });
