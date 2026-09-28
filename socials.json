@@ -6,8 +6,8 @@
       "label": "MAX",
       "url": "https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8",
       "group": "contact",
-      "enabled": true,
-      "color": "#7C3AED"
+      "color": "#7c3aed",
+      "enabled": true
     },
     {
       "id": "telegram",
@@ -15,8 +15,8 @@
       "label": "Телеграм",
       "url": "https://t.me/SITMAKER",
       "group": "contact",
-      "enabled": true,
-      "color": "#229ED9"
+      "color": "#229ed9",
+      "enabled": true
     },
     {
       "id": "phone",
@@ -24,8 +24,8 @@
       "label": "+7 905 688-44-43",
       "url": "tel:+79056884443",
       "group": "contact",
-      "enabled": true,
-      "color": "#F59E0B"
+      "color": "#00c217",
+      "enabled": true
     },
     {
       "id": "email",
@@ -33,8 +33,8 @@
       "label": "Почта",
       "url": "mailto:sitmaker@yandex.ru",
       "group": "contact",
-      "enabled": true,
-      "color": "#EA4335"
+      "color": "#ea4335",
+      "enabled": true
     },
     {
       "id": "telegram-channel",
@@ -42,8 +42,8 @@
       "label": "Telegram-канал",
       "url": "https://t.me/sitro48",
       "group": "follow",
-      "enabled": true,
-      "color": "#229ED9"
+      "color": "#229ed9",
+      "enabled": true
     },
     {
       "id": "vk",
@@ -51,8 +51,8 @@
       "label": "Группа VK",
       "url": "https://vk.ru/sitmaker",
       "group": "follow",
-      "enabled": true,
-      "color": "#0077FF"
+      "color": "#0077ff",
+      "enabled": true
     }
   ]
 }
