@@ -111,7 +111,7 @@ body {
   opacity: 1 !important;
   transform: none !important;
   filter: none !important;
-  background-image: url("/design-assets/hero-printing.png") !important;
+  background-image: url("/design-assets/hero-printing.jpg") !important;
   background-position: right center !important;
   background-size: auto 125% !important;
   background-repeat: no-repeat !important;
@@ -384,6 +384,9 @@ section:not(.hero):not(.trust-section) {
 }
 
 @media (min-width: 761px) and (max-width: 1180px) {
+  .hero::after {
+    background-position: var(--hero-tablet-x, 70%) center !important;
+  }
   .hero-copy {
     text-shadow: 0 3px 18px rgba(0,0,0,.94), 0 1px 3px rgba(0,0,0,1);
   }
@@ -524,9 +527,9 @@ section:not(.hero):not(.trust-section) {
     overflow: hidden;
     display: block !important;
     height: clamp(340px, 96vw, 400px) !important;
-    background-image: linear-gradient(180deg, rgba(8,10,11,.02) 0%, rgba(8,10,11,.08) 42%, rgba(8,10,11,.78) 68%, #080a0b 96%), url("/design-assets/hero-printing.png") !important;
-    background-position: center top, center top !important;
-    background-size: 100% 100%, 100% auto !important;
+    background-image: linear-gradient(180deg, rgba(8,10,11,.02) 0%, rgba(8,10,11,.08) 42%, rgba(8,10,11,.78) 68%, #080a0b 96%), url("/design-assets/hero-printing.jpg") !important;
+    background-position: center top, var(--hero-mobile-x, 50%) top !important;
+    background-size: 100% 100%, var(--hero-mobile-scale, 100%) auto !important;
     background-repeat: no-repeat !important;
     background-color: #080a0b !important;
   }

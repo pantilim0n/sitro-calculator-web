@@ -51,8 +51,8 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /mobileButton\.onclick/);
   assert.match(indexHtml, /brandLink\.addEventListener\('click'/);
   assert.match(indexHtml, /heroIcons=\[/);
-  assert.match(indexHtml, /design-assets\/hero-printing\.png/);
-  assert.match(indexHtml, /design-assets\/sitro-logo\.png/);
+  assert.match(indexHtml, /design-assets\/hero-printing\.jpg/);
+  assert.match(indexHtml, /design-assets\/sitro-logo-small\.png/);
   assert.match(indexHtml, /href="\/design-kit\.css\?v=/);
   assert.match(indexHtml, /src="\/design-kit\.js\?v=/);
   assert.match(indexHtml, /href="https:\/\/yandex\.ru\/maps\/\?rtext=~52\.578173,39\.510493&amp;rtt=automt"/);
@@ -71,10 +71,10 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(siteEnhancements, /134340194788\/reviews\/\?add-review=true/);
   assert.match(siteEnhancementStyles, /\.reviews-grid/);
   assert.match(siteEnhancementStyles, /\.review-invitation/);
-  assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
+  assert.match(designKit, /url\("\/design-assets\/hero-printing\.jpg"\)/);
   assert.match(designKit, /@media \(max-width: 760px\)/);
   assert.match(designKit, /\.prompt-mobile-photo::after/);
-  assert.match(designKit, /background-size: 100% 100%, 100% auto/);
+  assert.match(designKit, /background-size: 100% 100%, var\(--hero-mobile-scale, 100%\) auto/);
   assert.match(siteEnhancements, /review-service-icon/);
   assert.match(siteEnhancements, /SitroSocialIcons\?\.render\('2gis'\)/);
   assert.match(designKit, /\.mobile-call-button/);
@@ -83,6 +83,21 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKit, /min-width: 761px/);
   assert.match(designKitScript, /icon-clients\.svg/);
   assert.match(designKitScript, /tel:\+79056884443/);
+});
+
+test('calculator communicates its four steps and offers direct order channels', () => {
+  assert.match(siteEnhancements, /className='calc-progress'/);
+  assert.match(siteEnhancements, /Модель[\s\S]*Параметры[\s\S]*Стоимость[\s\S]*Оформление/);
+  assert.match(siteEnhancements, /https:\/\/t\.me\/SITMAKER/);
+  assert.match(siteEnhancements, /order-channel-'\+type/);
+});
+
+test('portfolio supports optional production details without inventing values', () => {
+  assert.match(indexHtml, /data-material/);
+  assert.match(indexHtml, /data-dimensions/);
+  assert.match(indexHtml, /data-lead-time/);
+  assert.match(indexHtml, /data-price-from/);
+  assert.match(indexHtml, /id="lightboxMeta"/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {

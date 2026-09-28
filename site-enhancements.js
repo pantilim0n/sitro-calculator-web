@@ -5,7 +5,10 @@ const fallbackConfig={
   addressNote:'Рынок «Европейский». Встречи по предварительной договорённости.',
   routeUrl:'https://yandex.ru/maps/?rtext=~52.578173,39.510493&rtt=automt',
   city:'Липецк',
-  region:'Липецкая область'
+  region:'Липецкая область',
+  heroMobileX:50,
+  heroTabletX:70,
+  heroMobileScale:100
 };
 
 async function fetchJson(path,fallback){
@@ -63,6 +66,14 @@ function updateStructuredData(config){
   node.textContent=JSON.stringify(data);
 }
 
+function applyHeroConfig(config){
+  const root=document.documentElement;
+  const clamp=(value,fallback,min,max)=>Math.min(max,Math.max(min,Number(value)||fallback));
+  root.style.setProperty('--hero-mobile-x',clamp(config.heroMobileX,50,0,100)+'%');
+  root.style.setProperty('--hero-tablet-x',clamp(config.heroTabletX,70,0,100)+'%');
+  root.style.setProperty('--hero-mobile-scale',clamp(config.heroMobileScale,100,80,150)+'%');
+}
+
 function updateTrust(){
   const grid=document.querySelector('#sitroTrust .trust-grid');if(!grid)return;
   grid.innerHTML='<div class="trust-item"><i><img src="/design-assets/icon-cube.svg" alt="" aria-hidden="true"></i><div><b>Точная печать</b><span>настройки под задачу</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-materials.svg" alt="" aria-hidden="true"></i><div><b>Широкий выбор материалов</b><span>PLA, PETG, ABS, ASA, PA</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-speed.svg" alt="" aria-hidden="true"></i><div><b>Согласованные сроки</b><span>подтверждаем до запуска</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-clients.svg" alt="" aria-hidden="true"></i><div><b>Для частных клиентов и бизнеса</b><span>от одной детали до серии</span></div></div>';
@@ -96,10 +107,29 @@ function addEditButton(result,target){
 
 function enhanceCalculator(){
   const calc=document.querySelector('#calculator .calc');const maker=document.getElementById('calcResult');const stl=document.getElementById('stlResult');if(!calc)return;
+  if(!calc.querySelector('.calc-progress')){
+    const progress=document.createElement('ol');progress.className='calc-progress';progress.setAttribute('aria-label','Этапы расчёта');progress.innerHTML='<li class="active" data-step="1"><b>1</b><span>Модель</span></li><li data-step="2"><b>2</b><span>Параметры</span></li><li data-step="3"><b>3</b><span>Стоимость</span></li><li data-step="4"><b>4</b><span>Оформление</span></li>';
+    calc.querySelector('.calc-mode-tabs')?.before(progress);
+    const setStep=step=>progress.querySelectorAll('li').forEach(item=>{const value=Number(item.dataset.step);item.classList.toggle('active',value===step);item.classList.toggle('done',value<step)});
+    document.addEventListener('input',event=>{if(event.target.matches('#mwUrl,#file,#quantity,.stl-qty,#material,.stl-material'))setStep(2)});
+    document.addEventListener('click',event=>{if(event.target.closest('#calculate,#sliceStl'))setTimeout(()=>setStep(3),100);if(event.target.closest('#showOrderStep,#showStlOrderStep'))setStep(4);if(event.target.closest('#resetCalculator'))setStep(1)});
+  }
   const price=document.getElementById('priceOut');if(maker&&price&&maker.firstElementChild!==price)maker.insertBefore(price,maker.firstElementChild);
   addEditButton(maker,document.querySelector('.calc-mode-tabs'));
   const enhanceStl=()=>{if(!stl||stl.style.display==='none')return;const summary=stl.querySelector('.stl-summary');if(summary&&!stl.querySelector('.stl-total-price')){const matches=summary.textContent.match(/Предварительно по заказу:\s*≈?\s*([\d\s]+\s*₽)/i);if(matches){const total=document.createElement('div');total.className='stl-total-price';total.textContent='Предварительно '+matches[1].trim();stl.insertBefore(total,stl.firstChild)}}addEditButton(stl,document.getElementById('stlFields'))};
   if(stl)new MutationObserver(enhanceStl).observe(stl,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+  const addChannels=(selector,copyId)=>{const container=document.querySelector(selector);if(!container||container.querySelector('.order-channel'))return;[['telegram','Telegram','https://t.me/SITMAKER'],['max','MAX','https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8']].forEach(([type,label,url])=>{const link=document.createElement('a');link.className='order-btn show order-channel order-channel-'+type;link.href=url;link.target='_blank';link.rel='noopener';link.innerHTML=(window.SitroSocialIcons?.render(type)||'')+'<span>Открыть '+label+'</span>';link.addEventListener('click',()=>document.getElementById(copyId)?.click());container.appendChild(link)})};
+  addChannels('#makerOrderActions','copyMakerOrder');
+  const watchStl=()=>addChannels('#stlResult .order-actions','copyStlOrder');
+  if(stl)new MutationObserver(watchStl).observe(stl,{childList:true,subtree:true});
+}
+
+async function renderWorkshop(){
+  const portfolio=document.getElementById('portfolio');if(!portfolio)return;
+  const items=await fetchJson('/portfolio.json',[]);const production=(Array.isArray(items)?items:[]).filter(item=>item?.visible!==false&&Array.isArray(item.categories)&&item.categories.includes('Производство')).sort((a,b)=>(a.sort??999)-(b.sort??999)).slice(0,6);
+  if(!production.length)return;
+  const section=document.createElement('section');section.id='workshop';section.className='workshop-section';section.innerHTML='<div class="wrap"><h2 class="title">Как мы работаем</h2><p class="sub">Реальные фотографии мастерской, оборудования и процесса изготовления.</p><div class="workshop-grid">'+production.map(item=>'<figure><img src="/'+text(item.src).replace(/^\//,'')+'" alt="'+text(item.title||'Производство СИТРО').replace(/["<>]/g,'')+'" loading="lazy"><figcaption>'+text(item.title||'Производство СИТРО').replace(/[<>]/g,'')+'</figcaption></figure>').join('')+'</div></div>';
+  portfolio.after(section);
 }
 
 function improvePortfolioOrder(){
@@ -108,4 +138,4 @@ function improvePortfolioOrder(){
 }
 
 const [config,reviews]=await Promise.all([fetchJson('/site-config.json',fallbackConfig),fetchJson('/reviews.json',{items:[]})]);
-updateContact({...fallbackConfig,...config});updateStructuredData({...fallbackConfig,...config});updateTrust();renderReviews(reviews);enhanceCalculator();improvePortfolioOrder();
+const resolvedConfig={...fallbackConfig,...config};applyHeroConfig(resolvedConfig);updateContact(resolvedConfig);updateStructuredData(resolvedConfig);updateTrust();renderReviews(reviews);enhanceCalculator();improvePortfolioOrder();renderWorkshop();

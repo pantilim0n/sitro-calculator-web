@@ -37,7 +37,7 @@ export function cleanServices(values) {
 export function cleanSocials(value) {
   if (!value || typeof value !== 'object') throw new Error('Некорректные соцсети');
   const text = (input, max=200) => String(input || '').trim().slice(0, max);
-  const allowedTypes = new Set(['max', 'telegram', 'whatsapp', 'phone', 'email', 'vk', 'instagram', 'youtube', 'ok', 'rutube', 'map', 'web', 'custom']);
+  const allowedTypes = new Set(['max', 'telegram', 'whatsapp', 'phone', 'email', 'vk', 'instagram', 'youtube', 'ok', 'rutube', '2gis', 'yandex', 'map', 'web', 'custom']);
   const allowedGroups = new Set(['contact', 'follow']);
   const safeUrl = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:', 'tel:', 'mailto:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
   if (Array.isArray(value.items)) {
@@ -78,6 +78,10 @@ export function cleanSiteConfig(value) {
     if (!result) throw new Error('Заполните поле «' + label + '»');
     return result;
   };
+  const ranged = (input, fallback, min, max) => {
+    const result = Number(input);
+    return Number.isFinite(result) ? Math.min(max, Math.max(min, Math.round(result))) : fallback;
+  };
   return {
     phoneLabel: required(value.phoneLabel, 'Телефон', 80),
     phoneUrl: safeContactUrl(value.phoneUrl, 'Ссылка телефона', ['tel:']),
@@ -85,7 +89,10 @@ export function cleanSiteConfig(value) {
     addressNote: String(value.addressNote || '').trim().slice(0, 500),
     routeUrl: safeContactUrl(value.routeUrl, 'Проложить маршрут', ['http:', 'https:']),
     city: required(value.city, 'Город', 100),
-    region: required(value.region, 'Регион', 150)
+    region: required(value.region, 'Регион', 150),
+    heroMobileX: ranged(value.heroMobileX, 50, 0, 100),
+    heroTabletX: ranged(value.heroTabletX, 70, 0, 100),
+    heroMobileScale: ranged(value.heroMobileScale, 100, 80, 150)
   };
 }
 
@@ -136,6 +143,10 @@ function cleanItems(values) {
       src: String(item.src),
       title: String(item.title || '').slice(0, 200),
       description: String(item.description || '').slice(0, 1000),
+      material: String(item.material || '').trim().slice(0, 120),
+      dimensions: String(item.dimensions || '').trim().slice(0, 120),
+      leadTime: String(item.leadTime || '').trim().slice(0, 120),
+      priceFrom: String(item.priceFrom || '').trim().slice(0, 120),
       categories: cleanCategories(Array.isArray(item.categories) ? item.categories : (item.category ? [item.category] : [])),
       featured: Boolean(item.featured),
       visible: item.visible !== false,

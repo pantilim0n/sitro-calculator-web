@@ -5,5 +5,8 @@
   "addressNote": "Рынок «Европейский». Встречи по предварительной договорённости.",
   "routeUrl": "https://yandex.ru/maps/?rtext=~52.578173,39.510493&rtt=automt",
   "city": "Липецк",
-  "region": "Липецкая область"
+  "region": "Липецкая область",
+  "heroMobileX": 50,
+  "heroTabletX": 70,
+  "heroMobileScale": 100
 }

@@ -22,6 +22,7 @@ const adminHtml = await readFile(new URL('../admin.html', import.meta.url), 'utf
 const adminApi = await readFile(new URL('../api/admin-portfolio.js', import.meta.url), 'utf8');
 const adminImage = await readFile(new URL('../admin-image.js', import.meta.url), 'utf8');
 const adminSettings = await readFile(new URL('../admin-settings.js', import.meta.url), 'utf8');
+const adminPreview = await readFile(new URL('../admin-preview.js', import.meta.url), 'utf8');
 const socialIcons = await readFile(new URL('../social-icons.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
@@ -109,6 +110,11 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminSettings, /id='siteSettingsAdmin'/);
   assert.match(adminSettings, /id='reviewsAdmin'/);
   assert.match(adminSettings, /action:'saveSiteContent'/);
+  assert.match(adminHtml, /id="previewChanges"/);
+  assert.match(adminPreview, /Предпросмотр до публикации/);
+  assert.match(adminHtml, /class="m"[^>]+Материал/);
+  assert.match(adminHtml, /class="z"[^>]+Размер/);
+  assert.match(adminSettings, /heroMobileScale/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
@@ -125,6 +131,8 @@ test('site contacts and real reviews are validated for the admin', () => {
     region: 'Липецкая область'
   });
   assert.equal(config.city, 'Липецк');
+  assert.equal(config.heroMobileX, 50);
+  assert.equal(cleanSiteConfig({...config, heroMobileScale: 999}).heroMobileScale, 150);
   assert.throws(() => cleanSiteConfig({...config, routeUrl: 'javascript:alert(1)'}), /Проложить маршрут/);
 
   const reviews = cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', photo: '/portfolio/work.jpg', source: '2ГИС', sourceUrl: 'https://2gis.ru/example', visible: true}]});
