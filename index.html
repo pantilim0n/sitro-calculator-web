@@ -383,4 +383,132 @@ if(orderFieldsStep&&calcResultStep&&calculateStep&&!document.getElementById('sho
   calculateStep.addEventListener('click',()=>{showOrderStep.style.display='none';orderFieldsStep.style.display='none';orderActionsStep.style.display='none';setTimeout(()=>{if(calcResultStep.style.display!=='none')showOrderStep.style.display='block';},0)});
   const stepStyle=document.createElement('style');stepStyle.textContent='@keyframes sitroReveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.sitro-reveal{animation:sitroReveal .38s ease both}.order-step-button{display:none;width:100%;margin-top:18px;padding:15px;border:1px solid #e87522;border-radius:13px;background:#e87522;color:#111;font-weight:850;font-size:16px;cursor:pointer}.order-step-button:hover{background:#f39a5b}.service-card,.trust-item{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}.service-card:hover,.trust-item:hover{transform:translateY(-3px);border-color:#e87522;box-shadow:0 10px 28px #0005}@media(prefers-reduced-motion:reduce){.sitro-reveal{animation:none}.service-card,.trust-item{transition:none}}';document.head.append(stepStyle);
 }
-</script></script><script type="module" src="/site-enhancements.js"></script></body></html>
+</script></script>
+<style id="sitro-responsive-concept">
+/* Responsive hero/header matched to the approved device mockup */
+.top{background:#090909f7!important;border-bottom:1px solid #222!important;backdrop-filter:blur(14px)}
+.top .wrap{max-width:1240px!important}
+.top nav{min-height:78px!important;gap:22px}
+.brand{flex-direction:row!important;align-items:center!important}
+.brand img{width:190px!important;max-height:46px;object-fit:contain}
+.brand-subtitle{display:none!important}
+.menu{gap:22px!important;font-size:13px!important}
+.header-actions{margin-left:10px!important}
+.concept-header-cta{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 17px;border:1px solid #e87522;border-radius:10px;color:#f08b43;background:#121212;font-size:13px;font-weight:850;white-space:nowrap;transition:.2s}
+.concept-header-cta:hover{background:#e87522;color:#111}
+
+.hero{position:relative!important;isolation:isolate;padding:0!important;background:#070707!important;overflow:hidden;border-bottom:1px solid #202020}
+.hero:before,.hero:after{display:none!important}
+.concept-hero-shell{max-width:1240px;margin:auto;padding:0 22px}
+.concept-hero-grid{min-height:565px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(480px,1.1fr);gap:28px;align-items:center}
+.concept-hero-copy{position:relative;z-index:2;padding:64px 0 42px;max-width:590px}
+.concept-kicker{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:#d7d7d7;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.concept-kicker strong{color:#e87522}
+.concept-hero-copy h1{margin:18px 0 16px!important;max-width:570px!important;font-size:clamp(48px,5.2vw,76px)!important;line-height:.96!important;letter-spacing:-.045em!important}
+.concept-hero-copy h1 .orange{color:#e87522!important}
+.concept-hero-copy p{margin:0!important;max-width:520px!important;color:#b7b7b7!important;font-size:17px!important;line-height:1.5!important}
+.concept-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:27px}
+.concept-hero-actions .btn{min-height:48px;padding:0 18px;border-radius:9px!important;font-size:14px}
+.concept-hero-actions .btn.primary{background:#e87522!important;color:#111!important;border:1px solid #e87522}
+.concept-hero-actions .btn.secondary{border:1px solid #565656;background:#101010d9;color:#fff}
+.concept-hero-art{position:relative;align-self:stretch;min-height:565px;background:
+linear-gradient(90deg,#070707 0%,rgba(7,7,7,.82) 8%,rgba(7,7,7,.18) 26%,rgba(7,7,7,0) 48%),
+linear-gradient(0deg,#070707 0%,rgba(7,7,7,0) 28%),
+url("/portfolio/hero-background.jpg") center/cover no-repeat;
+-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 7%,#000 100%);
+mask-image:linear-gradient(90deg,transparent 0%,#000 7%,#000 100%)}
+.concept-hero-art:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 58% 44%,rgba(232,117,34,.16),transparent 42%);pointer-events:none}
+.concept-hero-features{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #222;margin-top:-1px}
+.concept-feature{display:grid;grid-template-columns:32px 1fr;gap:10px;min-height:94px;padding:21px 18px;border-right:1px solid #222;background:#0b0b0b}
+.concept-feature:first-child{padding-left:0}
+.concept-feature:last-child{border-right:0}
+.concept-feature i{display:grid;place-items:center;width:28px;height:28px;color:#e87522;font-style:normal}
+.concept-feature svg{width:26px;height:26px;stroke:#e87522;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.concept-feature b{display:block;font-size:13px;line-height:1.2}
+.concept-feature span{display:block;margin-top:4px;color:#8d8d8d;font-size:11px;line-height:1.35}
+#sitroTrust{display:none!important}
+
+@media(max-width:1050px){
+  .menu{gap:15px!important;font-size:12px!important}
+  .brand img{width:166px!important}
+  .concept-hero-grid{grid-template-columns:minmax(0,.92fr) minmax(400px,1.08fr)}
+  .concept-hero-copy h1{font-size:clamp(44px,5.8vw,66px)!important}
+}
+@media(max-width:900px){
+  .concept-hero-shell{padding:0 18px}
+  .concept-hero-grid{grid-template-columns:1fr;gap:0;min-height:0}
+  .concept-hero-art{order:-1;min-height:330px;width:calc(100% + 36px);margin-left:-18px;background:
+    linear-gradient(0deg,#070707 0%,rgba(7,7,7,.1) 42%,rgba(7,7,7,.15) 100%),
+    url("/portfolio/hero-background.jpg") 60% center/cover no-repeat;
+    -webkit-mask-image:linear-gradient(0deg,transparent 0%,#000 18%,#000 100%);mask-image:linear-gradient(0deg,transparent 0%,#000 18%,#000 100%)}
+  .concept-hero-copy{padding:8px 0 34px;max-width:720px}
+  .concept-hero-copy h1{max-width:650px!important}
+  .concept-hero-features{grid-template-columns:repeat(2,1fr)}
+  .concept-feature:nth-child(2){border-right:0}
+  .concept-feature:nth-child(-n+2){border-bottom:1px solid #222}
+  .concept-feature:first-child{padding-left:18px}
+}
+@media(max-width:760px){
+  .top nav{min-height:64px!important}
+  .brand img{width:142px!important;max-height:38px}
+  .menu,.header-actions{display:none!important}
+  .mobile-menu-button{position:fixed!important;top:12px!important;right:12px!important;z-index:200!important}
+  .mobile-menu{top:64px!important}
+  .concept-hero-shell{padding:0 14px}
+  .concept-hero-art{min-height:240px;width:calc(100% + 28px);margin-left:-14px;background:
+    linear-gradient(0deg,#070707 0%,rgba(7,7,7,.08) 42%,rgba(7,7,7,.15) 100%),
+    url("/portfolio/hero-background.jpg") 62% center/cover no-repeat;
+    -webkit-mask-image:linear-gradient(0deg,transparent 0%,#000 16%,#000 100%);mask-image:linear-gradient(0deg,transparent 0%,#000 16%,#000 100%)}
+  .concept-hero-copy{padding:0 0 28px}
+  .concept-kicker{font-size:9px;gap:6px;letter-spacing:.06em}
+  .concept-hero-copy h1{font-size:clamp(39px,12vw,56px)!important;line-height:.98!important;margin:14px 0 13px!important}
+  .concept-hero-copy p{font-size:15px!important;line-height:1.45!important}
+  .concept-hero-actions{display:grid;grid-template-columns:1fr;margin-top:22px}
+  .concept-hero-actions .btn{width:100%;min-height:50px}
+  .concept-hero-features{grid-template-columns:1fr 1fr}
+  .concept-feature{padding:15px 12px;min-height:90px;grid-template-columns:28px 1fr}
+  .concept-feature:first-child{padding-left:12px}
+  .concept-feature b{font-size:12px}
+  .concept-feature span{font-size:10px}
+}
+@media(max-width:420px){
+  .concept-hero-art{min-height:210px}
+  .concept-hero-features{grid-template-columns:1fr}
+  .concept-feature{border-right:0!important;border-bottom:1px solid #222!important}
+  .concept-feature:last-child{border-bottom:0!important}
+}
+</style>
+<script id="sitro-responsive-concept-script">
+(() => {
+  const headerActions=document.querySelector('.header-actions');
+  if(headerActions){
+    headerActions.innerHTML='<a class="concept-header-cta" href="#calculator">Оставить заявку</a>';
+  }
+
+  const hero=document.querySelector('.hero');
+  if(hero){
+    hero.innerHTML=`
+      <div class="concept-hero-shell">
+        <div class="concept-hero-grid">
+          <div class="concept-hero-copy">
+            <div class="concept-kicker"><strong>3D-ПЕЧАТЬ</strong><span>/</span><span>ПРОТОТИПИРОВАНИЕ</span><span>/</span><span>МАЛЫЕ СЕРИИ</span></div>
+            <h1>От идеи до готовой детали <span class="orange">в 3D</span></h1>
+            <p>3D-печать и моделирование в Липецке. От одной детали до малой серии — по модели, размерам, фото или образцу.</p>
+            <div class="concept-hero-actions">
+              <a class="btn primary" href="#calculator">Рассчитать стоимость <span>→</span></a>
+              <a class="btn secondary" href="#portfolio">Смотреть работы <span>↗</span></a>
+            </div>
+          </div>
+          <div class="concept-hero-art" aria-hidden="true"></div>
+          <div class="concept-hero-features">
+            <div class="concept-feature"><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i><div><b>Быстрый расчёт</b><span>ориентировочная цена онлайн</span></div></div>
+            <div class="concept-feature"><i><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg></i><div><b>Материалы под задачу</b><span>PLA, PETG, ABS, ASA и PA</span></div></div>
+            <div class="concept-feature"><i><svg viewBox="0 0 24 24"><path d="M4 7h12v10H4zM16 10h3l2 3v4h-5z"/><circle cx="8" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></i><div><b>От одной детали</b><span>до небольшой серии</span></div></div>
+            <div class="concept-feature"><i><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></i><div><b>Липецк + РФ</b><span>самовывоз и доставка</span></div></div>
+          </div>
+        </div>
+      </div>`;
+  }
+})();
+</script>
+<script type="module" src="/site-enhancements.js"></script></body></html>
