@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import adminPortfolio, {cleanPricing, cleanServices, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
+import adminPortfolio, {cleanPricing, cleanReviews, cleanServices, cleanSiteConfig, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -21,6 +21,7 @@ import {
 const adminHtml = await readFile(new URL('../admin.html', import.meta.url), 'utf8');
 const adminApi = await readFile(new URL('../api/admin-portfolio.js', import.meta.url), 'utf8');
 const adminImage = await readFile(new URL('../admin-image.js', import.meta.url), 'utf8');
+const adminSettings = await readFile(new URL('../admin-settings.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
   return {
@@ -103,9 +104,31 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /id="openMaterialsEditor"/);
   assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
   assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);
+  assert.match(adminHtml, /src="\/admin-settings\.js"/);
+  assert.match(adminSettings, /id='siteSettingsAdmin'/);
+  assert.match(adminSettings, /id='reviewsAdmin'/);
+  assert.match(adminSettings, /action:'saveSiteContent'/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
+});
+
+test('site contacts and real reviews are validated for the admin', () => {
+  const config = cleanSiteConfig({
+    phoneLabel: '+7 905 688-44-43',
+    phoneUrl: 'tel:+79056884443',
+    address: 'Липецк, ул. Свиридова, 9, 2 этаж',
+    addressNote: 'Рынок «Европейский»',
+    routeUrl: 'https://yandex.ru/maps/?rtext=~52.578173,39.510493&rtt=automt',
+    city: 'Липецк',
+    region: 'Липецкая область'
+  });
+  assert.equal(config.city, 'Липецк');
+  assert.throws(() => cleanSiteConfig({...config, routeUrl: 'javascript:alert(1)'}), /Проложить маршрут/);
+
+  const reviews = cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', photo: '/portfolio/work.jpg', visible: true}]});
+  assert.equal(reviews.items.length, 1);
+  assert.throws(() => cleanReviews({items: [{name: '', text: ''}]}), /имя и текст/i);
 });
 
 test('large iPhone JPEG is repeatedly resized until its request is safe', async () => {
@@ -207,6 +230,32 @@ test('saveAll writes portfolio and categories in one Git tree update', async () 
     const tree = JSON.parse(treeCall.options.body).tree;
     assert.deepEqual(tree.map(entry => entry.path), ['portfolio.json', 'portfolio-categories.json']);
     assert.equal(mock.calls.filter(call => call.options.method === 'PATCH').length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    process.env = originalEnv;
+  }
+});
+
+test('site contacts and reviews are saved in one Git commit', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalEnv = {...process.env};
+  const mock = githubFetchMock();
+  globalThis.fetch = mock.fetch;
+  process.env.GITHUB_TOKEN = 'test-token';
+  process.env.ADMIN_PASSWORD = 'test-password';
+  process.env.GITHUB_REPO = 'owner/repository';
+  try {
+    const response = responseRecorder();
+    await adminPortfolio({method: 'POST', body: {
+      action: 'saveSiteContent',
+      password: 'test-password',
+      siteConfig: {phoneLabel: '+7 905 688-44-43', phoneUrl: 'tel:+79056884443', address: 'Липецк, ул. Свиридова, 9', routeUrl: 'https://yandex.ru/maps/', city: 'Липецк', region: 'Липецкая область'},
+      reviews: {items: []}
+    }}, response);
+    assert.equal(response.statusCode, 200);
+    const treeCall = mock.calls.find(call => new URL(call.url).pathname.endsWith('/git/trees'));
+    const tree = JSON.parse(treeCall.options.body).tree;
+    assert.deepEqual(tree.map(entry => entry.path), ['site-config.json', 'reviews.json']);
   } finally {
     globalThis.fetch = originalFetch;
     process.env = originalEnv;

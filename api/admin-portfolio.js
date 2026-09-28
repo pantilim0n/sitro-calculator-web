@@ -58,6 +58,57 @@ function cleanSocials(value) {
   if (legacy.vk) items.push({id:'vk',type:'vk',label:'Группа VK',url:safeUrl(legacy.vk),group:'follow',enabled:true});
   return {items};
 }
+
+function safeContactUrl(input, label, protocols) {
+  const value = String(input || '').trim().slice(0, 800);
+  if (!value) throw new Error('Заполните поле «' + label + '»');
+  try {
+    const parsed = new URL(value);
+    if (!protocols.includes(parsed.protocol)) throw new Error();
+    return value;
+  } catch {
+    throw new Error('Проверьте поле «' + label + '»');
+  }
+}
+
+export function cleanSiteConfig(value) {
+  if (!value || typeof value !== 'object') throw new Error('Некорректные контакты сайта');
+  const required = (input, label, max = 300) => {
+    const result = String(input || '').trim().slice(0, max);
+    if (!result) throw new Error('Заполните поле «' + label + '»');
+    return result;
+  };
+  return {
+    phoneLabel: required(value.phoneLabel, 'Телефон', 80),
+    phoneUrl: safeContactUrl(value.phoneUrl, 'Ссылка телефона', ['tel:']),
+    address: required(value.address, 'Адрес', 300),
+    addressNote: String(value.addressNote || '').trim().slice(0, 500),
+    routeUrl: safeContactUrl(value.routeUrl, 'Проложить маршрут', ['http:', 'https:']),
+    city: required(value.city, 'Город', 100),
+    region: required(value.region, 'Регион', 150)
+  };
+}
+
+export function cleanReviews(value) {
+  if (!value || typeof value !== 'object' || !Array.isArray(value.items) || value.items.length > 30) throw new Error('Некорректные отзывы');
+  return {items: value.items.map((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('Некорректный отзыв в строке ' + (index + 1));
+    const name = String(item.name || '').trim().slice(0, 120);
+    const text = String(item.text || '').trim().slice(0, 1500);
+    if ((!name || !text) && item.visible !== false) throw new Error('Заполните имя и текст отзыва в строке ' + (index + 1));
+    const photo = String(item.photo || '').trim().slice(0, 800);
+    if (photo && !photo.startsWith('/portfolio/') && !/^https:\/\//i.test(photo)) throw new Error('Проверьте фото отзыва в строке ' + (index + 1));
+    return {
+      id: String(item.id || ('review-' + Date.now() + '-' + index)).replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80),
+      name,
+      meta: String(item.meta || '').trim().slice(0, 200),
+      text,
+      photo,
+      sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index + 1,
+      visible: item.visible !== false
+    };
+  })};
+}
 function cleanCategories(values) {
   if (!Array.isArray(values)) throw new Error('Некорректный список категорий');
   return [...new Set(values.map(value => String(value).trim()).filter(Boolean))];
@@ -204,6 +255,13 @@ export default async function handler(req, res) {
     }
     if (body.action === 'saveSocials') {
       const sha = await commitFiles([{path: 'socials.json', content: textToBase64(cleanSocials(body.socials))}], 'Update social links from admin');
+      return res.status(200).json({ok: true, sha});
+    }
+    if (body.action === 'saveSiteContent') {
+      const sha = await commitFiles([
+        {path: 'site-config.json', content: textToBase64(cleanSiteConfig(body.siteConfig))},
+        {path: 'reviews.json', content: textToBase64(cleanReviews(body.reviews))}
+      ], 'Update site contacts and reviews from admin');
       return res.status(200).json({ok: true, sha});
     }
     if (body.action === 'changePassword') {

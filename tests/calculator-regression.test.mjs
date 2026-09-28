@@ -14,6 +14,9 @@ import {
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta.url), 'utf8'));
+const siteEnhancements = await readFile(new URL('../site-enhancements.js', import.meta.url), 'utf8');
+const siteEnhancementStyles = await readFile(new URL('../site-enhancements.css', import.meta.url), 'utf8');
+const businessStructuredData = JSON.parse(indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] || '{}');
 
 test('calculator loads editable pricing and keeps current production tariffs', () => {
   assert.match(indexHtml, /fetch\('\/pricing\.json\?pricing='/);
@@ -44,6 +47,16 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /heroIcons=\[/);
   assert.match(indexHtml, /hero-background\.jpg/);
   assert.match(indexHtml, /href="https:\/\/yandex\.ru\/maps\/\?rtext=~52\.578173,39\.510493&amp;rtt=automt"/);
+  assert.match(indexHtml, /src="\/site-enhancements\.js"/);
+  assert.match(indexHtml, /href="\/site-enhancements\.css"/);
+  assert.match(indexHtml, /streetAddress/);
+  assert.match(indexHtml, /rel="canonical"/);
+  assert.equal(businessStructuredData['@type'], 'LocalBusiness');
+  assert.equal(businessStructuredData.address.streetAddress, 'ул. Свиридова, 9, 2 этаж');
+  assert.match(siteEnhancements, /fetchJson\('\/site-config\.json'/);
+  assert.match(siteEnhancements, /fetchJson\('\/reviews\.json'/);
+  assert.match(siteEnhancements, /Отзывы заказчиков/);
+  assert.match(siteEnhancementStyles, /\.reviews-grid/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {

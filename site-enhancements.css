@@ -1,0 +1,28 @@
+.contact{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;gap:18px!important;padding:22px!important;background:linear-gradient(145deg,#171717,#0d0d0d)!important}
+.contact-primary{min-width:0;display:flex;flex-direction:column;padding:8px}
+.contact-primary h2{max-width:420px}
+.contact-lead{max-width:430px;margin:12px 0 0;color:#999;font-size:15px}
+.contact .contact-address{display:flex!important;flex-direction:column!important;align-items:flex-start;gap:8px!important;margin:24px 0 0!important;padding:18px!important;border:1px solid #303030!important;border-left:3px solid #e87522!important;border-radius:16px!important;background:#0c0c0c!important}
+.contact-address>.contact-address-text{font-size:18px;line-height:1.35;color:#fff!important}
+.contact-address-note{max-width:430px;color:#929292!important;font-size:13px;font-weight:500!important}
+.contact-address .route-link{display:inline-flex!important;grid-column:auto!important;grid-row:auto!important;width:auto!important;height:auto!important;min-height:48px;margin-top:8px!important;padding:0 18px!important;border:1px solid #e87522!important;border-radius:12px!important;background:#e87522!important;color:#111!important;font-weight:850!important}
+.contact-address .route-link:hover{background:#f09555!important;border-color:#f09555!important}
+.contact .social-links{align-self:stretch;padding:16px!important;border-radius:18px!important;background:#0b0b0b!important}
+.contact .social-links a{background:#141414;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.contact .social-links a:hover{transform:translateY(-2px)}
+.contact .social-group-title{padding-top:3px;color:#aaa!important}
+.reviews-section{padding:58px 0;background:#0d0d0d;border-top:1px solid #222;border-bottom:1px solid #222}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:26px}
+.review-card{min-width:0;padding:20px;border:1px solid #2d2d2d;border-radius:18px;background:#141414}
+.review-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.review-photo{width:52px;height:52px;flex:0 0 52px;border-radius:14px;object-fit:cover;background:#222}
+.review-avatar{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;border-radius:14px;background:#24170f;color:#f08b43;font-size:20px;font-weight:900}
+.review-name{display:block;font-size:16px}.review-meta{display:block;margin-top:2px;color:#888;font-size:12px}
+.review-text{margin:0;color:#c5c5c5;line-height:1.6}
+.trust-note{grid-column:1/-1;margin:4px 0 0;color:#8f8f8f;font-size:13px;text-align:center}
+.result .price,.stl-total-price{margin:0 0 16px;padding:18px;border:1px solid #e8752266;border-radius:14px;background:#21150d;color:#f39a5b;font-size:clamp(28px,6vw,40px);line-height:1.1;text-align:center}
+.quote-edit{width:100%;margin-top:10px;padding:13px 16px;border:1px solid #3a3a3a;border-radius:12px;background:#171717;color:#ddd;font:inherit;font-weight:750;cursor:pointer}
+.quote-edit:hover{border-color:#e87522;color:#f08b43}
+.portfolio-order-note{margin:10px 0 0;color:#8bd17c;font-size:13px}
+@media(max-width:860px){.contact{grid-template-columns:1fr!important}.reviews-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.contact{padding:14px!important;border-radius:18px!important}.contact-primary{padding:4px}.contact-lead{font-size:14px}.contact .contact-address{padding:15px!important}.contact-address .route-link{width:100%!important;justify-content:center}.contact .social-links{padding:12px!important}.reviews-grid{grid-template-columns:1fr}.review-card{padding:17px}.result .price,.stl-total-price{font-size:30px}.trust-note{text-align:left}}
