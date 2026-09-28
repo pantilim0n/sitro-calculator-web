@@ -21,6 +21,10 @@
     "PA": {
       "density": 1.14,
       "price": 20
+    },
+    "TPU": {
+      "density": 1.25,
+      "price": 18
     }
   }
 }
