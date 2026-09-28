@@ -43,6 +43,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /brandLink\.addEventListener\('click'/);
   assert.match(indexHtml, /heroIcons=\[/);
   assert.match(indexHtml, /hero-background\.jpg/);
+  assert.match(indexHtml, /href="https:\/\/yandex\.ru\/maps\/\?rtext=~52\.578173,39\.510493&amp;rtt=automt"/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
