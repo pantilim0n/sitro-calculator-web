@@ -49,7 +49,7 @@ function updateStructuredData(config){
 
 function updateTrust(){
   const grid=document.querySelector('#sitroTrust .trust-grid');if(!grid)return;
-  grid.innerHTML='<div class="trust-item"><strong>1–2 мин</strong><b>Предварительный расчёт</b><span>ориентировочная цена онлайн</span></div><div class="trust-item"><strong>До печати</strong><b>Согласовываем заказ</b><span>модель, материал и стоимость</span></div><div class="trust-item"><strong>Контроль</strong><b>Проверяем изделие</b><span>до выдачи или отправки</span></div><div class="trust-item"><strong>Липецк + РФ</strong><b>Самовывоз и доставка</b><span>согласуем удобный вариант</span></div><p class="trust-note">Точный срок и итоговую стоимость подтверждаем после проверки модели.</p>';
+  grid.innerHTML='<div class="trust-item"><i><img src="/design-assets/icon-cube.svg" alt="" aria-hidden="true"></i><div><b>Точная печать</b><span>настройки под задачу</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-materials.svg" alt="" aria-hidden="true"></i><div><b>Широкий выбор материалов</b><span>PLA, PETG, ABS, ASA, PA</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-speed.svg" alt="" aria-hidden="true"></i><div><b>Согласованные сроки</b><span>подтверждаем до запуска</span></div></div><div class="trust-item"><i><img src="/design-assets/icon-clients.svg" alt="" aria-hidden="true"></i><div><b>Для частных клиентов и бизнеса</b><span>от одной детали до серии</span></div></div>';
 }
 
 function renderReviews(data){

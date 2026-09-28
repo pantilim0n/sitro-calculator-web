@@ -16,6 +16,8 @@ const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf
 const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta.url), 'utf8'));
 const siteEnhancements = await readFile(new URL('../site-enhancements.js', import.meta.url), 'utf8');
 const siteEnhancementStyles = await readFile(new URL('../site-enhancements.css', import.meta.url), 'utf8');
+const designKit = await readFile(new URL('../design-kit.css', import.meta.url), 'utf8');
+const designKitScript = await readFile(new URL('../design-kit.js', import.meta.url), 'utf8');
 const businessStructuredData = JSON.parse(indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] || '{}');
 
 test('calculator loads editable pricing and keeps current production tariffs', () => {
@@ -34,7 +36,8 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
 });
 
 test('site follows the supplied СИТРО hero direction', () => {
-  assert.match(indexHtml, /От идеи до готовой детали <span class="orange">в 3D<\/span>/);
+  assert.match(indexHtml, /hero-line-one/);
+  assert.match(indexHtml, /детали <em>в 3D<\/em>/);
   assert.doesNotMatch(indexHtml, /class="header-cta"/);
   assert.match(indexHtml, /Контакты и соцсети/);
   assert.match(indexHtml, /Материалы и цены/);
@@ -45,9 +48,12 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(indexHtml, /mobileButton\.onclick/);
   assert.match(indexHtml, /brandLink\.addEventListener\('click'/);
   assert.match(indexHtml, /heroIcons=\[/);
-  assert.match(indexHtml, /hero-background\.jpg/);
+  assert.match(indexHtml, /design-assets\/hero-printing\.png/);
+  assert.match(indexHtml, /design-assets\/sitro-logo\.png/);
+  assert.match(indexHtml, /href="\/design-kit\.css\?v=/);
+  assert.match(indexHtml, /src="\/design-kit\.js\?v=/);
   assert.match(indexHtml, /href="https:\/\/yandex\.ru\/maps\/\?rtext=~52\.578173,39\.510493&amp;rtt=automt"/);
-  assert.match(indexHtml, /src="\/site-enhancements\.js"/);
+  assert.match(indexHtml, /src="\/site-enhancements\.js\?v=/);
   assert.match(indexHtml, /href="\/site-enhancements\.css"/);
   assert.match(indexHtml, /streetAddress/);
   assert.match(indexHtml, /rel="canonical"/);
@@ -58,6 +64,9 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(siteEnhancements, /Отзывы заказчиков/);
   assert.match(siteEnhancements, /Отзыв на/);
   assert.match(siteEnhancementStyles, /\.reviews-grid/);
+  assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
+  assert.match(designKit, /@media \(max-width: 760px\)/);
+  assert.match(designKitScript, /icon-clients\.svg/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
