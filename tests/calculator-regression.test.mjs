@@ -66,6 +66,8 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(siteEnhancementStyles, /\.reviews-grid/);
   assert.match(designKit, /url\("\/design-assets\/hero-printing\.png"\)/);
   assert.match(designKit, /@media \(max-width: 760px\)/);
+  assert.match(designKit, /\.calc \.color-swatch/);
+  assert.match(designKit, /min-width: 761px/);
   assert.match(designKitScript, /icon-clients\.svg/);
 });
 

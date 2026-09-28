@@ -34,10 +34,10 @@ export function cleanServices(values) {
   });
 }
 
-function cleanSocials(value) {
+export function cleanSocials(value) {
   if (!value || typeof value !== 'object') throw new Error('Некорректные соцсети');
   const text = (input, max=200) => String(input || '').trim().slice(0, max);
-  const allowedTypes = new Set(['max', 'telegram', 'whatsapp', 'phone', 'email', 'vk', 'map', 'web', 'custom']);
+  const allowedTypes = new Set(['max', 'telegram', 'whatsapp', 'phone', 'email', 'vk', 'instagram', 'youtube', 'ok', 'rutube', 'map', 'web', 'custom']);
   const allowedGroups = new Set(['contact', 'follow']);
   const safeUrl = input => { const value = text(input, 500); if (!value) return ''; try { const parsed = new URL(value); if (!['http:', 'https:', 'tel:', 'mailto:'].includes(parsed.protocol)) throw new Error(); return value; } catch { throw new Error('Проверьте ссылку соцсети'); } };
   if (Array.isArray(value.items)) {

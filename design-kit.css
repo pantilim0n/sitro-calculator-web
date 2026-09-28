@@ -108,8 +108,8 @@ body {
   transform: none !important;
   filter: none !important;
   background-image: url("/design-assets/hero-printing.png") !important;
-  background-position: center !important;
-  background-size: cover !important;
+  background-position: right center !important;
+  background-size: auto 125% !important;
   background-repeat: no-repeat !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
@@ -338,6 +338,14 @@ section:not(.hero):not(.trust-section) {
   border-color: var(--sitro-accent) !important;
 }
 
+.calc .color-swatch {
+  background: var(--sw) !important;
+}
+
+.calc .color-swatch:hover {
+  transform: translateY(-1px);
+}
+
 .contact {
   background: linear-gradient(145deg, #171b1d, #0e1112) !important;
   border-color: var(--sitro-line) !important;
@@ -368,6 +376,37 @@ section:not(.hero):not(.trust-section) {
 
   .hero h1 {
     font-size: clamp(52px, 5.8vw, 62px) !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .trust-item {
+    min-height: 112px !important;
+    padding: 20px !important;
+    border-bottom: 1px solid #242424 !important;
+  }
+
+  .trust-item:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  .trust-item:nth-last-child(-n + 2) {
+    border-bottom: 0 !important;
+  }
+
+  .trust-item b {
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    text-wrap: balance;
+  }
+
+  .trust-item span {
+    display: block !important;
+    font-size: 12px !important;
   }
 }
 
@@ -427,9 +466,10 @@ section:not(.hero):not(.trust-section) {
     display: block !important;
     height: clamp(220px, 66vw, 320px) !important;
     background-image: linear-gradient(0deg, #080a0b 0%, rgba(8,10,11,.08) 36%), url("/design-assets/hero-printing.png") !important;
-    background-position: 67% center !important;
-    background-size: cover !important;
+    background-position: 72% 52% !important;
+    background-size: auto 150% !important;
     background-repeat: no-repeat !important;
+    background-color: #080a0b !important;
   }
 
   .hero-layout {
@@ -503,6 +543,10 @@ section:not(.hero):not(.trust-section) {
 
   .mobile-menu-button {
     top: 9px !important;
+  }
+
+  .header-actions {
+    display: none !important;
   }
 
   .mobile-menu {

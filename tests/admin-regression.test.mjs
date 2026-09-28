@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import adminPortfolio, {cleanPricing, cleanReviews, cleanServices, cleanSiteConfig, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
+import adminPortfolio, {cleanPricing, cleanReviews, cleanServices, cleanSiteConfig, cleanSocials, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -22,6 +22,7 @@ const adminHtml = await readFile(new URL('../admin.html', import.meta.url), 'utf
 const adminApi = await readFile(new URL('../api/admin-portfolio.js', import.meta.url), 'utf8');
 const adminImage = await readFile(new URL('../admin-image.js', import.meta.url), 'utf8');
 const adminSettings = await readFile(new URL('../admin-settings.js', import.meta.url), 'utf8');
+const socialIcons = await readFile(new URL('../social-icons.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
   return {
@@ -131,6 +132,17 @@ test('site contacts and real reviews are validated for the admin', () => {
   assert.equal(reviews.items[0].source, '2ГИС');
   assert.throws(() => cleanReviews({items: [{name: 'Заказчик', text: 'Отзыв', sourceUrl: 'javascript:alert(1)'}]}), /источник отзыва/i);
   assert.throws(() => cleanReviews({items: [{name: '', text: ''}]}), /имя и текст/i);
+});
+
+test('admin offers visual contact icons and accepts expanded social types', () => {
+  assert.match(adminHtml, /class="social-icon-preview"/);
+  assert.match(adminHtml, /social-icons\.js/);
+  assert.match(socialIcons, /instagram:/);
+  assert.match(socialIcons, /youtube:/);
+  assert.match(socialIcons, /rutube:/);
+  const cleaned = cleanSocials({items: [{type: 'instagram', label: 'Instagram', url: 'https://instagram.com/sitro', group: 'follow', color: '#E4405F'}]});
+  assert.equal(cleaned.items[0].type, 'instagram');
+  assert.equal(cleaned.items[0].color, '#E4405F');
 });
 
 test('large iPhone JPEG is repeatedly resized until its request is safe', async () => {
