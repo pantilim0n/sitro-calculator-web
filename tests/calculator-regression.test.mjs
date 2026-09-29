@@ -75,6 +75,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKit, /@media \(max-width: 760px\)/);
   assert.match(designKit, /\.prompt-mobile-photo::after/);
   assert.match(designKit, /background-size: 100% 100%, var\(--hero-mobile-scale, 100%\) auto/);
+  assert.match(designKit, /margin-top: -104px !important/);
   assert.match(siteEnhancements, /review-service-icon/);
   assert.match(siteEnhancements, /SitroSocialIcons\?\.render\('2gis'\)/);
   assert.match(designKit, /\.mobile-call-button/);
