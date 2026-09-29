@@ -146,6 +146,8 @@ test('MakerWorld result creates a complete shareable order', () => {
   assert.match(indexHtml, /id="orderContactHelp"/);
   assert.match(indexHtml, /id="continueOrder"/);
   assert.match(indexHtml, /revealOrderForm\('maker',status,true\)/);
+  assert.match(indexHtml, /window\.SitroRevealOrderForm=revealOrderForm/);
+  assert.match(indexHtml, /window\.SitroRevealOrderForm\('maker',document\.getElementById\('makerOrderStatus'\)\)/);
   assert.match(indexHtml, /scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
   assert.match(indexHtml, /телефон или Telegram нужен/);
   assert.match(indexHtml, /Что будет отправлено/);

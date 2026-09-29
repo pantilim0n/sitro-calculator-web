@@ -672,6 +672,28 @@ section:not(.hero):not(.trust-section) {
   }
 }
 
+@media (min-width: 1680px) {
+  .wrap,
+  .top .wrap,
+  .hero-layout,
+  .trust-section .wrap {
+    max-width: 1480px !important;
+  }
+
+  .hero,
+  .hero-layout {
+    min-height: 620px !important;
+  }
+
+  .hero-copy {
+    padding-top: 92px !important;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
