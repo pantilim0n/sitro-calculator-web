@@ -545,7 +545,7 @@ section:not(.hero):not(.trust-section) {
 
   .hero-copy {
     position: static !important;
-    margin-top: -104px !important;
+    margin-top: -170px !important;
     padding: 0 0 36px !important;
   }
 
@@ -560,7 +560,7 @@ section:not(.hero):not(.trust-section) {
     right: 20px;
     left: 20px;
     margin: 0 !important;
-    font-size: clamp(34px, 10.4vw, 45px) !important;
+    font-size: clamp(30px, 8.6vw, 36px) !important;
     line-height: .99 !important;
     letter-spacing: -.035em !important;
     text-shadow: 0 4px 22px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,1);

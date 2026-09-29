@@ -82,7 +82,7 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKit, /@media \(max-width: 760px\)/);
   assert.match(designKit, /\.prompt-mobile-photo::after/);
   assert.match(designKit, /background-size: 100% 100%, var\(--hero-mobile-scale, 100%\) auto/);
-  assert.match(designKit, /margin-top: -104px !important/);
+  assert.match(designKit, /margin-top: -170px !important/);
   assert.match(siteEnhancements, /review-service-icon/);
   assert.match(siteEnhancements, /SitroSocialIcons\?\.render\('2gis'\)/);
   assert.match(designKit, /\.mobile-call-button/);
@@ -109,6 +109,7 @@ test('first render uses the final layout without a refresh jump', () => {
 
 test('mobile hero keeps the headline above the printed part', () => {
   assert.match(designKit, /top:\s*clamp\(18px,\s*5vw,\s*24px\)/);
+  assert.match(designKit, /font-size:\s*clamp\(30px,\s*8\.6vw,\s*36px\)/);
 });
 
 test('calculator communicates its four steps and offers direct order channels', () => {
