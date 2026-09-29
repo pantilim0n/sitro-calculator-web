@@ -1,3 +1,5 @@
+import {messengerDraftUrl} from './order-core.js?v=20260929-6';
+
 const fallbackConfig={
   phoneLabel:'+7 905 688-44-43',
   phoneUrl:'tel:+79056884443',
@@ -111,16 +113,16 @@ function enhanceCalculator(){
     const progress=document.createElement('ol');progress.className='calc-progress';progress.setAttribute('aria-label','Этапы расчёта');progress.innerHTML='<li class="active" data-step="1"><b>1</b><span>Модель</span></li><li data-step="2"><b>2</b><span>Параметры</span></li><li data-step="3"><b>3</b><span>Стоимость</span></li><li data-step="4"><b>4</b><span>Оформление</span></li>';
     calc.querySelector('.calc-mode-tabs')?.before(progress);
     const setStep=step=>progress.querySelectorAll('li').forEach(item=>{const value=Number(item.dataset.step);item.classList.toggle('active',value===step);item.classList.toggle('done',value<step)});
-    document.addEventListener('input',event=>{if(event.target.matches('#mwUrl,#file,#quantity,.stl-qty,#material,.stl-material'))setStep(2)});
+    document.addEventListener('input',event=>{if(event.target.matches('#makerworldUrl,#file,#quantity,.stl-qty,#material,.stl-material'))setStep(2)});
     document.addEventListener('click',event=>{if(event.target.closest('#calculate,#sliceStl'))setTimeout(()=>setStep(3),100);if(event.target.closest('#showOrderStep,#showStlOrderStep'))setStep(4);if(event.target.closest('#resetCalculator'))setStep(1)});
   }
   const price=document.getElementById('priceOut');if(maker&&price&&maker.firstElementChild!==price)maker.insertBefore(price,maker.firstElementChild);
   addEditButton(maker,document.querySelector('.calc-mode-tabs'));
   const enhanceStl=()=>{if(!stl||stl.style.display==='none')return;const summary=stl.querySelector('.stl-summary');if(summary&&!stl.querySelector('.stl-total-price')){const matches=summary.textContent.match(/Предварительно по заказу:\s*≈?\s*([\d\s]+\s*₽)/i);if(matches){const total=document.createElement('div');total.className='stl-total-price';total.textContent='Предварительно '+matches[1].trim();stl.insertBefore(total,stl.firstChild)}}addEditButton(stl,document.getElementById('stlFields'))};
   if(stl)new MutationObserver(enhanceStl).observe(stl,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
-  const addChannels=(selector,copyId)=>{const container=document.querySelector(selector);if(!container||container.querySelector('.order-channel'))return;[['telegram','Telegram','https://t.me/SITMAKER'],['max','MAX','https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8']].forEach(([type,label,url])=>{const link=document.createElement('a');link.className='order-btn show order-channel order-channel-'+type;link.href=url;link.target='_blank';link.rel='noopener';link.innerHTML=(window.SitroSocialIcons?.render(type)||'')+'<span>Открыть '+label+'</span>';link.addEventListener('click',()=>document.getElementById(copyId)?.click());container.appendChild(link)})};
-  addChannels('#makerOrderActions','copyMakerOrder');
-  const watchStl=()=>addChannels('#stlResult .order-actions','copyStlOrder');
+  const addChannels=(selector,copyId,kind)=>{const container=document.querySelector(selector);if(!container||container.querySelector('.order-channel'))return;[['telegram','Telegram'],['max','MAX']].forEach(([type,label])=>{const link=document.createElement('a');link.className='order-btn show order-channel order-channel-'+type;link.href='#';link.target='_blank';link.rel='noopener';link.innerHTML=(window.SitroSocialIcons?.render(type)||'')+'<span>Написать в '+label+'</span>';link.addEventListener('click',event=>{const getDraft=window.SitroOrderDrafts?.[kind],message=typeof getDraft==='function'?getDraft():'';if(!message){event.preventDefault();document.getElementById(copyId)?.click();return}link.href=messengerDraftUrl(type,message);navigator.clipboard?.writeText(message).catch(()=>{});const status=document.getElementById(kind==='stl'?'stlOrderStatus':'makerOrderStatus');if(status){status.textContent=type==='telegram'?'Текст заявки уже вставлен в Telegram. Проверьте его и нажмите «Отправить».':'Текст заявки уже вставлен в MAX. Выберите чат и нажмите «Отправить».';if(kind==='stl')status.textContent+=' Не забудьте приложить STL-файлы.';status.className='order-status ok'}});container.appendChild(link)})};
+  addChannels('#makerOrderActions','copyMakerOrder','maker');
+  const watchStl=()=>addChannels('#stlResult .order-actions','copyStlOrder','stl');
   if(stl)new MutationObserver(watchStl).observe(stl,{childList:true,subtree:true});
 }
 

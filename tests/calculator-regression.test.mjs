@@ -11,6 +11,7 @@ import {
   stlCalculationErrorMessage,
   summarizeStlItems
 } from '../calculator-core.js';
+import {buildMakerOrderText,buildStlOrderText,messengerDraftUrl} from '../order-core.js';
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta.url), 'utf8'));
@@ -95,7 +96,8 @@ test('site follows the supplied СИТРО hero direction', () => {
 test('calculator communicates its four steps and offers direct order channels', () => {
   assert.match(siteEnhancements, /className='calc-progress'/);
   assert.match(siteEnhancements, /Модель[\s\S]*Параметры[\s\S]*Стоимость[\s\S]*Оформление/);
-  assert.match(siteEnhancements, /https:\/\/t\.me\/SITMAKER/);
+  assert.equal(messengerDraftUrl('telegram','Тест'), 'https://t.me/SITMAKER?text='+encodeURIComponent('Тест'));
+  assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/:share?text='+encodeURIComponent('Тест'));
   assert.match(siteEnhancements, /order-channel-'\+type/);
 });
 
@@ -141,17 +143,27 @@ test('MakerWorld result creates a complete shareable order', () => {
   assert.match(indexHtml, /id="shareMakerOrder"/);
   assert.match(indexHtml, /id="copyMakerOrder"/);
   assert.match(indexHtml, /function buildMakerOrderText\(\)/);
-  assert.match(indexHtml, /Модель:.*Профиль:.*Ссылка:.*Количество:.*Материал:.*Вес:.*Время печати:.*Предварительная стоимость:/s);
   assert.match(indexHtml, /id="orderContactHelp"/);
   assert.match(indexHtml, /id="continueOrder"/);
   assert.match(indexHtml, /revealOrderForm\('maker',status,true\)/);
   assert.match(indexHtml, /scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
   assert.match(indexHtml, /телефон или Telegram нужен/);
+  assert.match(indexHtml, /Что будет отправлено/);
+  assert.match(indexHtml, /SitroOrderDrafts\.maker=buildMakerOrderText/);
+  const draft=buildMakerOrderText({customer:{name:'Иван',contact:'@ivan',comment:'Позвонить вечером'},order:{model:'Тестовая модель',profile:'Стандарт',quantity:2,material:'PLA',grams:96,hours:8.18,price:1234,url:'https://makerworld.com/models/123'}});
+  assert.match(draft, /ЗАЯВКА С САЙТА СИТРО[\s\S]*Заказчик: Иван[\s\S]*Контакт для ответа: @ivan/);
+  assert.match(draft, /Название: Тестовая модель[\s\S]*Количество: 2 шт\.[\s\S]*Предварительная стоимость: 1234 ₽/);
+  assert.ok(draft.includes('\n'));
+  assert.doesNotMatch(draft, /\\n/);
 });
 
 test('STL order reads customer details when the user sends it', () => {
   assert.match(indexHtml, /const buildStlOrderText=\(\)=>/);
   assert.match(indexHtml, /navigator\.share\(\{title:'Заявка на 3D-печать СИТРО',text:buildStlOrderText\(\),files:activeFiles\}\)/);
+  assert.match(indexHtml, /SitroOrderDrafts\.stl=buildStlOrderText/);
+  const draft=buildStlOrderText({customer:{contact:'+7 900 000-00-00'},items:[{file:'detail.stl',qty:3,material:'PETG',color:'Чёрный',estimatedGrams:72.4}],groupCount:1,total:850});
+  assert.match(draft, /1\. detail\.stl[\s\S]*Количество: 3 шт\. · Материал: PETG · Цвет: Чёрный/);
+  assert.match(draft, /Предварительная стоимость: ≈ 850 ₽[\s\S]*Файлы STL нужно приложить к сообщению/);
 });
 
 test('multi-STL preview selection and color sync stay wired', () => {
