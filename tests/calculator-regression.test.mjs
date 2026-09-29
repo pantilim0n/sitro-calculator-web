@@ -122,10 +122,11 @@ test('services open full descriptions and mobile portfolio is a horizontal strip
   assert.match(indexHtml, /\.portfolio-grid\{display:flex;overflow-x:auto/);
 });
 
-test('STL result exposes all order actions', () => {
+test('STL result exposes order actions without the retired Taplink shortcut', () => {
   assert.match(indexHtml, /class="order-btn show" id="shareStlOrder"/);
   assert.match(indexHtml, /class="order-btn show" id="copyStlOrder"/);
-  assert.match(indexHtml, /class="order-btn show" href="https:\/\/taplink\.cc\/sitro"/);
+  assert.match(indexHtml, /class="order-btn show" id="downloadStlOrder"/);
+  assert.doesNotMatch(indexHtml, /taplink\.cc/i);
 });
 
 test('MakerWorld result creates a complete shareable order', () => {
@@ -133,7 +134,11 @@ test('MakerWorld result creates a complete shareable order', () => {
   assert.match(indexHtml, /id="copyMakerOrder"/);
   assert.match(indexHtml, /function buildMakerOrderText\(\)/);
   assert.match(indexHtml, /Модель:.*Профиль:.*Ссылка:.*Количество:.*Материал:.*Вес:.*Время печати:.*Предварительная стоимость:/s);
-  assert.match(indexHtml, /Укажите телефон или Telegram/);
+  assert.match(indexHtml, /id="orderContactHelp"/);
+  assert.match(indexHtml, /id="continueOrder"/);
+  assert.match(indexHtml, /revealOrderForm\('maker',status,true\)/);
+  assert.match(indexHtml, /scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
+  assert.match(indexHtml, /телефон или Telegram нужен/);
 });
 
 test('STL order reads customer details when the user sends it', () => {
