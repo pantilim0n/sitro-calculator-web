@@ -556,7 +556,7 @@ section:not(.hero):not(.trust-section) {
   .hero h1 {
     position: absolute;
     z-index: 2;
-    top: clamp(92px, 27vw, 118px);
+    top: clamp(64px, 20vw, 86px);
     right: 20px;
     left: 20px;
     margin: 0 !important;

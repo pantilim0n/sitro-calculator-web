@@ -93,6 +93,10 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKitScript, /tel:\+79056884443/);
 });
 
+test('mobile hero keeps the headline above the printed part', () => {
+  assert.match(designKit, /top:\s*clamp\(64px,\s*20vw,\s*86px\)/);
+});
+
 test('calculator communicates its four steps and offers direct order channels', () => {
   assert.match(siteEnhancements, /className='calc-progress'/);
   assert.match(siteEnhancements, /Модель[\s\S]*Параметры[\s\S]*Стоимость[\s\S]*Оформление/);
