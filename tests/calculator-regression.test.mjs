@@ -93,8 +93,22 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKitScript, /tel:\+79056884443/);
 });
 
+test('first render uses the final layout without a refresh jump', () => {
+  const headEnd = indexHtml.indexOf('</head>');
+  const bodyStart = indexHtml.indexOf('<body>');
+  const designStyles = indexHtml.indexOf('/design-kit.css?v=');
+
+  assert.ok(designStyles > -1 && designStyles < headEnd, 'design stylesheet must block the first render');
+  assert.equal(indexHtml.indexOf('/design-kit.css?v=', bodyStart), -1, 'design stylesheet must not load at the end of body');
+  assert.match(indexHtml, /<section class="hero"><div class="prompt-mobile-photo"/);
+  assert.match(indexHtml, /<section class="trust-section" id="sitroTrust">/);
+  assert.match(indexHtml, /if\(hero&&!hero\.querySelector\('\.hero-layout'\)\)/);
+  assert.doesNotMatch(indexHtml, /servicesGrid\.setAttribute\('aria-busy','true'\);servicesGrid\.innerHTML=/);
+  assert.match(indexHtml, /\.sitro-scroll-reveal,\.sitro-scroll-reveal\.is-visible\{opacity:1;transform:none;transition:none\}/);
+});
+
 test('mobile hero keeps the headline above the printed part', () => {
-  assert.match(designKit, /top:\s*clamp\(64px,\s*20vw,\s*86px\)/);
+  assert.match(designKit, /top:\s*clamp\(18px,\s*5vw,\s*24px\)/);
 });
 
 test('calculator communicates its four steps and offers direct order channels', () => {
