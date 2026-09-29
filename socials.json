@@ -21,7 +21,7 @@
     {
       "id": "phone",
       "type": "phone",
-      "label": "+7 905 688-44-43",
+      "label": "Позвонить",
       "url": "tel:+79056884443",
       "group": "contact",
       "color": "#00c217",
@@ -30,7 +30,7 @@
     {
       "id": "email",
       "type": "email",
-      "label": "Почта",
+      "label": "@Почта",
       "url": "mailto:sitmaker@yandex.ru",
       "group": "contact",
       "color": "#ea4335",
