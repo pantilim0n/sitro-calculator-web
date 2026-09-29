@@ -137,5 +137,34 @@ function improvePortfolioOrder(){
   button.addEventListener('click',()=>{const title=text(document.getElementById('lightboxTitle')?.textContent);const comment=document.getElementById('stlCustomerComment');if(title&&comment&&!comment.value.trim())comment.value='Хочу заказать похожее изделие: '+title;sessionStorage.setItem('sitroPortfolioInterest',title)});
 }
 
+function keepCalculatorFieldsAboveKeyboard(){
+  const fields=[...document.querySelectorAll('#calculator input:not([type="file"]),#calculator textarea')];
+  if(!fields.length)return;
+  let activeField=null;
+  const keepVisible=()=>{
+    const field=activeField;
+    if(!field||document.activeElement!==field)return;
+    const viewport=window.visualViewport;
+    const rect=field.getBoundingClientRect();
+    const safeTop=(viewport?.offsetTop||0)+82;
+    const safeBottom=(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight)-24;
+    if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
+    const available=Math.max(field.offsetHeight,safeBottom-safeTop);
+    const idealTop=safeTop+Math.max(0,(available-rect.height)/2);
+    window.scrollBy({top:rect.top-idealTop,behavior:'smooth'});
+  };
+  fields.forEach(field=>{
+    field.classList.add('keyboard-safe-field');
+    field.addEventListener('focus',()=>{
+      activeField=field;
+      [60,260,620].forEach(delay=>setTimeout(keepVisible,delay));
+    });
+    field.addEventListener('blur',()=>{if(activeField===field)activeField=null});
+  });
+  const onViewportChange=()=>requestAnimationFrame(keepVisible);
+  window.visualViewport?.addEventListener('resize',onViewportChange);
+  window.visualViewport?.addEventListener('scroll',onViewportChange);
+}
+
 const [config,reviews]=await Promise.all([fetchJson('/site-config.json',fallbackConfig),fetchJson('/reviews.json',{items:[]})]);
-const resolvedConfig={...fallbackConfig,...config};applyHeroConfig(resolvedConfig);updateContact(resolvedConfig);updateStructuredData(resolvedConfig);updateTrust();renderReviews(reviews);enhanceCalculator();improvePortfolioOrder();renderWorkshop();
+const resolvedConfig={...fallbackConfig,...config};applyHeroConfig(resolvedConfig);updateContact(resolvedConfig);updateStructuredData(resolvedConfig);updateTrust();renderReviews(reviews);enhanceCalculator();improvePortfolioOrder();keepCalculatorFieldsAboveKeyboard();renderWorkshop();

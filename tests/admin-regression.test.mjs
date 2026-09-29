@@ -114,6 +114,10 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminPreview, /Предпросмотр до публикации/);
   assert.match(adminHtml, /class="m"[^>]+Материал/);
   assert.match(adminHtml, /class="z"[^>]+Размер/);
+  assert.match(adminHtml, /id="statMissingDescription"/);
+  assert.match(adminHtml, /id="statDetailed"/);
+  assert.match(adminHtml, /id="statProduction"/);
+  assert.match(adminHtml, /\['material','dimensions','leadTime','priceFrom'\]/);
   assert.match(adminSettings, /heroMobileScale/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';

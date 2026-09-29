@@ -35,7 +35,13 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
   assert.equal((indexHtml.match(/href="https:\/\/makerworld\.com\/en\/3d-models"/g) || []).length, 2);
   assert.match(indexHtml, /Найти модель на MakerWorld/);
   assert.match(indexHtml, /профиль <a href="https:\/\/makerworld\.com\/en\/3d-models"[^>]*>MakerWorld ↗<\/a>/);
-  assert.match(indexHtml, /placeholder="https:\/\/makerworld\.com\/models\/3331794"/);
+  assert.match(indexHtml, /placeholder="Вставьте ссылку на модель MakerWorld"/);
+  assert.match(indexHtml, /Пример: makerworld\.com\/models\/123456/);
+  assert.match(indexHtml, /function normalizeMakerWorldUrl\(value\)/);
+  assert.match(indexHtml, /Нужна ссылка вида makerworld\.com\/models\/123456/);
+  assert.match(siteEnhancements, /keepCalculatorFieldsAboveKeyboard/);
+  assert.match(siteEnhancements, /window\.visualViewport\?\.addEventListener\('resize'/);
+  assert.match(siteEnhancementStyles, /\.keyboard-safe-field/);
 });
 
 test('site follows the supplied СИТРО hero direction', () => {
@@ -127,6 +133,7 @@ test('STL result exposes order actions without the retired Taplink shortcut', ()
   assert.match(indexHtml, /class="order-btn show" id="shareStlOrder"/);
   assert.match(indexHtml, /class="order-btn show" id="copyStlOrder"/);
   assert.match(indexHtml, /class="order-btn show" id="downloadStlOrder"/);
+  assert.match(indexHtml, /id="showStlOrderStep" type="button" style="display:block">Оформить заказ/);
   assert.doesNotMatch(indexHtml, /taplink\.cc/i);
 });
 
