@@ -100,6 +100,11 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKitScript, /tel:\+79056884443/);
 });
 
+test('desktop hero artwork stays balanced on wide screens', () => {
+  assert.match(designKit, /\.hero::after\s*\{[\s\S]*background-position:\s*72% center\s*!important/);
+  assert.doesNotMatch(designKit, /\.hero::after\s*\{[\s\S]{0,700}background-position:\s*right center\s*!important/);
+});
+
 test('first render uses the final layout without a refresh jump', () => {
   const headEnd = indexHtml.indexOf('</head>');
   const bodyStart = indexHtml.indexOf('<body>');
