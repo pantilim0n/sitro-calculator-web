@@ -200,29 +200,39 @@ function keepCalculatorFieldsAboveKeyboard(){
   const fields=[...document.querySelectorAll('#calculator input:not([type="file"]),#calculator textarea')];
   if(!fields.length)return;
   let activeField=null;
+  let settleTimer=0;
+  let adjusting=false;
   const keepVisible=()=>{
     const field=activeField;
     if(!field||document.activeElement!==field)return;
     const viewport=window.visualViewport;
+    if(!viewport||viewport.height>=window.innerHeight-80||adjusting)return;
     const rect=field.getBoundingClientRect();
     const safeTop=(viewport?.offsetTop||0)+82;
     const safeBottom=(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight)-24;
-    if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
+    if(rect.top>=safeTop+8&&rect.bottom<=safeBottom-8)return;
     const available=Math.max(field.offsetHeight,safeBottom-safeTop);
     const idealTop=safeTop+Math.max(0,(available-rect.height)/2);
-    window.scrollBy({top:rect.top-idealTop,behavior:'smooth'});
+    const delta=Math.round(rect.top-idealTop);
+    if(Math.abs(delta)<8)return;
+    adjusting=true;
+    window.scrollBy(0,delta);
+    requestAnimationFrame(()=>{adjusting=false});
   };
   fields.forEach(field=>{
     field.classList.add('keyboard-safe-field');
     field.addEventListener('focus',()=>{
       activeField=field;
-      [60,260,620].forEach(delay=>setTimeout(keepVisible,delay));
+      clearTimeout(settleTimer);
+      settleTimer=setTimeout(keepVisible,280);
     });
-    field.addEventListener('blur',()=>{if(activeField===field)activeField=null});
+    field.addEventListener('blur',()=>{if(activeField===field)activeField=null;clearTimeout(settleTimer)});
   });
-  const onViewportChange=()=>requestAnimationFrame(keepVisible);
-  window.visualViewport?.addEventListener('resize',onViewportChange);
-  window.visualViewport?.addEventListener('scroll',onViewportChange);
+  const onViewportResize=()=>{
+    clearTimeout(settleTimer);
+    settleTimer=setTimeout(keepVisible,120);
+  };
+  window.visualViewport?.addEventListener('resize',onViewportResize,{passive:true});
 }
 
 const [config,reviews]=await Promise.all([fetchJson('/site-config.json',fallbackConfig),fetchJson('/reviews.json',{items:[]})]);

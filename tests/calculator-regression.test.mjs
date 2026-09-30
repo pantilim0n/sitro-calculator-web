@@ -140,6 +140,12 @@ test('calculator communicates three simple steps and keeps one primary order act
   assert.doesNotMatch(indexHtml, /Перейти к заявке|Перейти к отправке заявки/);
 });
 
+test('mobile keyboard support does not create a viewport scroll feedback loop', () => {
+  assert.match(siteEnhancements, /visualViewport\?\.addEventListener\('resize'/);
+  assert.doesNotMatch(siteEnhancements, /visualViewport\?\.addEventListener\('scroll'/);
+  assert.match(siteEnhancements, /window\.scrollBy\(0,delta\)/);
+});
+
 test('native site order sends the selected model without a second form', () => {
   assert.match(siteEnhancements, /fetch\('\/api\/order'/);
   assert.match(siteEnhancements, /action:'prepare'/);
