@@ -126,28 +126,27 @@ test('mobile hero keeps the headline above the printed part', () => {
   assert.match(designKit, /font-size:\s*clamp\(30px,\s*8\.6vw,\s*36px\)/);
 });
 
-test('calculator communicates three simple steps and offers direct order channels', () => {
+test('calculator communicates three simple steps and keeps one primary order action', () => {
   assert.match(siteEnhancements, /className='calc-progress'/);
   assert.match(siteEnhancements, /Модель[\s\S]*Стоимость[\s\S]*Заявка/);
   assert.doesNotMatch(siteEnhancements, /<span>Параметры<\/span>/);
   assert.equal(messengerDraftUrl('telegram','Тест'), 'https://t.me/SITMAKER?text='+encodeURIComponent('Тест'));
   assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8');
   assert.doesNotMatch(messengerDraftUrl('max','Тест'), /:share/);
-  assert.match(siteEnhancements, /order-channel-'\+type/);
-  assert.match(siteEnhancements, /Дополнительные способы/);
-  assert.match(siteEnhancements, /Текст заявки уже скопирован/);
+  assert.match(siteEnhancements, /window\.SitroSubmitOrder=async kind/);
+  assert.match(siteEnhancements, /messengerDraftUrl\('telegram',message\)/);
+  assert.match(indexHtml, /id="continueOrder" type="button">Отправить заявку/);
+  assert.doesNotMatch(indexHtml, /Перейти к заявке|Перейти к отправке заявки/);
 });
 
-test('Yandex Form is the primary embedded order channel', () => {
-  assert.match(siteEnhancements, /https:\/\/forms\.yandex\.ru\/u\/6abcf2d71f1eb5346f875ac4\//);
-  assert.match(siteEnhancements, /answer_short_text_9008990022603980/);
-  assert.match(siteEnhancements, /answer_short_text_9008990022657400/);
-  assert.match(siteEnhancements, /searchParams\.set\('iframe','1'\)/);
-  assert.match(siteEnhancements, /searchParams\.set\('theme','dark'\)/);
-  assert.match(siteEnhancements, /className='order-btn show order-form-primary'/);
-  assert.match(siteEnhancements, /Файл STL или 3MF прикрепляется внутри формы/);
-  assert.match(siteEnhancementStyles, /\.yandex-order-panel iframe/);
-  assert.match(indexHtml, /отправьте заявку через форму или выберите мессенджер/);
+test('native site order sends the selected model without a second form', () => {
+  assert.match(siteEnhancements, /fetch\('\/api\/order'/);
+  assert.match(siteEnhancements, /action:'prepare'/);
+  assert.match(siteEnhancements, /action:'submit'/);
+  assert.match(siteEnhancements, /Загружаю модель/);
+  assert.match(indexHtml, /window\.SitroOrderFiles=/);
+  assert.doesNotMatch(siteEnhancements, /forms\.yandex\.ru/);
+  assert.doesNotMatch(siteEnhancementStyles, /\.yandex-order-panel/);
 });
 
 test('messenger preview uses a dedicated branded social card', () => {
@@ -187,13 +186,13 @@ test('services open full descriptions and mobile portfolio is a horizontal strip
   assert.match(indexHtml, /\.portfolio-grid\{display:flex;overflow-x:auto/);
 });
 
-test('STL result exposes a simple messenger order flow', () => {
+test('STL result exposes the contact fields immediately after the price', () => {
   assert.doesNotMatch(indexHtml, /id="shareStlOrder"/);
   assert.doesNotMatch(indexHtml, /id="copyStlOrder"/);
   assert.doesNotMatch(indexHtml, /id="downloadStlOrder"/);
-  assert.match(indexHtml, /id="showStlOrderStep" type="button" style="display:block">Перейти к заявке/);
-  assert.match(indexHtml, /STL-файл нужно будет приложить к сообщению вручную/);
-  assert.doesNotMatch(indexHtml, /К заявке будут добавлены выбранные STL-файлы/);
+  assert.match(indexHtml, /showOrderFormAfterResult\('stl',stlResult,status\)/);
+  assert.match(indexHtml, /resultNode\.after\(fields\)/);
+  assert.doesNotMatch(indexHtml, /showStlOrderStep|Перейти к заявке/);
   assert.doesNotMatch(indexHtml, /taplink\.cc/i);
 });
 
@@ -212,10 +211,9 @@ test('MakerWorld result creates a complete shareable order', () => {
   assert.match(indexHtml, /id="continueOrder"/);
   assert.match(indexHtml, /Телефон для обратной связи/);
   assert.doesNotMatch(indexHtml, /id="stlCustomerContact"[^>]+required/);
-  assert.match(indexHtml, /window\.SitroRevealOrderForm=revealOrderForm/);
-  assert.match(indexHtml, /window\.SitroRevealOrderForm\('maker',document\.getElementById\('makerOrderStatus'\)\)/);
-  assert.match(indexHtml, /scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
-  assert.match(indexHtml, /Состав заявки/);
+  assert.match(indexHtml, /showOrderFormAfterResult\('maker',result,document\.getElementById\('makerOrderStatus'\)\)/);
+  assert.match(indexHtml, /window\.SitroRevealOrderForm=/);
+  assert.doesNotMatch(indexHtml, /showOrderStep|Состав заявки/);
   assert.match(indexHtml, /SitroOrderDrafts\.maker=buildMakerOrderText/);
   const draft=buildMakerOrderText({customer:{name:'Иван',contact:'@ivan',comment:'Позвонить вечером'},order:{model:'Тестовая модель',profile:'Стандарт',quantity:2,material:'PLA',grams:96,hours:8.18,price:1234,url:'https://makerworld.com/models/123'}});
   assert.match(draft, /ЗАЯВКА С САЙТА СИТРО[\s\S]*Заказчик: Иван[\s\S]*Контакт для ответа: @ivan/);

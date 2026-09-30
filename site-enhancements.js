@@ -113,6 +113,7 @@ function enhanceCalculator(){
     const progress=document.createElement('ol');progress.className='calc-progress';progress.setAttribute('aria-label','Три шага заказа');progress.innerHTML='<li class="active" data-step="1"><b>1</b><span>Модель</span></li><li data-step="2"><b>2</b><span>Стоимость</span></li><li data-step="3"><b>3</b><span>Заявка</span></li>';
     calc.querySelector('.calc-mode-tabs')?.before(progress);
     const setStep=step=>progress.querySelectorAll('li').forEach(item=>{const value=Number(item.dataset.step);item.classList.toggle('active',value===step);item.classList.toggle('done',value<step)});
+    window.SitroOrderStep=setStep;
     document.addEventListener('input',event=>{if(event.target.matches('#makerworldUrl,#modelFile,#quantity,.stl-qty,#material,.stl-material'))setStep(1)});
     document.addEventListener('click',event=>{if(event.target.closest('#showOrderStep,#showStlOrderStep'))setStep(3);if(event.target.closest('#resetCalculator'))setStep(1)});
     const syncCalculatedStep=()=>{if([maker,stl].some(result=>result&&getComputedStyle(result).display!=='none'))setStep(2)};
@@ -122,66 +123,68 @@ function enhanceCalculator(){
   addEditButton(maker,document.querySelector('.calc-mode-tabs'));
   const enhanceStl=()=>{if(!stl||stl.style.display==='none')return;const summary=stl.querySelector('.stl-summary');if(summary&&!stl.querySelector('.stl-total-price')){const matches=summary.textContent.match(/Предварительно по заказу:\s*≈?\s*([\d\s]+\s*₽)/i);if(matches){const total=document.createElement('div');total.className='stl-total-price';total.textContent='Предварительно '+matches[1].trim();stl.insertBefore(total,stl.firstChild)}}addEditButton(stl,document.getElementById('stlFields'))};
   if(stl)new MutationObserver(enhanceStl).observe(stl,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
-  const yandexFormBase='https://forms.yandex.ru/u/6abcf2d71f1eb5346f875ac4/';
-  const yandexNameField='answer_short_text_9008990022603980';
-  const yandexPhoneField='answer_short_text_9008990022657400';
-  const addChannels=(selector,kind)=>{
-    const container=document.querySelector(selector);
-    if(!container||container.querySelector('.order-channel'))return;
-    const status=document.getElementById(kind==='stl'?'stlOrderStatus':'makerOrderStatus');
-    const formButton=document.createElement('button');
-    formButton.type='button';
-    formButton.className='order-btn show order-form-primary';
-    formButton.innerHTML='<span>Отправить заявку</span><small>имя, телефон, STL/3MF и комментарий</small>';
-    formButton.addEventListener('click',()=>{
-      const getDraft=window.SitroOrderDrafts?.[kind],message=typeof getDraft==='function'?getDraft():'';
-      if(!message){if(status){status.textContent='Сначала рассчитайте стоимость.';status.className='order-status err'}return}
-      let panel=container.parentElement?.querySelector('.yandex-order-panel');
-      if(!panel){
-        panel=document.createElement('section');
-        panel.className='yandex-order-panel';
-        panel.innerHTML='<div class="yandex-order-head"><div><b>Оформление заявки</b><span>Ответ сохранится в Яндекс Формах и сразу придёт менеджеру СИТРО.</span></div><button type="button" class="yandex-order-close" aria-label="Свернуть форму">×</button></div><div class="yandex-form-loading">Загружаю форму…</div><iframe title="Форма заявки СИТРО" loading="lazy" allow="clipboard-write"></iframe><p class="yandex-form-note">Файл STL или 3MF прикрепляется внутри формы. Если модель находится на MakerWorld и файла нет, используйте Telegram или MAX ниже.</p><a class="yandex-form-external" target="_blank" rel="noopener">Открыть форму в отдельном окне ↗</a>';
-        container.before(panel);
-        panel.querySelector('.yandex-order-close').onclick=()=>{panel.hidden=true;formButton.setAttribute('aria-expanded','false')};
-      }
-      const formUrl=new URL(yandexFormBase);
-      formUrl.searchParams.set('iframe','1');
-      formUrl.searchParams.set('theme','dark');
-      const name=document.getElementById('stlCustomerName')?.value.trim()||'';
-      const contact=document.getElementById('stlCustomerContact')?.value.trim()||'';
-      if(name)formUrl.searchParams.set(yandexNameField,name);
-      if(contact.replace(/\D/g,'').length>=7)formUrl.searchParams.set(yandexPhoneField,contact);
-      const iframe=panel.querySelector('iframe');
-      iframe.onload=()=>panel.querySelector('.yandex-form-loading')?.remove();
-      if(iframe.src!==formUrl.href)iframe.src=formUrl.href;
-      const externalUrl=new URL(formUrl);externalUrl.searchParams.delete('iframe');externalUrl.searchParams.delete('theme');panel.querySelector('.yandex-form-external').href=externalUrl.href;
-      panel.hidden=false;
-      formButton.setAttribute('aria-expanded','true');
-      panel.scrollIntoView({behavior:'smooth',block:'start'});
-      if(status){status.textContent='Заполните форму и прикрепите STL или 3MF. Telegram и MAX остаются дополнительными способами.';status.className='order-status'}
-    });
-    container.appendChild(formButton);
-    const alternatives=document.createElement('div');
-    alternatives.className='order-alternatives-label';
-    alternatives.textContent='Дополнительные способы';
-    container.appendChild(alternatives);
-    [['telegram','Telegram'],['max','MAX']].forEach(([type,label])=>{
-      const link=document.createElement('a');
-      link.className='order-btn show order-channel order-channel-'+type;
-      link.href='#';link.target='_blank';link.rel='noopener';
-      link.innerHTML=(window.SitroSocialIcons?.render(type)||'')+'<span>'+label+'</span>';
-      link.addEventListener('click',event=>{
-        const getDraft=window.SitroOrderDrafts?.[kind],message=typeof getDraft==='function'?getDraft():'';
-        if(!message){event.preventDefault();if(status){status.textContent='Сначала рассчитайте стоимость.';status.className='order-status err'}return}
-        link.href=messengerDraftUrl(type,message);navigator.clipboard?.writeText(message).catch(()=>{});
-        if(status){status.textContent=type==='telegram'?'Заявка подготовлена для Telegram. Проверьте сообщение и отправьте его.':'Открываю чат СИТРО в MAX. Текст заявки уже скопирован — вставьте его в сообщение и отправьте.';if(kind==='stl')status.textContent+=' Приложите STL-файлы к сообщению.';status.className='order-status ok'}
-      });
-      container.appendChild(link);
-    });
+  let directOrderReady;
+  const hasDirectOrder=async()=>{
+    if(typeof directOrderReady==='boolean')return directOrderReady;
+    try{const response=await fetch('/api/order',{headers:{Accept:'application/json'}});const data=await response.json();directOrderReady=Boolean(response.ok&&data.ready)}catch{directOrderReady=false}
+    return directOrderReady;
   };
-  addChannels('#makerOrderActions','maker');
-  const watchStl=()=>addChannels('#stlResult .order-actions','stl');
-  if(stl)new MutationObserver(watchStl).observe(stl,{childList:true,subtree:true});
+  window.SitroSubmitOrder=async kind=>{
+    const formButton=document.getElementById('continueOrder');
+    const status=document.getElementById(kind==='stl'?'stlOrderStatus':'makerOrderStatus');
+    const getDraft=window.SitroOrderDrafts?.[kind],message=typeof getDraft==='function'?getDraft():'';
+    if(!message){if(status){status.textContent='Сначала рассчитайте стоимость.';status.className='order-status err'}return}
+    const ready=await hasDirectOrder();
+    if(!ready){
+      const url=messengerDraftUrl('telegram',message);
+      navigator.clipboard?.writeText(message).catch(()=>{});
+      if(status){status.textContent=kind==='stl'?'Открываю Telegram с готовой заявкой. Останется прикрепить выбранный STL-файл.':'Открываю Telegram с полностью заполненной заявкой.';status.className='order-status ok'}
+      location.href=url;
+      return;
+    }
+    const customer={
+      name:document.getElementById('stlCustomerName')?.value.trim()||'',
+      contact:document.getElementById('stlCustomerContact')?.value.trim()||'',
+      comment:document.getElementById('stlCustomerComment')?.value.trim()||''
+    };
+    if(!customer.contact){
+      const contact=document.getElementById('stlCustomerContact');
+      contact?.setAttribute('aria-invalid','true');
+      contact?.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>contact?.focus({preventScroll:true}),350);
+      if(status){status.textContent='Укажите телефон, чтобы мы могли подтвердить заказ.';status.className='order-status err'}
+      return;
+    }
+    const files=kind==='stl'&&typeof window.SitroOrderFiles==='function'?window.SitroOrderFiles():[];
+    if(kind==='stl'&&!files.length){if(status){status.textContent='Добавьте файл STL перед отправкой.';status.className='order-status err'}return}
+    const original=formButton.textContent;
+    formButton.disabled=true;
+    formButton.textContent='Подготавливаю заявку…';
+    if(status){status.textContent=files.length?'Загружаю модель на Яндекс Диск…':'Передаю заявку менеджеру СИТРО…';status.className='order-status'}
+    try{
+      const preparedResponse=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'prepare',files:files.map(file=>({name:file.name,size:file.size})),website:''})});
+      const prepared=await preparedResponse.json().catch(()=>({}));
+      if(!preparedResponse.ok)throw new Error(prepared.error||'Не удалось подготовить заявку');
+      for(let index=0;index<prepared.uploads.length;index++){
+        formButton.textContent='Загружаю модель '+(index+1)+' из '+prepared.uploads.length+'…';
+        const upload=prepared.uploads[index],file=files[index];
+        const uploadResponse=await fetch(upload.href,{method:upload.method||'PUT',body:file,headers:{'Content-Type':'application/octet-stream'}});
+        if(!uploadResponse.ok)throw new Error('Не удалось загрузить '+file.name);
+      }
+      formButton.textContent='Отправляю заявку…';
+      const submitResponse=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'submit',orderId:prepared.orderId,kind,message,customer,paths:prepared.uploads.map(upload=>upload.path),website:''})});
+      const submitted=await submitResponse.json().catch(()=>({}));
+      if(!submitResponse.ok)throw new Error(submitted.error||'Не удалось отправить заявку');
+      formButton.textContent='Заявка отправлена ✓';
+      if(status){status.textContent='Готово. Заявка №'+submitted.orderId+' отправлена. Мы свяжемся с вами по указанному телефону.';status.className='order-status ok'}
+    }catch(error){
+      formButton.disabled=false;
+      formButton.textContent='Повторить отправку';
+      if(status){status.textContent=(error.message||'Не удалось отправить заявку')+' Можно написать нам в Telegram из раздела контактов.';status.className='order-status err'}
+      setTimeout(()=>{if(!formButton.disabled&&formButton.textContent==='Повторить отправку')formButton.textContent=original},12000);
+    }
+  };
+
 }
 
 async function renderWorkshop(){
