@@ -36,6 +36,7 @@ test('PETG is the default material for new STL calculations', () => {
   assert.match(indexHtml, /<option value="PETG" selected>PETG/);
   assert.match(indexHtml, /m==='PETG'\?' selected'/);
   assert.match(indexHtml, /rates\.PETG\?'PETG'/);
+  assert.match(indexHtml, /if\(!hasStlFiles\)[\s\S]*option\.value==='PETG'[\s\S]*material\.value='PETG'/);
 });
 
 test('calculator directs customers to MakerWorld when they need a model', () => {
@@ -163,7 +164,15 @@ test('STL result exposes a simple messenger order flow', () => {
   assert.doesNotMatch(indexHtml, /id="copyStlOrder"/);
   assert.doesNotMatch(indexHtml, /id="downloadStlOrder"/);
   assert.match(indexHtml, /id="showStlOrderStep" type="button" style="display:block">Перейти к заявке/);
+  assert.match(indexHtml, /STL-файл нужно будет приложить к сообщению вручную/);
+  assert.doesNotMatch(indexHtml, /К заявке будут добавлены выбранные STL-файлы/);
   assert.doesNotMatch(indexHtml, /taplink\.cc/i);
+});
+
+test('calculator progress advances only after a visible result', () => {
+  assert.match(siteEnhancements, /syncCalculatedStep/);
+  assert.match(siteEnhancements, /getComputedStyle\(result\)\.display!==['"]none['"]/);
+  assert.doesNotMatch(siteEnhancements, /#calculate,#sliceStl['"]\)\)setTimeout\(\(\)=>setStep\(2\)/);
 });
 
 test('MakerWorld result creates a complete shareable order', () => {

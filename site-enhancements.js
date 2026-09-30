@@ -113,8 +113,10 @@ function enhanceCalculator(){
     const progress=document.createElement('ol');progress.className='calc-progress';progress.setAttribute('aria-label','Три шага заказа');progress.innerHTML='<li class="active" data-step="1"><b>1</b><span>Модель</span></li><li data-step="2"><b>2</b><span>Стоимость</span></li><li data-step="3"><b>3</b><span>Заявка</span></li>';
     calc.querySelector('.calc-mode-tabs')?.before(progress);
     const setStep=step=>progress.querySelectorAll('li').forEach(item=>{const value=Number(item.dataset.step);item.classList.toggle('active',value===step);item.classList.toggle('done',value<step)});
-    document.addEventListener('input',event=>{if(event.target.matches('#makerworldUrl,#file,#quantity,.stl-qty,#material,.stl-material'))setStep(1)});
-    document.addEventListener('click',event=>{if(event.target.closest('#calculate,#sliceStl'))setTimeout(()=>setStep(2),100);if(event.target.closest('#showOrderStep,#showStlOrderStep'))setStep(3);if(event.target.closest('#resetCalculator'))setStep(1)});
+    document.addEventListener('input',event=>{if(event.target.matches('#makerworldUrl,#modelFile,#quantity,.stl-qty,#material,.stl-material'))setStep(1)});
+    document.addEventListener('click',event=>{if(event.target.closest('#showOrderStep,#showStlOrderStep'))setStep(3);if(event.target.closest('#resetCalculator'))setStep(1)});
+    const syncCalculatedStep=()=>{if([maker,stl].some(result=>result&&getComputedStyle(result).display!=='none'))setStep(2)};
+    [maker,stl].filter(Boolean).forEach(result=>new MutationObserver(syncCalculatedStep).observe(result,{attributes:true,attributeFilter:['style'],childList:true,subtree:true}));
   }
   const price=document.getElementById('priceOut');if(maker&&price&&maker.firstElementChild!==price)maker.insertBefore(price,maker.firstElementChild);
   addEditButton(maker,document.querySelector('.calc-mode-tabs'));
