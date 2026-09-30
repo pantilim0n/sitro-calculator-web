@@ -105,14 +105,14 @@ body {
   content: "" !important;
   display: block !important;
   position: absolute !important;
-  inset: 0 !important;
+  inset: 0 auto 0 50% !important;
   z-index: -2 !important;
-  width: auto !important;
+  width: min(100%, 1240px) !important;
   opacity: 1 !important;
-  transform: none !important;
+  transform: translateX(-50%) !important;
   filter: none !important;
   background-image: url("/design-assets/hero-printing.jpg") !important;
-  background-position: 72% center !important;
+  background-position: right center !important;
   background-size: auto 125% !important;
   background-repeat: no-repeat !important;
   -webkit-mask-image: none !important;
@@ -683,6 +683,10 @@ section:not(.hero):not(.trust-section) {
   .hero,
   .hero-layout {
     min-height: 620px !important;
+  }
+
+  .hero::after {
+    width: min(100%, 1480px) !important;
   }
 
   .hero-copy {

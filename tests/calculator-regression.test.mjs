@@ -101,8 +101,10 @@ test('site follows the supplied СИТРО hero direction', () => {
 });
 
 test('desktop hero artwork stays balanced on wide screens', () => {
-  assert.match(designKit, /\.hero::after\s*\{[\s\S]*background-position:\s*72% center\s*!important/);
-  assert.doesNotMatch(designKit, /\.hero::after\s*\{[\s\S]{0,700}background-position:\s*right center\s*!important/);
+  assert.match(designKit, /\.hero::after\s*\{[\s\S]*inset:\s*0 auto 0 50%\s*!important/);
+  assert.match(designKit, /width:\s*min\(100%,\s*1240px\)\s*!important/);
+  assert.match(designKit, /transform:\s*translateX\(-50%\)\s*!important/);
+  assert.match(designKit, /@media \(min-width:\s*1680px\)[\s\S]*\.hero::after\s*\{[\s\S]*width:\s*min\(100%,\s*1480px\)/);
 });
 
 test('first render uses the final layout without a refresh jump', () => {
