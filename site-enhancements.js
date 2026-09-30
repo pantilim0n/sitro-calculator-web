@@ -1,4 +1,3 @@
-import {messengerDraftUrl} from './order-core.js?v=20260930-7';
 
 const fallbackConfig={
   phoneLabel:'+7 905 688-44-43',
@@ -136,10 +135,7 @@ function enhanceCalculator(){
     if(!message){if(status){status.textContent='Сначала рассчитайте стоимость.';status.className='order-status err'}return}
     const ready=await hasDirectOrder();
     if(!ready){
-      const url=messengerDraftUrl('telegram',message);
-      navigator.clipboard?.writeText(message).catch(()=>{});
-      if(status){status.textContent=kind==='stl'?'Открываю Telegram с готовой заявкой. Останется прикрепить выбранный STL-файл.':'Открываю Telegram с полностью заполненной заявкой.';status.className='order-status ok'}
-      location.href=url;
+      if(status){status.textContent='Внутренняя отправка заявок сейчас подключается. Попробуйте ещё раз немного позже или выберите удобный способ связи в разделе контактов.';status.className='order-status err'}
       return;
     }
     const customer={
@@ -180,7 +176,7 @@ function enhanceCalculator(){
     }catch(error){
       formButton.disabled=false;
       formButton.textContent='Повторить отправку';
-      if(status){status.textContent=(error.message||'Не удалось отправить заявку')+' Можно написать нам в Telegram из раздела контактов.';status.className='order-status err'}
+      if(status){status.textContent=(error.message||'Не удалось отправить заявку')+' Попробуйте ещё раз или выберите удобный способ связи в разделе контактов.';status.className='order-status err'}
       setTimeout(()=>{if(!formButton.disabled&&formButton.textContent==='Повторить отправку')formButton.textContent=original},12000);
     }
   };

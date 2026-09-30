@@ -6,7 +6,7 @@ test('order id and Yandex Disk folder are stable across midnight', () => {
   const now = new Date('2026-09-30T23:59:59.000Z');
   const orderId = makeOrderId(now, () => Buffer.from('a1b2c3d4', 'hex'));
   assert.equal(orderId, '20260930235959-a1b2c3d4');
-  assert.equal(orderFolder(orderId), '/СИТРО/Заявки/2026-09-30/20260930235959-a1b2c3d4');
+  assert.equal(orderFolder(orderId), 'app:/Заявки/2026-09-30/20260930235959-a1b2c3d4');
 });
 
 test('STL and 3MF files are validated and duplicate names are separated', () => {

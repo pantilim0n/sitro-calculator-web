@@ -3,7 +3,9 @@ import crypto from 'node:crypto';
 const MAX_FILES = 10;
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const MAX_MESSAGE_LENGTH = 8000;
-const ORDER_ROOT = '/СИТРО/Заявки';
+// The OAuth app only receives access to its own Yandex Disk folder.
+// This keeps customer models isolated from the rest of the owner's Disk.
+const ORDER_ROOT = 'app:/Заявки';
 const ALLOWED_EXTENSIONS = new Set(['stl', '3mf']);
 
 function cleanText(value, max = 500) {
@@ -107,6 +109,21 @@ async function publishFiles(paths, token) {
   return links;
 }
 
+async function saveOrderRecord(orderId, record, token) {
+  const path = `${orderFolder(orderId)}/заявка.json`;
+  const {response, data} = await diskRequest('/resources/upload', {
+    token,
+    query: {path, overwrite: 'true'}
+  });
+  if (!response.ok || !data.href) throw new Error('Не удалось сохранить данные заявки');
+  const upload = await fetch(data.href, {
+    method: data.method || 'PUT',
+    headers: {'Content-Type': 'application/json; charset=utf-8'},
+    body: JSON.stringify(record, null, 2)
+  });
+  if (!upload.ok) throw new Error('Не удалось сохранить данные заявки');
+}
+
 export function telegramText({orderId, kind, customer, message, files}) {
   const type = kind === 'stl' ? 'STL / 3MF' : 'MakerWorld';
   const fileLines = files.length
@@ -142,15 +159,15 @@ function json(res, status, payload) {
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const ready = Boolean(process.env.YANDEX_DISK_TOKEN && process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID);
+    const ready = Boolean(process.env.YANDEX_DISK_TOKEN);
     return json(res, 200, {ready});
   }
   if (req.method !== 'POST') return json(res, 405, {error: 'Метод не поддерживается'});
   const diskToken = process.env.YANDEX_DISK_TOKEN;
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   const telegramChatId = process.env.TELEGRAM_CHAT_ID;
-  if (!diskToken || !telegramToken || !telegramChatId) {
-    return json(res, 503, {error: 'Прямая отправка ещё настраивается. Используйте Telegram или MAX.'});
+  if (!diskToken) {
+    return json(res, 503, {error: 'Прямая отправка ещё настраивается. Попробуйте немного позже.'});
   }
 
   const body = req.body && typeof req.body === 'object' ? req.body : {};
@@ -176,8 +193,24 @@ export default async function handler(req, res) {
     const paths = validateStoredPaths(orderId, body.paths || []);
     if (kind === 'stl' && !paths.length) throw new Error('Добавьте файл STL или 3MF');
     const files = await publishFiles(paths, diskToken);
-    await sendTelegram(telegramText({orderId, kind, customer, message, files}), telegramToken, telegramChatId);
-    return json(res, 200, {ok: true, orderId});
+    await saveOrderRecord(orderId, {
+      orderId,
+      createdAt: new Date().toISOString(),
+      kind,
+      customer,
+      message,
+      files
+    }, diskToken);
+    let notified = false;
+    if (telegramToken && telegramChatId) {
+      try {
+        await sendTelegram(telegramText({orderId, kind, customer, message, files}), telegramToken, telegramChatId);
+        notified = true;
+      } catch (error) {
+        console.error('Order notification failed', {message: error?.message || 'Unknown error'});
+      }
+    }
+    return json(res, 200, {ok: true, orderId, notified});
   } catch (error) {
     console.error('Order request failed', {message: error?.message || 'Unknown error'});
     return json(res, 400, {error: error?.message || 'Не удалось отправить заявку'});

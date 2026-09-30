@@ -134,7 +134,8 @@ test('calculator communicates three simple steps and keeps one primary order act
   assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8');
   assert.doesNotMatch(messengerDraftUrl('max','Тест'), /:share/);
   assert.match(siteEnhancements, /window\.SitroSubmitOrder=async kind/);
-  assert.match(siteEnhancements, /messengerDraftUrl\('telegram',message\)/);
+  assert.doesNotMatch(siteEnhancements, /location\.href=messengerDraftUrl/);
+  assert.match(siteEnhancements, /Внутренняя отправка заявок сейчас подключается/);
   assert.match(indexHtml, /id="continueOrder" type="button">Отправить заявку/);
   assert.doesNotMatch(indexHtml, /Перейти к заявке|Перейти к отправке заявки/);
 });
