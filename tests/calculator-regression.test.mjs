@@ -32,6 +32,12 @@ test('calculator loads editable pricing and keeps current production tariffs', (
   assert.equal(pricing.minimumOrder, 300);
 });
 
+test('PETG is the default material for new STL calculations', () => {
+  assert.match(indexHtml, /<option value="PETG" selected>PETG/);
+  assert.match(indexHtml, /m==='PETG'\?' selected'/);
+  assert.match(indexHtml, /rates\.PETG\?'PETG'/);
+});
+
 test('calculator directs customers to MakerWorld when they need a model', () => {
   assert.equal((indexHtml.match(/href="https:\/\/makerworld\.com\/en\/3d-models"/g) || []).length, 2);
   assert.match(indexHtml, /Найти модель на MakerWorld/);
@@ -112,12 +118,14 @@ test('mobile hero keeps the headline above the printed part', () => {
   assert.match(designKit, /font-size:\s*clamp\(30px,\s*8\.6vw,\s*36px\)/);
 });
 
-test('calculator communicates its four steps and offers direct order channels', () => {
+test('calculator communicates three simple steps and offers direct order channels', () => {
   assert.match(siteEnhancements, /className='calc-progress'/);
-  assert.match(siteEnhancements, /Модель[\s\S]*Параметры[\s\S]*Стоимость[\s\S]*Оформление/);
+  assert.match(siteEnhancements, /Модель[\s\S]*Стоимость[\s\S]*Заявка/);
+  assert.doesNotMatch(siteEnhancements, /<span>Параметры<\/span>/);
   assert.equal(messengerDraftUrl('telegram','Тест'), 'https://t.me/SITMAKER?text='+encodeURIComponent('Тест'));
   assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/:share?text='+encodeURIComponent('Тест'));
   assert.match(siteEnhancements, /order-channel-'\+type/);
+  assert.match(siteEnhancements, /Отправить заявку в /);
 });
 
 test('portfolio supports optional production details without inventing values', () => {
@@ -150,26 +158,27 @@ test('services open full descriptions and mobile portfolio is a horizontal strip
   assert.match(indexHtml, /\.portfolio-grid\{display:flex;overflow-x:auto/);
 });
 
-test('STL result exposes order actions without the retired Taplink shortcut', () => {
-  assert.match(indexHtml, /class="order-btn show" id="shareStlOrder"/);
-  assert.match(indexHtml, /class="order-btn show" id="copyStlOrder"/);
-  assert.match(indexHtml, /class="order-btn show" id="downloadStlOrder"/);
-  assert.match(indexHtml, /id="showStlOrderStep" type="button" style="display:block">Оформить заказ/);
+test('STL result exposes a simple messenger order flow', () => {
+  assert.doesNotMatch(indexHtml, /id="shareStlOrder"/);
+  assert.doesNotMatch(indexHtml, /id="copyStlOrder"/);
+  assert.doesNotMatch(indexHtml, /id="downloadStlOrder"/);
+  assert.match(indexHtml, /id="showStlOrderStep" type="button" style="display:block">Перейти к заявке/);
   assert.doesNotMatch(indexHtml, /taplink\.cc/i);
 });
 
 test('MakerWorld result creates a complete shareable order', () => {
-  assert.match(indexHtml, /id="shareMakerOrder"/);
-  assert.match(indexHtml, /id="copyMakerOrder"/);
+  assert.doesNotMatch(indexHtml, /id="shareMakerOrder"/);
+  assert.doesNotMatch(indexHtml, /id="copyMakerOrder"/);
+  assert.doesNotMatch(indexHtml, /id="downloadMakerOrder"/);
   assert.match(indexHtml, /function buildMakerOrderText\(\)/);
   assert.match(indexHtml, /id="orderContactHelp"/);
   assert.match(indexHtml, /id="continueOrder"/);
-  assert.match(indexHtml, /revealOrderForm\('maker',status,true\)/);
+  assert.match(indexHtml, /Телефон для обратной связи/);
+  assert.doesNotMatch(indexHtml, /id="stlCustomerContact"[^>]+required/);
   assert.match(indexHtml, /window\.SitroRevealOrderForm=revealOrderForm/);
   assert.match(indexHtml, /window\.SitroRevealOrderForm\('maker',document\.getElementById\('makerOrderStatus'\)\)/);
   assert.match(indexHtml, /scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
-  assert.match(indexHtml, /телефон или Telegram нужен/);
-  assert.match(indexHtml, /Что будет отправлено/);
+  assert.match(indexHtml, /Состав заявки/);
   assert.match(indexHtml, /SitroOrderDrafts\.maker=buildMakerOrderText/);
   const draft=buildMakerOrderText({customer:{name:'Иван',contact:'@ivan',comment:'Позвонить вечером'},order:{model:'Тестовая модель',profile:'Стандарт',quantity:2,material:'PLA',grams:96,hours:8.18,price:1234,url:'https://makerworld.com/models/123'}});
   assert.match(draft, /ЗАЯВКА С САЙТА СИТРО[\s\S]*Заказчик: Иван[\s\S]*Контакт для ответа: @ivan/);
@@ -180,7 +189,6 @@ test('MakerWorld result creates a complete shareable order', () => {
 
 test('STL order reads customer details when the user sends it', () => {
   assert.match(indexHtml, /const buildStlOrderText=\(\)=>/);
-  assert.match(indexHtml, /navigator\.share\(\{title:'Заявка на 3D-печать СИТРО',text:buildStlOrderText\(\),files:activeFiles\}\)/);
   assert.match(indexHtml, /SitroOrderDrafts\.stl=buildStlOrderText/);
   const draft=buildStlOrderText({customer:{contact:'+7 900 000-00-00'},items:[{file:'detail.stl',qty:3,material:'PETG',color:'Чёрный',estimatedGrams:72.4}],groupCount:1,total:850});
   assert.match(draft, /1\. detail\.stl[\s\S]*Количество: 3 шт\. · Материал: PETG · Цвет: Чёрный/);
