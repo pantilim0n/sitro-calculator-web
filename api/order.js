@@ -152,6 +152,24 @@ async function sendTelegram(text, token, chatId) {
   if (!response.ok || !data.ok) throw new Error('Не удалось передать заявку в Telegram');
 }
 
+async function sendMax(text, token, userId) {
+  const url = new URL('https://platform-api2.max.ru/messages');
+  url.searchParams.set('user_id', userId);
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      text: text.slice(0, 4000),
+      disable_link_preview: true
+    })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data.message) throw new Error('Не удалось передать заявку в MAX');
+}
+
 function json(res, status, payload) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
   return res.end(JSON.stringify(payload));
@@ -166,6 +184,8 @@ export default async function handler(req, res) {
   const diskToken = process.env.YANDEX_DISK_TOKEN;
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+  const maxToken = process.env.MAX_BOT_TOKEN;
+  const maxUserId = process.env.MAX_USER_ID;
   if (!diskToken) {
     return json(res, 503, {error: 'Прямая отправка ещё настраивается. Попробуйте немного позже.'});
   }
@@ -201,16 +221,31 @@ export default async function handler(req, res) {
       message,
       files
     }, diskToken);
-    let notified = false;
+    const notificationText = telegramText({orderId, kind, customer, message, files});
+    let telegramNotified = false;
+    let maxNotified = false;
     if (telegramToken && telegramChatId) {
       try {
-        await sendTelegram(telegramText({orderId, kind, customer, message, files}), telegramToken, telegramChatId);
-        notified = true;
+        await sendTelegram(notificationText, telegramToken, telegramChatId);
+        telegramNotified = true;
       } catch (error) {
-        console.error('Order notification failed', {message: error?.message || 'Unknown error'});
+        console.error('Telegram order notification failed', {message: error?.message || 'Unknown error'});
       }
     }
-    return json(res, 200, {ok: true, orderId, notified});
+    if (maxToken && maxUserId) {
+      try {
+        await sendMax(notificationText, maxToken, maxUserId);
+        maxNotified = true;
+      } catch (error) {
+        console.error('MAX order notification failed', {message: error?.message || 'Unknown error'});
+      }
+    }
+    return json(res, 200, {
+      ok: true,
+      orderId,
+      notified: telegramNotified || maxNotified,
+      notifications: {telegram: telegramNotified, max: maxNotified}
+    });
   } catch (error) {
     console.error('Order request failed', {message: error?.message || 'Unknown error'});
     return json(res, 400, {error: error?.message || 'Не удалось отправить заявку'});
