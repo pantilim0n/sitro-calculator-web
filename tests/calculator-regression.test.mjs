@@ -131,9 +131,18 @@ test('calculator communicates three simple steps and offers direct order channel
   assert.match(siteEnhancements, /Модель[\s\S]*Стоимость[\s\S]*Заявка/);
   assert.doesNotMatch(siteEnhancements, /<span>Параметры<\/span>/);
   assert.equal(messengerDraftUrl('telegram','Тест'), 'https://t.me/SITMAKER?text='+encodeURIComponent('Тест'));
-  assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/:share?text='+encodeURIComponent('Тест'));
+  assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8');
+  assert.doesNotMatch(messengerDraftUrl('max','Тест'), /:share/);
   assert.match(siteEnhancements, /order-channel-'\+type/);
   assert.match(siteEnhancements, /Отправить заявку в /);
+  assert.match(siteEnhancements, /Текст заявки уже скопирован/);
+});
+
+test('messenger preview uses a dedicated branded social card', () => {
+  assert.match(indexHtml, /property="og:image" content="https:\/\/sitrocalculatorvercelv04\.vercel\.app\/design-assets\/sitro-share-card\.png\?v=20260930"/);
+  assert.match(indexHtml, /property="og:image:width" content="1200"/);
+  assert.match(indexHtml, /property="og:image:height" content="630"/);
+  assert.match(indexHtml, /name="twitter:image" content="https:\/\/sitrocalculatorvercelv04\.vercel\.app\/design-assets\/sitro-share-card\.png\?v=20260930"/);
 });
 
 test('portfolio supports optional production details without inventing values', () => {

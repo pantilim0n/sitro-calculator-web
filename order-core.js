@@ -51,6 +51,6 @@ export function buildStlOrderText({customer={},items=[],groupCount=0,total=0}){
 export function messengerDraftUrl(type,message){
   const encoded=encodeURIComponent(String(message||''));
   if(type==='telegram')return 'https://t.me/SITMAKER?text='+encoded;
-  if(type==='max')return 'https://max.ru/:share?text='+encoded;
+  if(type==='max')return 'https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8';
   throw new Error('Неизвестный мессенджер');
 }
