@@ -134,8 +134,20 @@ test('calculator communicates three simple steps and offers direct order channel
   assert.equal(messengerDraftUrl('max','Тест'), 'https://max.ru/u/f9LHodD0cOJGycqhJHkPaD-ymeKK6oYbrxtihzH4KBOgABKCslGcU7jGl_8');
   assert.doesNotMatch(messengerDraftUrl('max','Тест'), /:share/);
   assert.match(siteEnhancements, /order-channel-'\+type/);
-  assert.match(siteEnhancements, /Отправить заявку в /);
+  assert.match(siteEnhancements, /Дополнительные способы/);
   assert.match(siteEnhancements, /Текст заявки уже скопирован/);
+});
+
+test('Yandex Form is the primary embedded order channel', () => {
+  assert.match(siteEnhancements, /https:\/\/forms\.yandex\.ru\/u\/6abcf2d71f1eb5346f875ac4\//);
+  assert.match(siteEnhancements, /answer_short_text_9008990022603980/);
+  assert.match(siteEnhancements, /answer_short_text_9008990022657400/);
+  assert.match(siteEnhancements, /searchParams\.set\('iframe','1'\)/);
+  assert.match(siteEnhancements, /searchParams\.set\('theme','dark'\)/);
+  assert.match(siteEnhancements, /className='order-btn show order-form-primary'/);
+  assert.match(siteEnhancements, /Файл STL или 3MF прикрепляется внутри формы/);
+  assert.match(siteEnhancementStyles, /\.yandex-order-panel iframe/);
+  assert.match(indexHtml, /отправьте заявку через форму или выберите мессенджер/);
 });
 
 test('messenger preview uses a dedicated branded social card', () => {
