@@ -160,10 +160,11 @@ test('native site order sends the selected model without a second form', () => {
 });
 
 test('messenger preview uses a dedicated branded social card', () => {
-  assert.match(indexHtml, /property="og:image" content="https:\/\/sitrocalculatorvercelv04\.vercel\.app\/design-assets\/sitro-share-card\.png\?v=20260930"/);
+  assert.match(indexHtml, /property="og:url" content="https:\/\/ситро-3д\.рф\/"/);
+  assert.match(indexHtml, /property="og:image" content="https:\/\/ситро-3д\.рф\/design-assets\/sitro-share-card\.png\?v=20261002"/);
   assert.match(indexHtml, /property="og:image:width" content="1200"/);
   assert.match(indexHtml, /property="og:image:height" content="630"/);
-  assert.match(indexHtml, /name="twitter:image" content="https:\/\/sitrocalculatorvercelv04\.vercel\.app\/design-assets\/sitro-share-card\.png\?v=20260930"/);
+  assert.match(indexHtml, /name="twitter:image" content="https:\/\/ситро-3д\.рф\/design-assets\/sitro-share-card\.png\?v=20261002"/);
 });
 
 test('portfolio supports optional production details without inventing values', () => {
