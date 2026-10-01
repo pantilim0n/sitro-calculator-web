@@ -25,6 +25,8 @@ const adminSettings = await readFile(new URL('../admin-settings.js', import.meta
 const adminPreview = await readFile(new URL('../admin-preview.js', import.meta.url), 'utf8');
 const adminOrders = await readFile(new URL('../admin-orders.js', import.meta.url), 'utf8');
 const adminOrdersApi = await readFile(new URL('../api/admin-orders.js', import.meta.url), 'utf8');
+const adminTheme = await readFile(new URL('../admin-theme.js', import.meta.url), 'utf8');
+const adminThemeStyles = await readFile(new URL('../admin-theme.css', import.meta.url), 'utf8');
 const socialIcons = await readFile(new URL('../social-icons.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
@@ -128,6 +130,11 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminOrders, /action:'status'/);
   assert.match(adminOrdersApi, /YANDEX_DISK_TOKEN/);
   assert.match(adminOrdersApi, /sendOrderNotifications/);
+  assert.match(adminHtml, /id="themeToggle"/);
+  assert.match(adminHtml, /admin-theme\.css/);
+  assert.match(adminHtml, /admin-theme\.js/);
+  assert.match(adminTheme, /localStorage\.setItem\(key,next\)/);
+  assert.match(adminThemeStyles, /\[data-admin-theme="light"\] body/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
