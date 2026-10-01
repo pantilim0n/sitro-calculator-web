@@ -206,7 +206,7 @@ function keepCalculatorFieldsAboveKeyboard(){
     const field=activeField;
     if(!field||document.activeElement!==field)return;
     const viewport=window.visualViewport;
-    if(!viewport||viewport.height>=window.innerHeight-80||adjusting)return;
+    if(adjusting)return;
     const rect=field.getBoundingClientRect();
     const safeTop=(viewport?.offsetTop||0)+82;
     const safeBottom=(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight)-24;
@@ -219,20 +219,21 @@ function keepCalculatorFieldsAboveKeyboard(){
     window.scrollBy(0,delta);
     requestAnimationFrame(()=>{adjusting=false});
   };
+  const scheduleVisibilityCheck=(delay=180)=>{
+    clearTimeout(settleTimer);
+    settleTimer=setTimeout(keepVisible,delay);
+  };
   fields.forEach(field=>{
     field.classList.add('keyboard-safe-field');
     field.addEventListener('focus',()=>{
       activeField=field;
-      clearTimeout(settleTimer);
-      settleTimer=setTimeout(keepVisible,280);
+      scheduleVisibilityCheck(360);
     });
     field.addEventListener('blur',()=>{if(activeField===field)activeField=null;clearTimeout(settleTimer)});
   });
-  const onViewportResize=()=>{
-    clearTimeout(settleTimer);
-    settleTimer=setTimeout(keepVisible,120);
-  };
+  const onViewportResize=()=>scheduleVisibilityCheck(180);
   window.visualViewport?.addEventListener('resize',onViewportResize,{passive:true});
+  window.addEventListener('resize',onViewportResize,{passive:true});
 }
 
 const [config,reviews]=await Promise.all([fetchJson('/site-config.json',fallbackConfig),fetchJson('/reviews.json',{items:[]})]);

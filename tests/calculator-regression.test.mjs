@@ -143,7 +143,9 @@ test('calculator communicates three simple steps and keeps one primary order act
 test('mobile keyboard support does not create a viewport scroll feedback loop', () => {
   assert.match(siteEnhancements, /visualViewport\?\.addEventListener\('resize'/);
   assert.doesNotMatch(siteEnhancements, /visualViewport\?\.addEventListener\('scroll'/);
+  assert.doesNotMatch(siteEnhancements, /viewport\.height>=window\.innerHeight-80/);
   assert.match(siteEnhancements, /window\.scrollBy\(0,delta\)/);
+  assert.match(siteEnhancementStyles, /scroll-margin-bottom:42vh/);
 });
 
 test('native site order sends the selected model without a second form', () => {
