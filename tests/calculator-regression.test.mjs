@@ -48,7 +48,7 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
   assert.match(indexHtml, /function normalizeMakerWorldUrl\(value\)/);
   assert.match(indexHtml, /Нужна ссылка вида makerworld\.com\/models\/123456/);
   assert.match(siteEnhancements, /keepCalculatorFieldsAboveKeyboard/);
-  assert.match(siteEnhancements, /window\.visualViewport\?\.addEventListener\('resize'/);
+  assert.match(siteEnhancements, /settleTimer=setTimeout\(keepVisible,520\)/);
   assert.match(siteEnhancementStyles, /\.keyboard-safe-field/);
 });
 
@@ -141,11 +141,12 @@ test('calculator communicates three simple steps and keeps one primary order act
 });
 
 test('mobile keyboard support does not create a viewport scroll feedback loop', () => {
-  assert.match(siteEnhancements, /visualViewport\?\.addEventListener\('resize'/);
+  assert.doesNotMatch(siteEnhancements, /visualViewport\?\.addEventListener/);
   assert.doesNotMatch(siteEnhancements, /visualViewport\?\.addEventListener\('scroll'/);
   assert.doesNotMatch(siteEnhancements, /viewport\.height>=window\.innerHeight-80/);
-  assert.match(siteEnhancements, /window\.scrollBy\(0,delta\)/);
-  assert.match(siteEnhancementStyles, /scroll-margin-bottom:42vh/);
+  assert.match(siteEnhancements, /root\.style\.scrollBehavior='auto'/);
+  assert.match(siteEnhancements, /window\.scrollTo\(\{top:Math\.max\(0,window\.scrollY\+delta\)/);
+  assert.doesNotMatch(siteEnhancementStyles, /scroll-margin-bottom:42vh/);
 });
 
 test('native site order sends the selected model without a second form', () => {
