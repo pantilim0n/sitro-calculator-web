@@ -135,6 +135,9 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /admin-theme\.js/);
   assert.match(adminTheme, /localStorage\.setItem\(key,next\)/);
   assert.match(adminThemeStyles, /\[data-admin-theme="light"\] body/);
+  assert.match(adminThemeStyles, /\.orders-stat/);
+  assert.match(adminThemeStyles, /\[data-admin-theme="light"\] \.admin-preview\{color:#f5f5f5\}/);
+  assert.match(adminHtml, /admin-theme\.css\?v=20261001-2/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
