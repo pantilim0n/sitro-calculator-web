@@ -192,7 +192,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 12
   },
@@ -208,7 +208,7 @@
     "categories": [
       "Технические"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 13
   }
