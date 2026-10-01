@@ -47,14 +47,13 @@ function renderOrders(){
 }
 
 async function ordersPost(payload){
-  const response=await fetch('/api/admin-orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,password:sessionStorage.getItem('sitroAdminPassword')||''})});
+  const response=await fetch('/api/admin-orders',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||('Ошибка сервера: HTTP '+response.status));
   return data;
 }
 
 export async function loadOrders(){
-  if(!sessionStorage.getItem('sitroAdminPassword'))return;
   const status=document.getElementById('ordersStatus');if(!status)return;
   status.className='status orders-status loading';status.textContent='Загружаю заявки…';
   try{const data=await ordersPost({action:'list',limit:200});orders=Array.isArray(data.orders)?data.orders:[];ordersLoaded=true;renderOrders();status.className='status orders-status ok';status.textContent='Заявки обновлены.';setTimeout(()=>{if(status.textContent==='Заявки обновлены.')status.textContent=''},1800)}catch(error){status.className='status orders-status err';status.textContent=error.message||'Не удалось загрузить заявки.'}

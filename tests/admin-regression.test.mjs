@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 import adminPortfolio, {cleanPricing, cleanReviews, cleanServices, cleanSiteConfig, cleanSocials, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
+import {createAdminSession, createPasswordConfig, verifyAdminSession, verifyPasswordConfig} from '../api/_admin-security.js';
 import {
   categoriesOf,
   filterPortfolioItems,
@@ -33,10 +34,42 @@ function responseRecorder() {
   return {
     statusCode: 200,
     payload: null,
+    headers: {},
+    setHeader(name, value) { this.headers[name] = value; return this; },
     status(code) { this.statusCode = code; return this; },
     json(payload) { this.payload = payload; return this; }
   };
 }
+
+test('admin password is exchanged for a signed HttpOnly session', async () => {
+  const originalEnv = {...process.env};
+  process.env.GITHUB_TOKEN = 'test-token';
+  process.env.ADMIN_PASSWORD = 'test-password';
+  process.env.GITHUB_REPO = 'owner/repository';
+  try {
+    const response = responseRecorder();
+    await adminPortfolio({method: 'POST', headers: {host: 'example.test', origin: 'https://example.test'}, body: {action: 'auth', password: 'test-password'}}, response);
+    assert.equal(response.statusCode, 200);
+    assert.match(response.headers['Set-Cookie'], /sitro_admin_session=/);
+    assert.match(response.headers['Set-Cookie'], /HttpOnly/);
+    assert.match(response.headers['Set-Cookie'], /SameSite=Strict/);
+    assert.doesNotMatch(adminHtml, /sitroAdminPassword/);
+  } finally {
+    process.env = originalEnv;
+  }
+});
+
+test('admin sessions reject tampering and password changes use scrypt', () => {
+  const env = {ADMIN_PASSWORD: 'strong-password', GITHUB_TOKEN: 'token'};
+  const token = createAdminSession(env, 1_000);
+  assert.equal(verifyAdminSession({headers: {cookie: `sitro_admin_session=${token}`}}, env, 2_000), true);
+  assert.equal(verifyAdminSession({headers: {cookie: `sitro_admin_session=${token}x`}}, env, 2_000), false);
+  assert.equal(verifyAdminSession({headers: {cookie: `sitro_admin_session=${token}`}}, env, 20_000_000), false);
+  const config = createPasswordConfig('another-strong-password');
+  assert.equal(config.algorithm, 'scrypt');
+  assert.equal(verifyPasswordConfig('another-strong-password', config), true);
+  assert.equal(verifyPasswordConfig('wrong-password', config), false);
+});
 
 function githubFetchMock(existingItems = []) {
   const calls = [];
@@ -110,7 +143,7 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /id="openMaterialsEditor"/);
   assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
   assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);
-  assert.match(adminHtml, /src="\/admin-settings\.js"/);
+  assert.match(adminHtml, /src="\/admin-settings\.js(?:\?[^\"]+)?"/);
   assert.match(adminSettings, /id='siteSettingsAdmin'/);
   assert.match(adminSettings, /id='reviewsAdmin'/);
   assert.match(adminSettings, /action:'saveSiteContent'/);

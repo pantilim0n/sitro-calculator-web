@@ -1,5 +1,5 @@
-import {createHash} from 'node:crypto';
 import {orderFolder, sendOrderNotifications} from './order.js';
+import {hasTrustedOrigin, passwordEquals, verifyAdminSession, verifyPasswordConfig} from './_admin-security.js';
 
 const ORDER_ROOT = 'app:/Заявки';
 const ORDER_ID = /^\d{14}-[a-f0-9]{8}$/;
@@ -105,7 +105,7 @@ async function listOrders(token, maximum = 200) {
 
 async function adminPasswordMatches(password, env) {
   if (typeof password !== 'string' || !password) return false;
-  if (password === env.ADMIN_PASSWORD) return true;
+  if (passwordEquals(password, env.ADMIN_PASSWORD)) return true;
   const token = env.GITHUB_TOKEN;
   if (!token) return false;
   const repository = env.GITHUB_REPO || 'pantilim0n/sitro-calculator-web';
@@ -121,8 +121,7 @@ async function adminPasswordMatches(password, env) {
   if (!file.ok) return false;
   const config = JSON.parse(Buffer.from(String((await file.json()).content || '').replace(/\s/g, ''), 'base64').toString('utf8'));
   if (!config?.hash || !config?.salt) return false;
-  const hash = createHash('sha256').update(`${config.salt}:${password}`).digest('hex');
-  return hash === config.hash;
+  return verifyPasswordConfig(password, config);
 }
 
 function json(res, status, payload) {
@@ -133,7 +132,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return json(res, 405, {error: 'Метод не поддерживается'});
   const body = req.body && typeof req.body === 'object' ? req.body : {};
   try {
-    if (!(await adminPasswordMatches(body.password, process.env))) return json(res, 401, {error: 'Неверный пароль'});
+    if (!hasTrustedOrigin(req)) return json(res, 403, {error: 'Запрос отклонён системой безопасности'});
+    if (!verifyAdminSession(req, process.env) && !(await adminPasswordMatches(body.password, process.env))) return json(res, 401, {error: 'Сессия завершена. Войдите снова.'});
     const token = process.env.YANDEX_DISK_TOKEN;
     if (!token) return json(res, 503, {error: 'Хранилище заявок ещё не настроено'});
     if (body.action === 'list') {

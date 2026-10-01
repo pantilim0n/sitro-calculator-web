@@ -1,4 +1,4 @@
-import {createHash, randomBytes} from 'node:crypto';
+import {clearAdminSession, clearLoginFailures, createPasswordConfig, hasTrustedOrigin, loginRetryAfter, passwordEquals, recordLoginFailure, setAdminSession, verifyAdminSession, verifyPasswordConfig} from './_admin-security.js';
 export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
 const DEFAULT_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
@@ -190,8 +190,6 @@ export default async function handler(req, res) {
   const headers = {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json'};
 
   const body = req.body || {};
-  if (!(await passwordMatches(body.password))) return res.status(401).json({error: 'Неверный пароль'});
-  if (body.action === 'auth') return res.status(200).json({ok: true});
 
   async function github(path, options = {}) {
     const response = await fetch(repoApi + path, {...options, headers: {...headers, ...(options.headers || {})}});
@@ -219,14 +217,37 @@ export default async function handler(req, res) {
     try { return await readJsonAt('admin-password.json', headSha); } catch (error) { if (error.status === 404) return null; throw error; }
   }
 
-  function passwordHash(password, salt) { return createHash('sha256').update(String(salt) + ':' + String(password)).digest('hex'); }
-
   async function passwordMatches(password) {
     if (typeof password !== 'string' || !password) return false;
-    if (password === adminPassword) return true;
+    if (passwordEquals(password, adminPassword)) return true;
     const config = await readPasswordConfig(await getHead());
-    return Boolean(config?.hash && config?.salt) && passwordHash(password, config.salt) === config.hash;
+    return verifyPasswordConfig(password, config);
   }
+
+  if (!hasTrustedOrigin(req)) return res.status(403).json({error: 'Запрос отклонён системой безопасности'});
+  if (body.action === 'logout') {
+    clearAdminSession(res);
+    return res.status(200).json({ok: true});
+  }
+  if (body.action === 'auth') {
+    const retryAfter = loginRetryAfter(req);
+    if (retryAfter) {
+      res.setHeader('Retry-After', String(retryAfter));
+      return res.status(429).json({error: `Слишком много попыток. Повторите вход через ${Math.ceil(retryAfter / 60)} мин.`});
+    }
+    if (!(await passwordMatches(body.password))) {
+      const blockedFor = recordLoginFailure(req);
+      if (blockedFor) res.setHeader('Retry-After', String(blockedFor));
+      await new Promise(resolve => setTimeout(resolve, 350));
+      return res.status(blockedFor ? 429 : 401).json({error: blockedFor ? 'Слишком много попыток. Вход временно заблокирован.' : 'Неверный пароль'});
+    }
+    clearLoginFailures(req);
+    setAdminSession(res, process.env);
+    return res.status(200).json({ok: true, expiresIn: 14400});
+  }
+  const authorized = verifyAdminSession(req, process.env) || await passwordMatches(body.password);
+  if (!authorized) return res.status(401).json({error: 'Сессия завершена. Войдите снова.'});
+  if (body.action === 'session') return res.status(200).json({ok: true});
 
   async function commitAtHead(files, message, headSha) {
     const parent = await github('/git/commits/' + encodeURIComponent(headSha));
@@ -290,9 +311,8 @@ export default async function handler(req, res) {
     }
     if (body.action === 'changePassword') {
       const nextPassword = String(body.newPassword || '');
-      if (nextPassword.length < 8 || nextPassword.length > 200) return res.status(400).json({error: 'Новый пароль должен содержать от 8 до 200 символов.'});
-      const salt = randomBytes(16).toString('hex');
-      const config = {version: 1, salt, hash: passwordHash(nextPassword, salt), updatedAt: new Date().toISOString()};
+      if (nextPassword.length < 12 || nextPassword.length > 200) return res.status(400).json({error: 'Новый пароль должен содержать от 12 до 200 символов.'});
+      const config = createPasswordConfig(nextPassword);
       const sha = await commitFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Update admin password');
       return res.status(200).json({ok: true, sha});
     }
