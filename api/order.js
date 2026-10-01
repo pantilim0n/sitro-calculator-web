@@ -6,7 +6,11 @@ const MAX_MESSAGE_LENGTH = 8000;
 // The OAuth app only receives access to its own Yandex Disk folder.
 // This keeps customer models isolated from the rest of the owner's Disk.
 const ORDER_ROOT = 'app:/Заявки';
+const RATE_LIMIT_ROOT = `${ORDER_ROOT}/.system/rate-limits`;
 const ALLOWED_EXTENSIONS = new Set(['stl', '3mf']);
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMITS = {prepare: 8, submit: 5};
+const memoryRateLimits = new Map();
 
 function cleanText(value, max = 500) {
   return String(value ?? '').trim().slice(0, max);
@@ -69,6 +73,56 @@ async function ensureFolder(path, token) {
   const {response, data} = await diskRequest('/resources', {token, method: 'PUT', query: {path}});
   if (response.ok || response.status === 409 && data.error === 'DiskPathPointsToExistentDirectoryError') return;
   throw new Error('Не удалось подготовить папку для заказа');
+}
+
+export function requestFingerprint(req, secret = '') {
+  const forwarded = cleanText(req?.headers?.['x-forwarded-for'], 300).split(',')[0].trim();
+  const address = forwarded || cleanText(req?.headers?.['x-real-ip'], 100) || cleanText(req?.socket?.remoteAddress, 100) || 'unknown';
+  const agent = cleanText(req?.headers?.['user-agent'], 300);
+  return crypto.createHash('sha256').update(`${secret}:${address}:${agent}`).digest('hex').slice(0, 32);
+}
+
+export function nextRateState(state, action, now = Date.now()) {
+  const limit = RATE_LIMITS[action];
+  if (!limit) throw new Error('Некорректное действие ограничения');
+  const threshold = now - RATE_LIMIT_WINDOW_MS;
+  const events = Array.isArray(state?.[action]) ? state[action].map(Number).filter(value => Number.isFinite(value) && value > threshold && value <= now) : [];
+  if (events.length >= limit) {
+    const error = new Error('Слишком много попыток. Подождите несколько минут и попробуйте снова.');
+    error.statusCode = 429;
+    error.retryAfter = Math.max(1, Math.ceil((events[0] + RATE_LIMIT_WINDOW_MS - now) / 1000));
+    throw error;
+  }
+  return {...(state && typeof state === 'object' ? state : {}), [action]: [...events, now], updatedAt: new Date(now).toISOString()};
+}
+
+async function readJsonFile(path, token) {
+  const {response, data} = await diskRequest('/resources/download', {token, query: {path}});
+  if (response.status === 404) return null;
+  if (!response.ok || !data.href) throw new Error('Не удалось проверить частоту отправки');
+  const download = await fetch(data.href);
+  if (!download.ok) throw new Error('Не удалось проверить частоту отправки');
+  return download.json().catch(() => null);
+}
+
+async function writeJsonFile(path, value, token) {
+  const {response, data} = await diskRequest('/resources/upload', {token, query: {path, overwrite: 'true'}});
+  if (!response.ok || !data.href) throw new Error('Не удалось сохранить ограничение отправки');
+  const upload = await fetch(data.href, {method: data.method || 'PUT', headers: {'Content-Type': 'application/json; charset=utf-8'}, body: JSON.stringify(value)});
+  if (!upload.ok) throw new Error('Не удалось сохранить ограничение отправки');
+}
+
+async function enforceRateLimit(req, action, token) {
+  const fingerprint = requestFingerprint(req, process.env.RATE_LIMIT_SECRET || token.slice(-24));
+  const memoryKey = `${action}:${fingerprint}`;
+  const memoryState = nextRateState({[action]: memoryRateLimits.get(memoryKey) || []}, action);
+  memoryRateLimits.set(memoryKey, memoryState[action]);
+  await ensureFolder(ORDER_ROOT, token);
+  await ensureFolder(`${ORDER_ROOT}/.system`, token);
+  await ensureFolder(RATE_LIMIT_ROOT, token);
+  const path = `${RATE_LIMIT_ROOT}/${fingerprint}.json`;
+  const state = nextRateState(await readJsonFile(path, token), action);
+  await writeJsonFile(path, state, token);
 }
 
 async function prepareUploads(files, token, now = new Date()) {
@@ -170,6 +224,34 @@ async function sendMax(text, token, userId) {
   if (!response.ok || !data.message) throw new Error('Не удалось передать заявку в MAX');
 }
 
+export async function sendOrderNotifications(record, env = process.env) {
+  const attemptedAt = new Date().toISOString();
+  const notificationText = telegramText(record);
+  const notifications = {
+    telegram: {configured: Boolean(env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID), sent: false, attemptedAt},
+    max: {configured: Boolean(env.MAX_BOT_TOKEN && env.MAX_USER_ID), sent: false, attemptedAt}
+  };
+  if (notifications.telegram.configured) {
+    try {
+      await sendTelegram(notificationText, env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+      notifications.telegram.sent = true;
+    } catch (error) {
+      notifications.telegram.error = cleanText(error?.message || 'Ошибка Telegram', 300);
+      console.error('Telegram order notification failed', {message: notifications.telegram.error});
+    }
+  }
+  if (notifications.max.configured) {
+    try {
+      await sendMax(notificationText, env.MAX_BOT_TOKEN, env.MAX_USER_ID);
+      notifications.max.sent = true;
+    } catch (error) {
+      notifications.max.error = cleanText(error?.message || 'Ошибка MAX', 300);
+      console.error('MAX order notification failed', {message: notifications.max.error});
+    }
+  }
+  return notifications;
+}
+
 function json(res, status, payload) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
   return res.end(JSON.stringify(payload));
@@ -194,11 +276,13 @@ export default async function handler(req, res) {
   if (cleanText(body.website, 200)) return json(res, 200, {ok: true});
   try {
     if (body.action === 'prepare') {
+      await enforceRateLimit(req, 'prepare', diskToken);
       const files = validateFiles(body.files || []);
       const prepared = await prepareUploads(files, diskToken);
       return json(res, 200, {ok: true, ...prepared});
     }
     if (body.action !== 'submit') return json(res, 400, {error: 'Неизвестное действие'});
+    await enforceRateLimit(req, 'submit', diskToken);
 
     const orderId = cleanText(body.orderId, 40);
     const kind = body.kind === 'stl' ? 'stl' : 'maker';
@@ -213,33 +297,29 @@ export default async function handler(req, res) {
     const paths = validateStoredPaths(orderId, body.paths || []);
     if (kind === 'stl' && !paths.length) throw new Error('Добавьте файл STL или 3MF');
     const files = await publishFiles(paths, diskToken);
-    await saveOrderRecord(orderId, {
+    const record = {
       orderId,
       createdAt: new Date().toISOString(),
       kind,
       customer,
       message,
-      files
-    }, diskToken);
-    const notificationText = telegramText({orderId, kind, customer, message, files});
-    let telegramNotified = false;
-    let maxNotified = false;
-    if (telegramToken && telegramChatId) {
-      try {
-        await sendTelegram(notificationText, telegramToken, telegramChatId);
-        telegramNotified = true;
-      } catch (error) {
-        console.error('Telegram order notification failed', {message: error?.message || 'Unknown error'});
+      files,
+      status: 'new',
+      statusUpdatedAt: new Date().toISOString(),
+      notifications: {
+        telegram: {configured: Boolean(telegramToken && telegramChatId), sent: false},
+        max: {configured: Boolean(maxToken && maxUserId), sent: false}
       }
+    };
+    await saveOrderRecord(orderId, record, diskToken);
+    const notifications = await sendOrderNotifications(record, {TELEGRAM_BOT_TOKEN: telegramToken, TELEGRAM_CHAT_ID: telegramChatId, MAX_BOT_TOKEN: maxToken, MAX_USER_ID: maxUserId});
+    try {
+      await saveOrderRecord(orderId, {...record, notifications}, diskToken);
+    } catch (error) {
+      console.error('Order notification state save failed', {message: error?.message || 'Unknown error'});
     }
-    if (maxToken && maxUserId) {
-      try {
-        await sendMax(notificationText, maxToken, maxUserId);
-        maxNotified = true;
-      } catch (error) {
-        console.error('MAX order notification failed', {message: error?.message || 'Unknown error'});
-      }
-    }
+    const telegramNotified = notifications.telegram.sent;
+    const maxNotified = notifications.max.sent;
     return json(res, 200, {
       ok: true,
       orderId,
@@ -248,6 +328,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Order request failed', {message: error?.message || 'Unknown error'});
-    return json(res, 400, {error: error?.message || 'Не удалось отправить заявку'});
+    if (error?.retryAfter) res.setHeader('Retry-After', String(error.retryAfter));
+    return json(res, error?.statusCode || 400, {error: error?.message || 'Не удалось отправить заявку', retryAfter: error?.retryAfter || undefined});
   }
 }

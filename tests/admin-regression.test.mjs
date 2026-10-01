@@ -23,6 +23,8 @@ const adminApi = await readFile(new URL('../api/admin-portfolio.js', import.meta
 const adminImage = await readFile(new URL('../admin-image.js', import.meta.url), 'utf8');
 const adminSettings = await readFile(new URL('../admin-settings.js', import.meta.url), 'utf8');
 const adminPreview = await readFile(new URL('../admin-preview.js', import.meta.url), 'utf8');
+const adminOrders = await readFile(new URL('../admin-orders.js', import.meta.url), 'utf8');
+const adminOrdersApi = await readFile(new URL('../api/admin-orders.js', import.meta.url), 'utf8');
 const socialIcons = await readFile(new URL('../social-icons.js', import.meta.url), 'utf8');
 
 function responseRecorder() {
@@ -119,6 +121,13 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /id="statProduction"/);
   assert.match(adminHtml, /\['material','dimensions','leadTime','priceFrom'\]/);
   assert.match(adminSettings, /heroMobileScale/);
+  assert.match(adminHtml, /admin-orders\.js/);
+  assert.match(adminHtml, /admin-orders\.css/);
+  assert.match(adminOrders, /id='ordersAdmin'/);
+  assert.match(adminOrders, /Повторить уведомления/);
+  assert.match(adminOrders, /action:'status'/);
+  assert.match(adminOrdersApi, /YANDEX_DISK_TOKEN/);
+  assert.match(adminOrdersApi, /sendOrderNotifications/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));

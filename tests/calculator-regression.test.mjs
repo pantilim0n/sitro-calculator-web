@@ -25,7 +25,7 @@ test('calculator loads editable pricing and keeps current production tariffs', (
   assert.match(indexHtml, /fetch\('\/pricing\.json\?pricing='/);
   assert.match(indexHtml, /await pricingReady/);
   const materialPrices = Object.fromEntries(Object.entries(pricing.materials).map(([code, value]) => [code, value.price]));
-  assert.deepEqual(Object.fromEntries(['PLA', 'PETG', 'ABS', 'ASA', 'PA'].map(code => [code, materialPrices[code]])), {PLA:12, PETG:8, ABS:11, ASA:24, PA:20});
+  assert.deepEqual(Object.fromEntries(['PLA', 'PETG', 'ABS', 'ASA', 'PA'].map(code => [code, materialPrices[code]])), {PLA:12, PETG:8, ABS:14, ASA:24, PA:20});
   assert.equal(materialPrices.TPU, 18);
   assert.ok(Object.values(pricing.materials).every(material => Number(material.price) > 0 && Number(material.density) > 0));
   assert.equal(pricing.machineHour, 10);
@@ -172,6 +172,12 @@ test('portfolio supports optional production details without inventing values', 
   assert.match(indexHtml, /data-lead-time/);
   assert.match(indexHtml, /data-price-from/);
   assert.match(indexHtml, /id="lightboxMeta"/);
+});
+
+test('portfolio starts with complete rows on desktop and smaller screens', () => {
+  assert.match(indexHtml, /portfolioLimit=\(\)=>matchMedia\('\(min-width:1000px\)'\)\.matches\?8:6/);
+  assert.match(indexHtml, /list\.slice\(0,limit\)/);
+  assert.match(indexHtml, /@media\(min-width:1000px\)\{\.portfolio-grid\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)\}\}/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {

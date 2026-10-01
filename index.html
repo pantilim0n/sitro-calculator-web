@@ -53,7 +53,8 @@
 
 .portfolio-toggle-wrap{display:flex;justify-content:center;margin-top:22px}
 .portfolio-toggle{width:auto!important;min-width:220px;padding:13px 18px!important;margin:0!important}
-.portfolio-grid.collapsed .work:nth-child(n+7){display:none}
+.portfolio-grid.collapsed .work:nth-child(n+9){display:none}
+@media(min-width:1000px){.portfolio-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 .portfolio-filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px}
 .portfolio-filter{border:1px solid #343434;background:#131313;color:#c9c9c9;border-radius:999px;padding:9px 13px;font-weight:750;cursor:pointer}
@@ -418,17 +419,21 @@ document.addEventListener('DOMContentLoaded',()=>{
  catch(e){clearTimeout(timeout);grid.setAttribute('aria-busy','false');grid.innerHTML='<div class="portfolio-loading" role="alert">Не удалось загрузить работы. <button type="button" id="retryPortfolio" class="portfolio-retry">Повторить</button></div>';toggle.style.display='none';document.getElementById('retryPortfolio')?.addEventListener('click',loadPortfolio);return;}
  grid.setAttribute('aria-busy','false');const cats=['Все',...new Set([...(Array.isArray(configuredCats)?configuredCats:[]),...items.flatMap(x=>Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).filter(Boolean)])];
  filters.innerHTML=cats.map(c=>'<button type="button" class="portfolio-filter'+(c==='Все'?' active':'')+'" aria-pressed="'+(c==='Все'?'true':'false')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>').join('');grid.setAttribute('aria-live','polite');
+ const portfolioLimit=()=>matchMedia('(min-width:1000px)').matches?8:6;
+ let lastPortfolioLimit=portfolioLimit();
  function render(){
    const list=(active==='Все'?[...items].sort((a,b)=>(Number(!!b.featured)-Number(!!a.featured))||((a.sort??999)-(b.sort??999))):items.filter(x=>(Array.isArray(x.categories)?x.categories:(x.category?[x.category]:[])).includes(active)));
-   const shown=expanded?list:list.slice(0,6);
+   const limit=portfolioLimit();
+   const shown=expanded?list:list.slice(0,limit);
    grid.innerHTML=shown.length?shown.map(x=>{const title=x.title||'3D-печать СИТРО';const categories=Array.isArray(x.categories)?x.categories.join(', '):(x.category||'');return '<figure class="work" role="button" tabindex="0" aria-label="Открыть: '+esc(title)+'" data-title="'+esc(title)+'" data-categories="'+esc(categories)+'" data-description="'+esc(x.description||'')+'" data-material="'+esc(x.material||'')+'" data-dimensions="'+esc(x.dimensions||'')+'" data-lead-time="'+esc(x.leadTime||'')+'" data-price-from="'+esc(x.priceFrom||'')+'"><img src="/'+esc(String(x.src||'').replace(/^\//,''))+'" alt="'+esc(title)+'" loading="lazy" decoding="async"><figcaption>'+esc(title)+'</figcaption></figure>';}).join(''):'<div class="portfolio-loading" role="status">В этой категории пока нет работ.</div>';
-   toggle.style.display=list.length>6?'inline-flex':'none';
+   toggle.style.display=list.length>limit?'inline-flex':'none';
    toggle.textContent=expanded?'Скрыть работы':'Показать все работы';
    if(count)count.textContent=list.length?(expanded?'Показаны все работы: '+list.length:'Показано '+shown.length+' из '+list.length):'';
    const structured=document.getElementById('portfolioStructuredData');if(structured){structured.textContent=JSON.stringify({'@context':'https://schema.org','@type':'ItemList','name':'Работы СИТРО','itemListElement':list.slice(0,20).map((item,index)=>({'@type':'ListItem','position':index+1,'name':item.title||'3D-печать СИТРО','image':item.src,'description':item.description||''}))})}
  }
  filters.addEventListener('click',e=>{const b=e.target.closest('.portfolio-filter');if(!b)return;active=b.dataset.cat;expanded=false;filters.querySelectorAll('.portfolio-filter').forEach(x=>{const selected=x===b;x.classList.toggle('active',selected);x.setAttribute('aria-pressed',String(selected))});render();});
  toggle.addEventListener('click',()=>{expanded=!expanded;render();});
+ addEventListener('resize',()=>{const nextLimit=portfolioLimit();if(nextLimit!==lastPortfolioLimit){lastPortfolioLimit=nextLimit;render()}},{passive:true});
  render();
  };
  loadPortfolio();
