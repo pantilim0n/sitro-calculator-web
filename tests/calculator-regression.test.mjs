@@ -100,6 +100,12 @@ test('site follows the supplied СИТРО hero direction', () => {
   assert.match(designKitScript, /tel:\+79056884443/);
 });
 
+test('public site does not contain admin credentials or upload code', () => {
+  assert.doesNotMatch(indexHtml, /sitroAdminPassword/);
+  assert.doesNotMatch(indexHtml, /admin-portfolio/);
+  assert.doesNotMatch(indexHtml, /prepareImageForUpload/);
+});
+
 test('desktop hero artwork stays balanced on wide screens', () => {
   assert.match(designKit, /\.hero::after\s*\{[\s\S]*inset:\s*0 auto 0 50%\s*!important/);
   assert.match(designKit, /width:\s*min\(100%,\s*1240px\)\s*!important/);
