@@ -157,6 +157,7 @@ export default async function handler(req, res) {
       }
       if (record.notifications?.max?.sent) {
         delete retryEnvironment.MAX_BOT_TOKEN;
+        delete retryEnvironment.MAX_CHAT_ID;
         delete retryEnvironment.MAX_USER_ID;
       }
       const retried = await sendOrderNotifications(record, retryEnvironment);

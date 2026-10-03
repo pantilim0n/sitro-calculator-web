@@ -206,9 +206,10 @@ async function sendTelegram(text, token, chatId) {
   if (!response.ok || !data.ok) throw new Error('Не удалось передать заявку в Telegram');
 }
 
-async function sendMax(text, token, userId) {
+async function sendMax(text, token, {chatId, userId} = {}) {
   const url = new URL('https://platform-api2.max.ru/messages');
-  url.searchParams.set('user_id', userId);
+  if (chatId) url.searchParams.set('chat_id', chatId);
+  else url.searchParams.set('user_id', userId);
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -229,7 +230,7 @@ export async function sendOrderNotifications(record, env = process.env) {
   const notificationText = telegramText(record);
   const notifications = {
     telegram: {configured: Boolean(env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID), sent: false, attemptedAt},
-    max: {configured: Boolean(env.MAX_BOT_TOKEN && env.MAX_USER_ID), sent: false, attemptedAt}
+    max: {configured: Boolean(env.MAX_BOT_TOKEN && (env.MAX_CHAT_ID || env.MAX_USER_ID)), sent: false, attemptedAt}
   };
   if (notifications.telegram.configured) {
     try {
@@ -242,7 +243,7 @@ export async function sendOrderNotifications(record, env = process.env) {
   }
   if (notifications.max.configured) {
     try {
-      await sendMax(notificationText, env.MAX_BOT_TOKEN, env.MAX_USER_ID);
+      await sendMax(notificationText, env.MAX_BOT_TOKEN, {chatId: env.MAX_CHAT_ID, userId: env.MAX_USER_ID});
       notifications.max.sent = true;
     } catch (error) {
       notifications.max.error = cleanText(error?.message || 'Ошибка MAX', 300);
@@ -267,6 +268,7 @@ export default async function handler(req, res) {
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   const telegramChatId = process.env.TELEGRAM_CHAT_ID;
   const maxToken = process.env.MAX_BOT_TOKEN;
+  const maxChatId = process.env.MAX_CHAT_ID;
   const maxUserId = process.env.MAX_USER_ID;
   if (!diskToken) {
     return json(res, 503, {error: 'Прямая отправка ещё настраивается. Попробуйте немного позже.'});
@@ -308,11 +310,11 @@ export default async function handler(req, res) {
       statusUpdatedAt: new Date().toISOString(),
       notifications: {
         telegram: {configured: Boolean(telegramToken && telegramChatId), sent: false},
-        max: {configured: Boolean(maxToken && maxUserId), sent: false}
+        max: {configured: Boolean(maxToken && (maxChatId || maxUserId)), sent: false}
       }
     };
     await saveOrderRecord(orderId, record, diskToken);
-    const notifications = await sendOrderNotifications(record, {TELEGRAM_BOT_TOKEN: telegramToken, TELEGRAM_CHAT_ID: telegramChatId, MAX_BOT_TOKEN: maxToken, MAX_USER_ID: maxUserId});
+    const notifications = await sendOrderNotifications(record, {TELEGRAM_BOT_TOKEN: telegramToken, TELEGRAM_CHAT_ID: telegramChatId, MAX_BOT_TOKEN: maxToken, MAX_CHAT_ID: maxChatId, MAX_USER_ID: maxUserId});
     try {
       await saveOrderRecord(orderId, {...record, notifications}, diskToken);
     } catch (error) {
