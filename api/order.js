@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {maxApiRequest} from './_max-client.js';
 
 const MAX_FILES = 10;
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
@@ -207,22 +208,16 @@ async function sendTelegram(text, token, chatId) {
 }
 
 async function sendMax(text, token, {chatId, userId} = {}) {
-  const url = new URL('https://platform-api2.max.ru/messages');
-  if (chatId) url.searchParams.set('chat_id', chatId);
-  else url.searchParams.set('user_id', userId);
-  const response = await fetch(url, {
+  const query = new URLSearchParams(chatId ? {chat_id: chatId} : {user_id: userId});
+  const {ok, data} = await maxApiRequest(`/messages?${query}`, {
+    token,
     method: 'POST',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
+    body: {
       text: text.slice(0, 4000),
       disable_link_preview: true
-    })
+    }
   });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok || !data.message) throw new Error('Не удалось передать заявку в MAX');
+  if (!ok || !data.message) throw new Error('Не удалось передать заявку в MAX');
 }
 
 export async function sendOrderNotifications(record, env = process.env) {

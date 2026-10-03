@@ -1,4 +1,5 @@
 import {verifyAdminSession} from './_admin-security.js';
+import {maxApiRequest} from './_max-client.js';
 
 function json(res, status, payload) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -25,11 +26,8 @@ export default async function handler(req, res) {
   const token = process.env.MAX_BOT_TOKEN;
   if (!token) return json(res, 503, {error: 'MAX ещё не настроен'});
   try {
-    const response = await fetch('https://platform-api2.max.ru/updates?limit=100&timeout=0', {
-      headers: {Authorization: token}
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) return json(res, 502, {error: 'MAX не вернул события', status: response.status, code: data?.code || null});
+    const {ok, status, data} = await maxApiRequest('/updates?limit=100&timeout=0', {token});
+    if (!ok) return json(res, 502, {error: 'MAX не вернул события', status, code: data?.code || null});
     return json(res, 200, {ok: true, updates: (data?.updates || []).map(compactUpdate)});
   } catch (error) {
     console.error('MAX setup check failed', {message: error?.message || 'Unknown error'});
