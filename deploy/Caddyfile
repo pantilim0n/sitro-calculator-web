@@ -4,6 +4,14 @@ www.xn---3-llcn4alfj.xn--p1ai {
 
 xn---3-llcn4alfj.xn--p1ai {
   encode zstd gzip
+
+  # During the staged migration these handlers keep using the already
+  # configured Vercel secrets. Static pages and MakerWorld run on this VPS.
+  @legacy_backend path /api/order /api/admin-orders /api/admin-portfolio
+  reverse_proxy @legacy_backend https://sitrocalculatorvercelv04.vercel.app {
+    header_up Host sitrocalculatorvercelv04.vercel.app
+  }
+
   reverse_proxy app:3000
 
   header {
