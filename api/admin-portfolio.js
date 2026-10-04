@@ -181,9 +181,9 @@ export default async function handler(req, res) {
   const repository = process.env.GITHUB_REPO || 'pantilim0n/sitro-calculator-web';
   const branch = process.env.GITHUB_BRANCH || 'main';
   const parts = repository.split('/');
-  if (!token || !adminPassword) return res.status(503).json({error: 'Админка ещё не настроена: добавьте GITHUB_TOKEN и ADMIN_PASSWORD в Vercel.'});
+  if (!token || !adminPassword) return res.status(503).json({error: 'Админка ещё не настроена: добавьте GITHUB_TOKEN и ADMIN_PASSWORD в переменные сервера.'});
   if (parts.length !== 2 || parts.some(part => !part)) return res.status(503).json({error: 'GITHUB_REPO настроен неверно.'});
-  if (/[^\x20-\x7E]/.test(token)) return res.status(503).json({error: 'GITHUB_TOKEN в Vercel заполнен неверно: токен должен состоять только из латинских символов и цифр.'});
+  if (/[^\x20-\x7E]/.test(token)) return res.status(503).json({error: 'GITHUB_TOKEN заполнен неверно: токен должен состоять только из латинских символов и цифр.'});
 
   const [owner, name] = parts;
   const repoApi = 'https://api.github.com/repos/' + owner + '/' + name;

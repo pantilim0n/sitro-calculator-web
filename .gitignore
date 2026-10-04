@@ -3,3 +3,5 @@ node_modules/
 .pnpm-home/
 .vercel/
 .vercel-global/
+backups/
+.env.server

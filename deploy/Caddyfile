@@ -1,0 +1,14 @@
+www.xn---3-llcn4alfj.xn--p1ai {
+  redir https://xn---3-llcn4alfj.xn--p1ai{uri} permanent
+}
+
+xn---3-llcn4alfj.xn--p1ai {
+  encode zstd gzip
+  reverse_proxy app:3000
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    -Server
+  }
+}
