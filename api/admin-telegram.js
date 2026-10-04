@@ -1,5 +1,3 @@
-import {verifyAdminSession} from './_admin-security.js';
-
 function json(res, status, payload) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
@@ -16,7 +14,6 @@ async function telegramRequest(token, method, query = {}) {
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return json(res, 405, {error: 'Метод не поддерживается'});
-  if (!verifyAdminSession(req, process.env)) return json(res, 401, {error: 'Сессия завершена. Войдите в админку снова.'});
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return json(res, 503, {error: 'Telegram ещё не настроен', token: Boolean(token), chatId: Boolean(chatId)});
