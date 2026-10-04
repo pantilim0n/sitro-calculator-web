@@ -204,7 +204,10 @@ async function sendTelegram(text, token, chatId) {
     body: JSON.stringify({chat_id: chatId, text, disable_web_page_preview: true})
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || !data.ok) throw new Error('Не удалось передать заявку в Telegram');
+  if (!response.ok || !data.ok) {
+    const reason = cleanText(data.description || `HTTP ${response.status}`, 180);
+    throw new Error(`Не удалось передать заявку в Telegram: ${reason}`);
+  }
 }
 
 async function sendMax(text, token, {chatId, userId} = {}) {
