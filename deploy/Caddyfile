@@ -2,6 +2,17 @@ www.xn---3-llcn4alfj.xn--p1ai {
   redir https://xn---3-llcn4alfj.xn--p1ai{uri} permanent
 }
 
+# Direct server address for diagnostics if a provider still caches the old
+# Vercel destination. Search engines must keep using the branded domain.
+sita4816.fvds.ru {
+  encode zstd gzip
+  reverse_proxy app:3000
+  header {
+    X-Robots-Tag "noindex, nofollow"
+    -Server
+  }
+}
+
 xn---3-llcn4alfj.xn--p1ai {
   encode zstd gzip
 
