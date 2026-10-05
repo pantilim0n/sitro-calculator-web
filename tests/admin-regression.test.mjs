@@ -48,6 +48,7 @@ test('admin password is exchanged for a signed HttpOnly session', async () => {
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({method: 'POST', headers: {host: 'example.test', origin: 'https://example.test'}, body: {action: 'auth', password: 'test-password'}}, response);
@@ -269,6 +270,7 @@ test('admin API reports oversized image payloads as HTTP 413', async () => {
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({
@@ -304,6 +306,7 @@ test('saveAll writes portfolio and categories in one Git tree update', async () 
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({method: 'POST', body: {action: 'saveAll', password: 'test-password', items: [{id: 'one', src: 'one.webp', title: 'One'}], categories: ['Технические']}}, response);
@@ -327,6 +330,7 @@ test('site contacts and reviews are saved in one Git commit', async () => {
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({method: 'POST', body: {
@@ -360,6 +364,7 @@ test('calculator pricing is validated and written as one atomic file update', as
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({method: 'POST', body: {action: 'savePricing', password: 'test-password', pricing}}, response);
@@ -417,6 +422,7 @@ test('upload adds the image and fresh portfolio state in one commit', async () =
   process.env.GITHUB_TOKEN = 'test-token';
   process.env.ADMIN_PASSWORD = 'test-password';
   process.env.GITHUB_REPO = 'owner/repository';
+  delete process.env.SITE_CONTENT_DIR;
   try {
     const response = responseRecorder();
     await adminPortfolio({method: 'POST', body: {action: 'upload', password: 'test-password', filename: 'new.webp', dataBase64: 'dGVzdA==', title: 'New', categories: ['Авто']}}, response);
