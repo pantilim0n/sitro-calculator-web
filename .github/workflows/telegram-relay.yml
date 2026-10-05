@@ -1,0 +1,36 @@
+name: Telegram order relay
+
+on:
+  repository_dispatch:
+    types: [telegram_order]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Decrypt notification
+        env:
+          RELAY_KEY: ${{ secrets.TELEGRAM_RELAY_KEY }}
+          RELAY_IV: ${{ github.event.client_payload.iv }}
+          RELAY_TAG: ${{ github.event.client_payload.tag }}
+          RELAY_DATA: ${{ github.event.client_payload.data }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const key = Buffer.from(process.env.RELAY_KEY || '', 'base64');
+          if (key.length !== 32) throw new Error('Invalid relay key');
+          const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(process.env.RELAY_IV, 'base64'));
+          decipher.setAuthTag(Buffer.from(process.env.RELAY_TAG, 'base64'));
+          const text = Buffer.concat([decipher.update(Buffer.from(process.env.RELAY_DATA, 'base64')), decipher.final()]).toString('utf8');
+          fs.writeFileSync('/tmp/telegram.json', JSON.stringify({chat_id: process.env.TELEGRAM_CHAT_ID, text, disable_web_page_preview: true}), {mode: 0o600});
+          NODE
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: curl --fail-with-body --silent --show-error --retry 3 --request POST --header 'Content-Type: application/json' --data-binary @/tmp/telegram.json "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"

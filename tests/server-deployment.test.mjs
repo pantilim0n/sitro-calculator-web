@@ -38,3 +38,14 @@ test('Russian VPS keeps daily restricted backups with integrity checks and reten
   assert.match(timer, /OnCalendar=.*03:30:00 Europe\/Moscow/);
   assert.match(timer, /Persistent=true/);
 });
+
+test('Telegram fallback relays only encrypted order data', async () => {
+  const [orderApi, workflow] = await Promise.all([
+    read('api/order.js'), read('.github/workflows/telegram-relay.yml')
+  ]);
+  assert.match(orderApi, /createCipheriv\('aes-256-gcm'/);
+  assert.match(orderApi, /event_type: 'telegram_order'/);
+  assert.match(workflow, /createDecipheriv\('aes-256-gcm'/);
+  assert.match(workflow, /secrets\.TELEGRAM_BOT_TOKEN/);
+  assert.doesNotMatch(workflow, /[0-9]{8,}:[A-Za-z0-9_-]{20,}/);
+});

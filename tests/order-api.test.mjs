@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeOrderId, nextRateState, orderFolder, requestFingerprint, telegramText, validateFiles} from '../api/order.js';
+import {encryptTelegramRelay, makeOrderId, nextRateState, orderFolder, requestFingerprint, telegramText, validateFiles} from '../api/order.js';
 import {cleanOrderStatus, normalizeOrderRecord, orderRecordPath} from '../api/admin-orders.js';
-import {X509Certificate} from 'node:crypto';
+import {createDecipheriv, X509Certificate} from 'node:crypto';
 import {RUSSIAN_TRUSTED_ROOT_CA} from '../api/_max-client.js';
 
 test('MAX uses the verified Russian trusted root only for its API client', () => {
@@ -44,6 +44,17 @@ test('Telegram notification contains customer, calculation and file links', () =
   assert.match(text, /\+7 900 000-00-00/);
   assert.match(text, /900 ₽/);
   assert.match(text, /https:\/\/disk\.yandex\.ru\/d\/example/);
+});
+
+test('Telegram relay encrypts customer data before it reaches GitHub', () => {
+  const key = Buffer.alloc(32, 7);
+  const payload = encryptTelegramRelay('Заявка: +7 900 000-00-00', key.toString('base64'), size => Buffer.alloc(size, 3));
+  assert.equal(payload.version, 1);
+  assert.doesNotMatch(JSON.stringify(payload), /900 000/);
+  const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(payload.iv, 'base64'));
+  decipher.setAuthTag(Buffer.from(payload.tag, 'base64'));
+  const text = Buffer.concat([decipher.update(Buffer.from(payload.data, 'base64')), decipher.final()]).toString('utf8');
+  assert.equal(text, 'Заявка: +7 900 000-00-00');
 });
 
 test('order spam protection allows normal use and blocks bursts for fifteen minutes', () => {

@@ -243,6 +243,32 @@ async function sendTelegram(text, token, chatId) {
   }
 }
 
+export function encryptTelegramRelay(text, encodedKey, randomBytes = crypto.randomBytes) {
+  const key = Buffer.from(String(encodedKey || ''), 'base64');
+  if (key.length !== 32) throw new Error('Ключ резервной отправки Telegram настроен неверно');
+  const iv = randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const data = Buffer.concat([cipher.update(String(text), 'utf8'), cipher.final()]);
+  return {version: 1, iv: iv.toString('base64'), tag: cipher.getAuthTag().toString('base64'), data: data.toString('base64')};
+}
+
+async function queueTelegramRelay(text, env) {
+  const repository = String(env.GITHUB_REPO || '');
+  const token = String(env.GITHUB_TOKEN || '');
+  if (!/^[^/\s]+\/[^/\s]+$/.test(repository) || !token || !env.TELEGRAM_RELAY_KEY) throw new Error('Резервная отправка Telegram не настроена');
+  const response = await fetch(`https://api.github.com/repos/${repository}/dispatches`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({event_type: 'telegram_order', client_payload: encryptTelegramRelay(text, env.TELEGRAM_RELAY_KEY)})
+  });
+  if (!response.ok) throw new Error(`Не удалось поставить Telegram-уведомление в очередь: HTTP ${response.status}`);
+}
+
 async function sendMax(text, token, {chatId, userId} = {}) {
   const query = new URLSearchParams(chatId ? {chat_id: chatId} : {user_id: userId});
   const {ok, data} = await maxApiRequest(`/messages?${query}`, {
@@ -264,12 +290,25 @@ export async function sendOrderNotifications(record, env = process.env) {
     max: {configured: Boolean(env.MAX_BOT_TOKEN && (env.MAX_CHAT_ID || env.MAX_USER_ID)), sent: false, attemptedAt}
   };
   if (notifications.telegram.configured) {
+    const relayConfigured = Boolean(env.GITHUB_TOKEN && env.GITHUB_REPO && env.TELEGRAM_RELAY_KEY);
     try {
-      await sendTelegram(notificationText, env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+      if (relayConfigured) {
+        await queueTelegramRelay(notificationText, env);
+        notifications.telegram.queued = true;
+        notifications.telegram.via = 'github-relay';
+      } else {
+        await sendTelegram(notificationText, env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+      }
       notifications.telegram.sent = true;
     } catch (error) {
-      notifications.telegram.error = cleanText(error?.message || 'Ошибка Telegram', 300);
-      console.error('Telegram order notification failed', {message: notifications.telegram.error});
+      try {
+        if (!relayConfigured) throw error;
+        await sendTelegram(notificationText, env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+        notifications.telegram.sent = true;
+      } catch (relayError) {
+        notifications.telegram.error = cleanText(relayError?.message || error?.message || 'Ошибка Telegram', 300);
+        console.error('Telegram order notification failed', {message: notifications.telegram.error});
+      }
     }
   }
   if (notifications.max.configured) {
@@ -345,7 +384,7 @@ export default async function handler(req, res) {
       }
     };
     await saveOrderRecord(orderId, record, diskToken);
-    const notifications = await sendOrderNotifications(record, {TELEGRAM_BOT_TOKEN: telegramToken, TELEGRAM_CHAT_ID: telegramChatId, MAX_BOT_TOKEN: maxToken, MAX_CHAT_ID: maxChatId, MAX_USER_ID: maxUserId});
+    const notifications = await sendOrderNotifications(record, process.env);
     try {
       await saveOrderRecord(orderId, {...record, notifications}, diskToken);
     } catch (error) {
