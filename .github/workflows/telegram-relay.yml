@@ -33,4 +33,8 @@ jobs:
       - name: Send Telegram notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        run: curl --fail-with-body --silent --show-error --retry 3 --request POST --header 'Content-Type: application/json' --data-binary @/tmp/telegram.json "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --request POST \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/telegram.json \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
