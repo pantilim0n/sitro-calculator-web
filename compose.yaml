@@ -4,6 +4,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env.server
+    environment:
+      ORDER_STORAGE_DIR: /data/orders
+      SITE_CONTENT_DIR: /data/site
     volumes:
       - order_data:/data
     networks:

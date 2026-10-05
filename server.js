@@ -8,6 +8,7 @@ import adminPortfolio from './api/admin-portfolio.js';
 import makerworld from './api/makerworld.js';
 import order from './api/order.js';
 import {verifySignedOrderRequest} from './api/_local-order-storage.js';
+import {localSitePath, localSiteRoot} from './api/_local-site-storage.js';
 import {GET as testGet} from './api/test.js';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
@@ -128,11 +129,18 @@ async function handleOrderFile(req, res) {
   return createReadStream(absolute).pipe(res);
 }
 
-function staticPath(pathname) {
+export function staticPath(pathname) {
   let decoded;
   try { decoded = decodeURIComponent(pathname); } catch { return null; }
   const requested = decoded === '/' ? '/index.html' : decoded;
   const clean = normalize(requested).replace(/^(\.\.(\/|\\|$))+/, '');
+  const relative = clean.replace(/^[/\\]+/, '');
+  if (localSiteRoot()) {
+    try {
+      const local = localSitePath(relative);
+      if (existsSync(local) && statSync(local).isFile()) return local;
+    } catch {}
+  }
   const absolute = resolve(join(ROOT, clean));
   return absolute.startsWith(resolve(ROOT) + '/') ? absolute : null;
 }

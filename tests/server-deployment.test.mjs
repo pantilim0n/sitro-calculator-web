@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
-import {createServer} from '../server.js';
+import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer, staticPath} from '../server.js';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
@@ -11,12 +13,27 @@ test('portable server can be created without starting a listener', () => {
   server.close();
 });
 
+test('Russian server serves persistent admin content before bundled files', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sitro-site-content-'));
+  const previous = process.env.SITE_CONTENT_DIR;
+  process.env.SITE_CONTENT_DIR = directory;
+  await writeFile(join(directory, 'pricing.json'), JSON.stringify({minimumOrder: 777}));
+  try {
+    assert.equal(staticPath('/pricing.json'), join(directory, 'pricing.json'));
+    assert.deepEqual(JSON.parse(await readFile(staticPath('/pricing.json'), 'utf8')), {minimumOrder: 777});
+  } finally {
+    previous === undefined ? delete process.env.SITE_CONTENT_DIR : process.env.SITE_CONTENT_DIR = previous;
+    await rm(directory, {recursive: true, force: true});
+  }
+});
+
 test('Russian VPS package includes HTTPS, health checks and secret isolation', async () => {
   const [dockerfile, compose, caddy, dockerignore, envExample] = await Promise.all([
     read('Dockerfile'), read('compose.yaml'), read('deploy/Caddyfile'), read('.dockerignore'), read('.env.server.example')
   ]);
   assert.match(dockerfile, /HEALTHCHECK/);
   assert.match(compose, /restart: unless-stopped/);
+  assert.match(compose, /SITE_CONTENT_DIR: \/data\/site/);
   assert.match(compose, /443:443/);
   assert.match(caddy, /xn---3-llcn4alfj\.xn--p1ai/);
   assert.match(dockerignore, /^\.env\.\*$/m);

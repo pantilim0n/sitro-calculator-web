@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import test from 'node:test';
 
 import adminPortfolio, {cleanPricing, cleanReviews, cleanServices, cleanSiteConfig, cleanSocials, MAX_IMAGE_BASE64_LENGTH} from '../api/admin-portfolio.js';
@@ -368,6 +370,28 @@ test('calculator pricing is validated and written as one atomic file update', as
   } finally {
     globalThis.fetch = originalFetch;
     process.env = originalEnv;
+  }
+});
+
+test('Russian server applies admin pricing immediately without waiting for a deploy', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sitro-site-content-'));
+  const originalEnv = {...process.env};
+  process.env.SITE_CONTENT_DIR = directory;
+  process.env.ADMIN_PASSWORD = 'test-password';
+  delete process.env.GITHUB_TOKEN;
+  try {
+    const response = responseRecorder();
+    const pricing = {minimumOrder: 350, machineHour: 12, materials: {PETG: {price: 9, density: 1.27}}};
+    await adminPortfolio({method: 'POST', body: {action: 'savePricing', password: 'test-password', pricing}}, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.payload.local, true);
+    assert.equal(response.payload.mirrored, false);
+    const saved = JSON.parse(await readFile(join(directory, 'pricing.json'), 'utf8'));
+    assert.equal(saved.minimumOrder, 350);
+    assert.equal(saved.materials.PETG.price, 9);
+  } finally {
+    process.env = originalEnv;
+    await rm(directory, {recursive: true, force: true});
   }
 });
 

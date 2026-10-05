@@ -1,6 +1,7 @@
 import {orderFolder, sendOrderNotifications} from './order.js';
 import {hasTrustedOrigin, passwordEquals, verifyAdminSession, verifyPasswordConfig} from './_admin-security.js';
 import {listLocalOrders, localOrderRoot, readLocalJson, writeLocalJson} from './_local-order-storage.js';
+import {localSiteRoot, readLocalSiteJson} from './_local-site-storage.js';
 
 const ORDER_ROOT = 'app:/Заявки';
 const ORDER_ID = /^\d{14}-[a-f0-9]{8}$/;
@@ -119,6 +120,10 @@ async function listOrders(token, maximum = 200) {
 async function adminPasswordMatches(password, env) {
   if (typeof password !== 'string' || !password) return false;
   if (passwordEquals(password, env.ADMIN_PASSWORD)) return true;
+  if (localSiteRoot(env)) {
+    const config = await readLocalSiteJson('admin-password.json', env);
+    if (config) return verifyPasswordConfig(password, config);
+  }
   const token = env.GITHUB_TOKEN;
   if (!token) return false;
   const repository = env.GITHUB_REPO || 'pantilim0n/sitro-calculator-web';

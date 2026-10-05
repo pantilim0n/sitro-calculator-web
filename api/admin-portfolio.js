@@ -1,4 +1,6 @@
 import {clearAdminSession, clearLoginFailures, createPasswordConfig, hasTrustedOrigin, loginRetryAfter, passwordEquals, recordLoginFailure, setAdminSession, verifyAdminSession, verifyPasswordConfig} from './_admin-security.js';
+import {readFile} from 'node:fs/promises';
+import {localSiteRoot, readLocalSiteJson, writeLocalSiteFile} from './_local-site-storage.js';
 export const MAX_IMAGE_BASE64_LENGTH = 2_800_000;
 const MAX_ITEMS = 500;
 const DEFAULT_DENSITIES = {PLA: 1.24, PETG: 1.27, ABS: 1.04, ASA: 1.07, PA: 1.14};
@@ -159,6 +161,10 @@ function textToBase64(value) {
   return Buffer.from(JSON.stringify(value, null, 2), 'utf8').toString('base64');
 }
 
+async function readBundledJson(path) {
+  return JSON.parse(await readFile(new URL('../' + path, import.meta.url), 'utf8'));
+}
+
 function safeImagePath(filename) {
   const safeName = String(filename || 'portfolio.webp').replace(/[^a-zA-Z0-9._-]/g, '-');
   return 'portfolio/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '-' + safeName;
@@ -181,9 +187,10 @@ export default async function handler(req, res) {
   const repository = process.env.GITHUB_REPO || 'pantilim0n/sitro-calculator-web';
   const branch = process.env.GITHUB_BRANCH || 'main';
   const parts = repository.split('/');
-  if (!token || !adminPassword) return res.status(503).json({error: 'Админка ещё не настроена: добавьте GITHUB_TOKEN и ADMIN_PASSWORD в переменные сервера.'});
-  if (parts.length !== 2 || parts.some(part => !part)) return res.status(503).json({error: 'GITHUB_REPO настроен неверно.'});
-  if (/[^\x20-\x7E]/.test(token)) return res.status(503).json({error: 'GITHUB_TOKEN заполнен неверно: токен должен состоять только из латинских символов и цифр.'});
+  const localStorageEnabled = Boolean(localSiteRoot());
+  if (!adminPassword || (!token && !localStorageEnabled)) return res.status(503).json({error: 'Админка ещё не настроена: добавьте ADMIN_PASSWORD и хранилище данных сайта.'});
+  if (token && (parts.length !== 2 || parts.some(part => !part))) return res.status(503).json({error: 'GITHUB_REPO настроен неверно.'});
+  if (token && /[^\x20-\x7E]/.test(token)) return res.status(503).json({error: 'GITHUB_TOKEN заполнен неверно: токен должен состоять только из латинских символов и цифр.'});
 
   const [owner, name] = parts;
   const repoApi = 'https://api.github.com/repos/' + owner + '/' + name;
@@ -220,6 +227,11 @@ export default async function handler(req, res) {
   async function passwordMatches(password) {
     if (typeof password !== 'string' || !password) return false;
     if (passwordEquals(password, adminPassword)) return true;
+    if (localStorageEnabled) {
+      const localConfig = await readLocalSiteJson('admin-password.json');
+      if (localConfig) return verifyPasswordConfig(password, localConfig);
+    }
+    if (!token) return false;
     const config = await readPasswordConfig(await getHead());
     return verifyPasswordConfig(password, config);
   }
@@ -272,64 +284,89 @@ export default async function handler(req, res) {
     throw lastError || new Error('GitHub: конфликт сохранения');
   }
 
+  async function persistFiles(files, message) {
+    if (localStorageEnabled) {
+      await Promise.all(files.map(file => writeLocalSiteFile(file.path, Buffer.from(file.content, 'base64'))));
+      if (!token) return {local: true, mirrored: false};
+      try {
+        const sha = await commitFiles(files, message);
+        return {local: true, mirrored: true, sha};
+      } catch (error) {
+        console.error('GitHub admin mirror failed', {message: error?.message || 'Unknown error'});
+        return {local: true, mirrored: false, warning: 'Изменения применены на сайте, но резервная копия в GitHub временно не обновилась.'};
+      }
+    }
+    return {local: false, mirrored: true, sha: await commitFiles(files, message)};
+  }
+
   try {
     if (body.action === 'saveAll') {
       const items = cleanItems(body.items);
       const categories = cleanCategories(body.categories);
-      const sha = await commitFiles([
+      const saved = await persistFiles([
         {path: 'portfolio.json', content: textToBase64(items)},
         {path: 'portfolio-categories.json', content: textToBase64(categories)}
       ], 'Update portfolio and categories from admin');
-      return res.status(200).json({ok: true, sha});
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'save') {
-      const sha = await commitFiles([{path: 'portfolio.json', content: textToBase64(cleanItems(body.items))}], 'Update portfolio from admin');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'portfolio.json', content: textToBase64(cleanItems(body.items))}], 'Update portfolio from admin');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'saveCategories') {
-      const sha = await commitFiles([{path: 'portfolio-categories.json', content: textToBase64(cleanCategories(body.categories))}], 'Update portfolio categories from admin');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'portfolio-categories.json', content: textToBase64(cleanCategories(body.categories))}], 'Update portfolio categories from admin');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'savePricing') {
-      const sha = await commitFiles([{path: 'pricing.json', content: textToBase64(cleanPricing(body.pricing))}], 'Update calculator pricing from admin');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'pricing.json', content: textToBase64(cleanPricing(body.pricing))}], 'Update calculator pricing from admin');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'saveServices') {
-      const sha = await commitFiles([{path: 'services.json', content: textToBase64(cleanServices(body.services))}], 'Update services from admin');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'services.json', content: textToBase64(cleanServices(body.services))}], 'Update services from admin');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'saveSocials') {
-      const sha = await commitFiles([{path: 'socials.json', content: textToBase64(cleanSocials(body.socials))}], 'Update social links from admin');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'socials.json', content: textToBase64(cleanSocials(body.socials))}], 'Update social links from admin');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'saveSiteContent') {
-      const sha = await commitFiles([
+      const saved = await persistFiles([
         {path: 'site-config.json', content: textToBase64(cleanSiteConfig(body.siteConfig))},
         {path: 'reviews.json', content: textToBase64(cleanReviews(body.reviews))}
       ], 'Update site contacts and reviews from admin');
-      return res.status(200).json({ok: true, sha});
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'changePassword') {
       const nextPassword = String(body.newPassword || '');
       if (nextPassword.length < 12 || nextPassword.length > 200) return res.status(400).json({error: 'Новый пароль должен содержать от 12 до 200 символов.'});
       const config = createPasswordConfig(nextPassword);
-      const sha = await commitFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Update admin password');
-      return res.status(200).json({ok: true, sha});
+      const saved = await persistFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Update admin password');
+      return res.status(200).json({ok: true, ...saved});
     }
     if (body.action === 'resetPassword') {
       const config = {version: 1, resetToEnvironment: true, updatedAt: new Date().toISOString()};
-      const sha = await commitFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Reset admin password to environment setting');
-      return res.status(200).json({ok: true, sha, reset: true});
+      const saved = await persistFiles([{path: 'admin-password.json', content: textToBase64(config)}], 'Reset admin password to environment setting');
+      return res.status(200).json({ok: true, ...saved, reset: true});
     }
     if (body.action === 'uploadOnly') {
       assertImage(body.filename, body.dataBase64);
       const src = safeImagePath(body.filename);
-      const sha = await commitFiles([{path: src, content: body.dataBase64}], 'Replace portfolio image');
-      return res.status(200).json({ok: true, src, sha});
+      const saved = await persistFiles([{path: src, content: body.dataBase64}], 'Replace portfolio image');
+      return res.status(200).json({ok: true, src, ...saved});
     }
     if (body.action === 'upload') {
       assertImage(body.filename, body.dataBase64);
       const src = safeImagePath(body.filename);
+      if (localStorageEnabled) {
+        const currentItems = cleanItems(await readLocalSiteJson('portfolio.json') || await readBundledJson('portfolio.json'));
+        const item = {id: 'w' + Date.now() + Math.random().toString(36).slice(2, 6), src, title: String(body.title || '').trim().slice(0, 200) || '3D-печать СИТРО', description: String(body.description || '').trim().slice(0, 1000), categories: cleanCategories(Array.isArray(body.categories) && body.categories.length ? body.categories : ['Прочее']), featured: false, visible: true, sort: currentItems.length + 1};
+        currentItems.push(item);
+        const saved = await persistFiles([
+          {path: src, content: body.dataBase64},
+          {path: 'portfolio.json', content: textToBase64(currentItems)}
+        ], 'Add portfolio item');
+        return res.status(200).json({ok: true, src, item, ...saved});
+      }
       let lastError;
       for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
