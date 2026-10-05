@@ -56,6 +56,15 @@ test('Russian VPS keeps daily restricted backups with integrity checks and reten
   assert.match(timer, /Persistent=true/);
 });
 
+
+test('Russian VPS records repeatable SSH brute-force protection', async () => {
+  const config = await read('deploy/fail2ban-sitro-sshd.conf');
+  assert.match(config, /\[sshd\]/);
+  assert.match(config, /maxretry = 5/);
+  assert.match(config, /findtime = 10m/);
+  assert.match(config, /bantime = 1h/);
+});
+
 test('Telegram fallback relays only encrypted order data', async () => {
   const [orderApi, workflow] = await Promise.all([
     read('api/order.js'), read('.github/workflows/telegram-relay.yml')
