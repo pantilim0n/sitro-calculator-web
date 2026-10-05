@@ -22,15 +22,15 @@ test('Russian VPS accepts, stores and serves an STL order without Yandex Disk', 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    const preparedResponse = await fetch(`${base}/api/order`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'prepare', files: [{name: 'detail.stl', size: 5}]})});
+    const preparedResponse = await fetch(`${base}/api/order`, {method: 'POST', headers: {'Content-Type': 'application/json', Connection: 'close'}, body: JSON.stringify({action: 'prepare', files: [{name: 'detail.stl', size: 5}]})});
     assert.equal(preparedResponse.status, 200);
     const prepared = await preparedResponse.json();
     assert.equal(prepared.uploads.length, 1);
 
-    const uploadResponse = await fetch(`${base}${prepared.uploads[0].href}`, {method: 'PUT', body: Buffer.from('solid'), headers: {'Content-Type': 'application/octet-stream'}});
+    const uploadResponse = await fetch(`${base}${prepared.uploads[0].href}`, {method: 'PUT', body: Buffer.from('solid'), headers: {'Content-Type': 'application/octet-stream', Connection: 'close'}});
     assert.equal(uploadResponse.status, 204);
 
-    const submittedResponse = await fetch(`${base}/api/order`, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https'}, body: JSON.stringify({action: 'submit', orderId: prepared.orderId, kind: 'stl', customer: {name: 'Тест', contact: '+70000000000'}, message: 'Тестовый расчёт', paths: [prepared.uploads[0].path]})});
+    const submittedResponse = await fetch(`${base}/api/order`, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Forwarded-Proto': 'https', Connection: 'close'}, body: JSON.stringify({action: 'submit', orderId: prepared.orderId, kind: 'stl', customer: {name: 'Тест', contact: '+70000000000'}, message: 'Тестовый расчёт', paths: [prepared.uploads[0].path]})});
     assert.equal(submittedResponse.status, 200);
     const submitted = await submittedResponse.json();
     assert.equal(submitted.ok, true);
@@ -39,9 +39,10 @@ test('Russian VPS accepts, stores and serves an STL order without Yandex Disk', 
     assert.equal(record.customer.name, 'Тест');
     assert.equal(record.files[0].size, 5);
     const download = new URL(record.files[0].url);
-    const downloaded = await fetch(`${base}${download.pathname}${download.search}`);
+    const downloaded = await fetch(`${base}${download.pathname}${download.search}`, {headers: {Connection: 'close'}});
     assert.equal(await downloaded.text(), 'solid');
   } finally {
+    server.closeAllConnections?.();
     await new Promise(resolve => server.close(resolve));
     await rm(directory, {recursive: true, force: true});
     for (const [key, value] of Object.entries(previous)) value === undefined ? delete process.env[key] : process.env[key] = value;

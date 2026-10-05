@@ -1,0 +1,15 @@
+[Unit]
+Description=Back up SITRO orders and server settings
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/sitro/app/deploy/backup-orders.sh
+User=root
+Group=root
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target

@@ -24,3 +24,17 @@ test('Russian VPS package includes HTTPS, health checks and secret isolation', a
   assert.match(envExample, /MAX_BOT_TOKEN=/);
   assert.doesNotMatch(envExample, /[0-9]{8,}:[A-Za-z0-9_-]{20,}/);
 });
+
+test('Russian VPS keeps daily restricted backups with integrity checks and retention', async () => {
+  const [script, service, timer] = await Promise.all([
+    read('deploy/backup-orders.sh'), read('deploy/sitro-backup.service'), read('deploy/sitro-backup.timer')
+  ]);
+  assert.match(script, /docker volume inspect/);
+  assert.match(script, /\.env\.server/);
+  assert.match(script, /chmod 600/);
+  assert.match(script, /sha256sum/);
+  assert.match(script, /-mtime/);
+  assert.match(service, /ExecStart=\/opt\/sitro\/app\/deploy\/backup-orders\.sh/);
+  assert.match(timer, /OnCalendar=.*03:30:00 Europe\/Moscow/);
+  assert.match(timer, /Persistent=true/);
+});
