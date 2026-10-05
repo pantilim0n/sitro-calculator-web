@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env.server
+    volumes:
+      - order_data:/data
     networks:
       - sitro
 
@@ -30,3 +32,4 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
+  order_data:

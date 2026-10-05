@@ -1,16 +1,19 @@
 import http from 'node:http';
 import {createReadStream, existsSync, statSync} from 'node:fs';
-import {extname, join, normalize, resolve} from 'node:path';
+import {mkdir, open, rename, stat, unlink} from 'node:fs/promises';
+import {dirname, extname, join, normalize, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import adminOrders from './api/admin-orders.js';
 import adminPortfolio from './api/admin-portfolio.js';
 import makerworld from './api/makerworld.js';
 import order from './api/order.js';
+import {verifySignedOrderRequest} from './api/_local-order-storage.js';
 import {GET as testGet} from './api/test.js';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PORT = Math.max(1, Math.min(65535, Number(process.env.PORT) || 3000));
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
+const MAX_ORDER_FILE_BYTES = 50 * 1024 * 1024;
 const API_HANDLERS = new Map([
   ['/api/admin-orders', adminOrders],
   ['/api/admin-portfolio', adminPortfolio],
@@ -75,6 +78,56 @@ async function handleMakerWorld(req, res) {
   res.end(Buffer.from(await response.arrayBuffer()));
 }
 
+async function handleOrderUpload(req, res) {
+  if (req.method !== 'PUT') return res.status(405).json({error: 'Метод не поддерживается'});
+  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+  const {absolute} = verifySignedOrderRequest(url, 'upload');
+  const declared = Number(req.headers['content-length'] || 0);
+  if (declared > MAX_ORDER_FILE_BYTES) return res.status(413).json({error: 'Файл превышает 50 МБ'});
+  await mkdir(dirname(absolute), {recursive: true});
+  const temporary = `${absolute}.${process.pid}.${Date.now()}.upload`;
+  const file = await open(temporary, 'wx', 0o600);
+  let size = 0;
+  try {
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > MAX_ORDER_FILE_BYTES) {
+        const error = new Error('Файл превышает 50 МБ');
+        error.statusCode = 413;
+        throw error;
+      }
+      await file.write(chunk);
+    }
+    if (!size) {
+      const error = new Error('Получен пустой файл');
+      error.statusCode = 400;
+      throw error;
+    }
+    await file.close();
+    await rename(temporary, absolute);
+    return res.status(204).end();
+  } catch (error) {
+    await file.close().catch(() => {});
+    await unlink(temporary).catch(() => {});
+    throw error;
+  }
+}
+
+async function handleOrderFile(req, res) {
+  if (!['GET', 'HEAD'].includes(req.method || '')) return res.status(405).json({error: 'Метод не поддерживается'});
+  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+  const {path, absolute} = verifySignedOrderRequest(url, 'download');
+  const details = await stat(absolute);
+  if (!details.isFile()) return res.status(404).json({error: 'Файл не найден'});
+  const name = String(path.split('/').pop() || 'model.stl').replace(/["\r\n]/g, '_');
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.setHeader('Content-Length', String(details.size));
+  res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(name)}`);
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  if (req.method === 'HEAD') return res.end();
+  return createReadStream(absolute).pipe(res);
+}
+
 function staticPath(pathname) {
   let decoded;
   try { decoded = decodeURIComponent(pathname); } catch { return null; }
@@ -115,6 +168,8 @@ export function createServer() {
         return res.end(Buffer.from(await response.arrayBuffer()));
       }
       if (pathname === '/api/makerworld') return await handleMakerWorld(req, res);
+      if (pathname === '/api/order-upload') return await handleOrderUpload(req, res);
+      if (pathname === '/api/order-file') return await handleOrderFile(req, res);
       const handler = API_HANDLERS.get(pathname);
       if (handler) {
         req.body = await readJsonBody(req);

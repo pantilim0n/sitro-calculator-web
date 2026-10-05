@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {maxApiRequest} from './_max-client.js';
+import {ensureLocalDirectory, localFileInfo, localOrderRoot, readLocalJson, signedOrderUrl, writeLocalJson} from './_local-order-storage.js';
 
 const MAX_FILES = 10;
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
@@ -114,10 +115,17 @@ async function writeJsonFile(path, value, token) {
 }
 
 async function enforceRateLimit(req, action, token) {
-  const fingerprint = requestFingerprint(req, process.env.RATE_LIMIT_SECRET || token.slice(-24));
+  const fingerprint = requestFingerprint(req, process.env.RATE_LIMIT_SECRET || token?.slice(-24));
   const memoryKey = `${action}:${fingerprint}`;
   const memoryState = nextRateState({[action]: memoryRateLimits.get(memoryKey) || []}, action);
   memoryRateLimits.set(memoryKey, memoryState[action]);
+  if (localOrderRoot()) {
+    await ensureLocalDirectory(RATE_LIMIT_ROOT);
+    const path = `${RATE_LIMIT_ROOT}/${fingerprint}.json`;
+    const state = nextRateState(await readLocalJson(path), action);
+    await writeLocalJson(path, state);
+    return;
+  }
   await ensureFolder(ORDER_ROOT, token);
   await ensureFolder(`${ORDER_ROOT}/.system`, token);
   await ensureFolder(RATE_LIMIT_ROOT, token);
@@ -129,6 +137,16 @@ async function enforceRateLimit(req, action, token) {
 async function prepareUploads(files, token, now = new Date()) {
   const orderId = makeOrderId(now);
   const folder = orderFolder(orderId);
+  if (localOrderRoot()) {
+    await ensureLocalDirectory(folder);
+    return {
+      orderId,
+      uploads: files.map(file => {
+        const path = `${folder}/${file.name}`;
+        return {name: file.name, path, href: signedOrderUrl('/api/order-upload', path, 'upload', 3600), method: 'PUT'};
+      })
+    };
+  }
   await ensureFolder(ORDER_ROOT, token);
   await ensureFolder(`${ORDER_ROOT}/${dayStamp(now)}`, token);
   await ensureFolder(folder, token);
@@ -152,8 +170,22 @@ function validateStoredPaths(orderId, paths) {
   });
 }
 
-async function publishFiles(paths, token) {
+function publicOrigin(req) {
+  const protocol = cleanText(req?.headers?.['x-forwarded-proto'], 30).split(',')[0] || 'https';
+  const host = cleanText(req?.headers?.['x-forwarded-host'] || req?.headers?.host, 300).split(',')[0];
+  return `${protocol}://${host}`;
+}
+
+async function publishFiles(paths, token, req) {
   const links = [];
+  if (localOrderRoot()) {
+    for (const path of paths) {
+      const info = await localFileInfo(path);
+      const href = signedOrderUrl('/api/order-file', path, 'download', 90 * 24 * 60 * 60);
+      links.push({name: info.name, size: info.size, url: `${publicOrigin(req)}${href}`});
+    }
+    return links;
+  }
   for (const path of paths) {
     const published = await diskRequest('/resources/publish', {token, method: 'PUT', query: {path}});
     if (!published.response.ok && published.response.status !== 409) throw new Error('Не удалось открыть доступ к файлу заказа');
@@ -166,6 +198,7 @@ async function publishFiles(paths, token) {
 
 async function saveOrderRecord(orderId, record, token) {
   const path = `${orderFolder(orderId)}/заявка.json`;
+  if (localOrderRoot()) return writeLocalJson(path, record);
   const {response, data} = await diskRequest('/resources/upload', {
     token,
     query: {path, overwrite: 'true'}
@@ -258,7 +291,7 @@ function json(res, status, payload) {
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const ready = Boolean(process.env.YANDEX_DISK_TOKEN);
+    const ready = Boolean(localOrderRoot() || process.env.YANDEX_DISK_TOKEN);
     return json(res, 200, {ready});
   }
   if (req.method !== 'POST') return json(res, 405, {error: 'Метод не поддерживается'});
@@ -268,7 +301,7 @@ export default async function handler(req, res) {
   const maxToken = process.env.MAX_BOT_TOKEN;
   const maxChatId = process.env.MAX_CHAT_ID;
   const maxUserId = process.env.MAX_USER_ID;
-  if (!diskToken) {
+  if (!localOrderRoot() && !diskToken) {
     return json(res, 503, {error: 'Прямая отправка ещё настраивается. Попробуйте немного позже.'});
   }
 
@@ -296,7 +329,7 @@ export default async function handler(req, res) {
     if (!message) throw new Error('Сначала рассчитайте заказ');
     const paths = validateStoredPaths(orderId, body.paths || []);
     if (kind === 'stl' && !paths.length) throw new Error('Добавьте файл STL или 3MF');
-    const files = await publishFiles(paths, diskToken);
+    const files = await publishFiles(paths, diskToken, req);
     const record = {
       orderId,
       createdAt: new Date().toISOString(),

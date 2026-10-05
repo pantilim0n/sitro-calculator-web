@@ -1,5 +1,6 @@
 import {orderFolder, sendOrderNotifications} from './order.js';
 import {hasTrustedOrigin, passwordEquals, verifyAdminSession, verifyPasswordConfig} from './_admin-security.js';
+import {listLocalOrders, localOrderRoot, readLocalJson, writeLocalJson} from './_local-order-storage.js';
 
 const ORDER_ROOT = 'app:/Заявки';
 const ORDER_ID = /^\d{14}-[a-f0-9]{8}$/;
@@ -71,6 +72,11 @@ async function listFolder(path, token, limit = 200) {
 
 async function readOrder(orderId, token) {
   const path = orderRecordPath(orderId);
+  if (localOrderRoot()) {
+    const record = await readLocalJson(path);
+    if (!record) throw new Error('Заявка не найдена');
+    return normalizeOrderRecord(record);
+  }
   const {response, data} = await diskRequest('/resources/download', {token, query: {path}});
   if (!response.ok || !data.href) throw new Error('Не удалось открыть заявку');
   const download = await fetch(data.href);
@@ -80,6 +86,10 @@ async function readOrder(orderId, token) {
 
 async function saveOrder(record, token) {
   const clean = normalizeOrderRecord(record);
+  if (localOrderRoot()) {
+    await writeLocalJson(orderRecordPath(clean.orderId), clean);
+    return clean;
+  }
   const {response, data} = await diskRequest('/resources/upload', {token, query: {path: orderRecordPath(clean.orderId), overwrite: 'true'}});
   if (!response.ok || !data.href) throw new Error('Не удалось сохранить заявку');
   const upload = await fetch(data.href, {method: data.method || 'PUT', headers: {'Content-Type': 'application/json; charset=utf-8'}, body: JSON.stringify(clean, null, 2)});
@@ -88,6 +98,9 @@ async function saveOrder(record, token) {
 }
 
 async function listOrders(token, maximum = 200) {
+  if (localOrderRoot()) {
+    return (await listLocalOrders(process.env, maximum)).map(normalizeOrderRecord).sort((a, b) => String(b.createdAt || b.orderId).localeCompare(String(a.createdAt || a.orderId)));
+  }
   const days = (await listFolder(ORDER_ROOT, token, 120)).filter(item => item.type === 'dir' && /^\d{4}-\d{2}-\d{2}$/.test(item.name)).sort((a, b) => b.name.localeCompare(a.name));
   const ids = [];
   for (const day of days) {
@@ -135,7 +148,7 @@ export default async function handler(req, res) {
     if (!hasTrustedOrigin(req)) return json(res, 403, {error: 'Запрос отклонён системой безопасности'});
     if (!verifyAdminSession(req, process.env) && !(await adminPasswordMatches(body.password, process.env))) return json(res, 401, {error: 'Сессия завершена. Войдите снова.'});
     const token = process.env.YANDEX_DISK_TOKEN;
-    if (!token) return json(res, 503, {error: 'Хранилище заявок ещё не настроено'});
+    if (!localOrderRoot() && !token) return json(res, 503, {error: 'Хранилище заявок ещё не настроено'});
     if (body.action === 'list') {
       const orders = await listOrders(token, Math.min(200, Math.max(1, Number(body.limit) || 100)));
       return json(res, 200, {ok: true, orders});
