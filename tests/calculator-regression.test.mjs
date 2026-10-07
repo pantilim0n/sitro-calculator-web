@@ -509,12 +509,12 @@ test('public pages use the privacy-conscious Yandex Metrika counter', () => {
   const pages = ['index.html', '3d-pechat-lipeck.html', '3d-modelirovanie.html', 'tehnicheskie-detali.html', 'privacy.html'];
   for (const page of pages) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
-    assert.match(html, /yandex-metrika\.js\?v=1/);
+    assert.match(html, /yandex-metrika\.js\?v=2/);
   }
   const metrika = readFileSync(new URL('../yandex-metrika.js', import.meta.url), 'utf8');
   assert.match(metrika, /113542901/);
-  assert.doesNotMatch(metrika, /webvisor\s*:\s*true/);
+  assert.match(metrika, /webvisor\s*:\s*true/);
   const privacy = readFileSync(new URL('../privacy.html', import.meta.url), 'utf8');
   assert.match(privacy, /Яндекс Метрика/);
-  assert.match(privacy, /Вебвизор и запись действий посетителей отключены/);
+  assert.match(privacy, /содержимое всех полей ввода скрывается и не записывается/);
 });
