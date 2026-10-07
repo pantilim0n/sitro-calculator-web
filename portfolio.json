@@ -227,5 +227,17 @@
     "featured": false,
     "visible": true,
     "sort": 14
+  },
+  {
+    "id": "w1791397326607jreo",
+    "src": "portfolio/1791397326597-91nswz-IMG_0304.jpg",
+    "title": "3D-печать СИТРО",
+    "description": "",
+    "categories": [
+      "Производство"
+    ],
+    "featured": false,
+    "visible": true,
+    "sort": 15
   }
 ]
