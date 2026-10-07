@@ -1,4 +1,5 @@
 import {mkdir, readFile, rename, writeFile} from 'node:fs/promises';
+import {randomUUID} from 'node:crypto';
 import {dirname, resolve, sep} from 'node:path';
 
 const ROOT_FILES = new Set([
@@ -41,7 +42,7 @@ export async function readLocalSiteJson(relativePath, env = process.env) {
 export async function writeLocalSiteFile(relativePath, value, env = process.env) {
   const absolute = localSitePath(relativePath, env);
   await mkdir(dirname(absolute), {recursive: true});
-  const temporary = `${absolute}.${process.pid}.${Date.now()}.tmp`;
+  const temporary = `${absolute}.${process.pid}.${Date.now()}.${randomUUID()}.tmp`;
   await writeFile(temporary, value, {mode: 0o600});
   await rename(temporary, absolute);
 }

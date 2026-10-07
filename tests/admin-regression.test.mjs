@@ -142,7 +142,9 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /action:'saveAll'/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Добавить фотографию<\/summary>/);
   assert.match(adminHtml, /<details class="categories-spoiler"><summary>Фотографии портфолио<\/summary>/);
-  assert.match(adminHtml, /batchFileInput\.multiple=true/);
+  assert.match(adminHtml, /id="file"[^>]+multiple/);
+  assert.match(adminHtml, /for\(const file of files\)/);
+  assert.doesNotMatch(adminHtml, /batchUpload\.addEventListener/);
   assert.match(adminHtml, /id="openMaterialsEditor"/);
   assert.doesNotMatch(adminHtml, /id="materialsAdmin" open/);
   assert.doesNotMatch(adminHtml, /id="servicesAdmin" open/);

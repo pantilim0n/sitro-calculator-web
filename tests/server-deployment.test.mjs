@@ -4,6 +4,7 @@ import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createServer, staticPath} from '../server.js';
+import {writeLocalSiteFile} from '../api/_local-site-storage.js';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
@@ -23,6 +24,29 @@ test('Russian server serves persistent admin content before bundled files', asyn
     assert.deepEqual(JSON.parse(await readFile(staticPath('/pricing.json'), 'utf8')), {minimumOrder: 777});
   } finally {
     previous === undefined ? delete process.env.SITE_CONTENT_DIR : process.env.SITE_CONTENT_DIR = previous;
+    await rm(directory, {recursive: true, force: true});
+  }
+});
+
+test('simultaneous admin saves cannot share a temporary file', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sitro-site-concurrent-'));
+  const previousRoot = process.env.SITE_CONTENT_DIR;
+  const originalNow = Date.now;
+  process.env.SITE_CONTENT_DIR = directory;
+  Date.now = () => 1791397326604;
+  const first = Buffer.from(JSON.stringify([{id: 'first', description: 'A'.repeat(250_000)}]));
+  const second = Buffer.from(JSON.stringify([{id: 'second', description: 'B'.repeat(250_000)}]));
+  try {
+    await Promise.all([
+      writeLocalSiteFile('portfolio.json', first),
+      writeLocalSiteFile('portfolio.json', second)
+    ]);
+    const saved = await readFile(join(directory, 'portfolio.json'));
+    assert.ok(saved.equals(first) || saved.equals(second));
+    assert.doesNotThrow(() => JSON.parse(saved.toString('utf8')));
+  } finally {
+    Date.now = originalNow;
+    previousRoot === undefined ? delete process.env.SITE_CONTENT_DIR : process.env.SITE_CONTENT_DIR = previousRoot;
     await rm(directory, {recursive: true, force: true});
   }
 });
