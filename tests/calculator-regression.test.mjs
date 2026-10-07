@@ -15,6 +15,8 @@ import {buildMakerOrderText,buildStlOrderText,messengerDraftUrl} from '../order-
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const pricing = JSON.parse(await readFile(new URL('../pricing.json', import.meta.url), 'utf8'));
+const portfolio = JSON.parse(await readFile(new URL('../portfolio.json', import.meta.url), 'utf8'));
+const portfolioCategories = JSON.parse(await readFile(new URL('../portfolio-categories.json', import.meta.url), 'utf8'));
 const siteEnhancements = await readFile(new URL('../site-enhancements.js', import.meta.url), 'utf8');
 const siteEnhancementStyles = await readFile(new URL('../site-enhancements.css', import.meta.url), 'utf8');
 const designKit = await readFile(new URL('../design-kit.css', import.meta.url), 'utf8');
@@ -212,11 +214,12 @@ test('portfolio work links can be opened and shared directly', () => {
   assert.match(siteEnhancementStyles, /-webkit-line-clamp:7/);
 });
 
-test('single workshop photo is featured without losing its description', () => {
-  assert.match(siteEnhancements, /<figcaption><strong>/);
-  assert.match(siteEnhancements, /item\.description/);
-  assert.match(siteEnhancementStyles, /workshop-grid:has\(figure:only-child\)/);
-  assert.match(siteEnhancementStyles, /workshop-grid figure:only-child img\{aspect-ratio:3\/4\}/);
+test('printer photo is reserved for a future about section', () => {
+  const workshopPhoto=portfolio.find(item=>item.src==='portfolio/workshop-printers-clean.jpg');
+  assert.equal(workshopPhoto,undefined);
+  assert.equal(portfolioCategories.includes('Производство'),false);
+  assert.doesNotMatch(siteEnhancements,/renderWorkshop/);
+  assert.doesNotMatch(siteEnhancementStyles,/workshop-section|workshop-grid/);
 });
 
 test('portfolio starts with complete rows on desktop and smaller screens', () => {

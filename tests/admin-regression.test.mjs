@@ -173,7 +173,6 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminHtml, /id="statNeedsDetails"/);
   assert.match(adminHtml, /id="workDetailsFilter"/);
   assert.match(adminHtml, /Характеристики:/);
-  assert.match(adminHtml, /id="statProduction"/);
   assert.match(adminHtml, /portfolioDetailProgress/);
   assert.match(adminSettings, /heroMobileScale/);
   assert.match(adminHtml, /admin-orders\.js/);
