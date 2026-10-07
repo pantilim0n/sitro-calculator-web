@@ -195,6 +195,23 @@ test('portfolio supports optional production details without inventing values', 
   assert.match(indexHtml, /id="lightboxMeta"/);
 });
 
+test('portfolio work links can be opened and shared directly', () => {
+  assert.match(indexHtml, /id="lightboxShare"/);
+  assert.match(indexHtml, /function portfolioWorkUrl\(work\)/);
+  assert.match(indexHtml, /searchParams\.set\('work',work\.dataset\.id\)/);
+  assert.match(indexHtml, /new URLSearchParams\(location\.search\)\.get\('work'\)/);
+  assert.match(indexHtml, /window\.SitroOpenPortfolioWork=openLb/);
+  assert.match(indexHtml, /requestAnimationFrame\(\(\)=>window\.SitroOpenPortfolioWork\?\.\(linked\)\)/);
+  assert.match(indexHtml, /navigator\.share/);
+  assert.match(indexHtml, /navigator\.clipboard\?\.writeText/);
+  assert.match(indexHtml, /id="lightboxDescriptionToggle"/);
+  assert.match(indexHtml, /lbDesc\.textContent\.length>360/);
+  assert.match(indexHtml, /'@type':'ImageObject'/);
+  assert.match(indexHtml, /contentUrl/);
+  assert.match(siteEnhancementStyles, /\.lightbox-share/);
+  assert.match(siteEnhancementStyles, /-webkit-line-clamp:7/);
+});
+
 test('single workshop photo is featured without losing its description', () => {
   assert.match(siteEnhancements, /<figcaption><strong>/);
   assert.match(siteEnhancements, /item\.description/);
