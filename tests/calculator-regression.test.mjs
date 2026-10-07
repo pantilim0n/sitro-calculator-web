@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
@@ -502,4 +503,18 @@ test('MakerWorld API normalizes a current design-service response', async () => 
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('public pages use the privacy-conscious Yandex Metrika counter', () => {
+  const pages = ['index.html', '3d-pechat-lipeck.html', '3d-modelirovanie.html', 'tehnicheskie-detali.html', 'privacy.html'];
+  for (const page of pages) {
+    const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8');
+    assert.match(html, /yandex-metrika\.js\?v=1/);
+  }
+  const metrika = readFileSync(new URL('../yandex-metrika.js', import.meta.url), 'utf8');
+  assert.match(metrika, /113542901/);
+  assert.doesNotMatch(metrika, /webvisor\s*:\s*true/);
+  const privacy = readFileSync(new URL('../privacy.html', import.meta.url), 'utf8');
+  assert.match(privacy, /Яндекс Метрика/);
+  assert.match(privacy, /Вебвизор и запись действий посетителей отключены/);
 });
