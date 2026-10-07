@@ -186,6 +186,11 @@ test('service pages have share previews and local service structured data', () =
     assert.equal(data['@type'],'Service');
     assert.equal(data.areaServed.name,'Липецк');
     assert.equal(data.provider.address.streetAddress,'ул. Свиридова, 9, 2 этаж');
+    assert.match(page,/FAQPage/);
+    assert.match(page,/Липецк/);
+    assert.match(page,/href="\/3d-pechat-lipeck\.html"/);
+    assert.match(page,/href="\/3d-modelirovanie\.html"/);
+    assert.match(page,/href="\/tehnicheskie-detali\.html"/);
   }
   assert.match(privacyHtml,/rel="canonical" href="https:\/\/ситро-3д\.рф\/privacy\.html"/);
 });
