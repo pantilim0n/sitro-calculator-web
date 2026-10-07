@@ -17,6 +17,7 @@ async function fetchJson(path,fallback){
 }
 
 function text(value){return String(value??'').trim()}
+function html(value){return text(value).replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]))}
 
 function reviewServiceType(source){
   const value=text(source).toLowerCase();
@@ -187,7 +188,7 @@ async function renderWorkshop(){
   const portfolio=document.getElementById('portfolio');if(!portfolio)return;
   const items=await fetchJson('/portfolio.json',[]);const production=(Array.isArray(items)?items:[]).filter(item=>item?.visible!==false&&Array.isArray(item.categories)&&item.categories.includes('Производство')).sort((a,b)=>(a.sort??999)-(b.sort??999)).slice(0,6);
   if(!production.length)return;
-  const section=document.createElement('section');section.id='workshop';section.className='workshop-section';section.innerHTML='<div class="wrap"><h2 class="title">Как мы работаем</h2><p class="sub">Реальные фотографии мастерской, оборудования и процесса изготовления.</p><div class="workshop-grid">'+production.map(item=>'<figure><img src="/'+text(item.src).replace(/^\//,'')+'" alt="'+text(item.title||'Производство СИТРО').replace(/["<>]/g,'')+'" loading="lazy"><figcaption>'+text(item.title||'Производство СИТРО').replace(/[<>]/g,'')+'</figcaption></figure>').join('')+'</div></div>';
+  const section=document.createElement('section');section.id='workshop';section.className='workshop-section';section.innerHTML='<div class="wrap"><h2 class="title">Как мы работаем</h2><p class="sub">Реальные фотографии мастерской, оборудования и процесса изготовления.</p><div class="workshop-grid">'+production.map(item=>'<figure><img src="/'+html(item.src).replace(/^\//,'')+'" alt="'+html(item.title||'Производство СИТРО')+'" loading="lazy"><figcaption><strong>'+html(item.title||'Производство СИТРО')+'</strong>'+(text(item.description)?'<span>'+html(item.description)+'</span>':'')+'</figcaption></figure>').join('')+'</div></div>';
   portfolio.after(section);
 }
 

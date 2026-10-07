@@ -181,6 +181,13 @@ test('portfolio supports optional production details without inventing values', 
   assert.match(indexHtml, /id="lightboxMeta"/);
 });
 
+test('single workshop photo is featured without losing its description', () => {
+  assert.match(siteEnhancements, /<figcaption><strong>/);
+  assert.match(siteEnhancements, /item\.description/);
+  assert.match(siteEnhancementStyles, /workshop-grid:has\(figure:only-child\)/);
+  assert.match(siteEnhancementStyles, /workshop-grid figure:only-child img\{aspect-ratio:3\/4\}/);
+});
+
 test('portfolio starts with complete rows on desktop and smaller screens', () => {
   assert.match(indexHtml, /portfolioLimit=\(\)=>matchMedia\('\(min-width:1000px\)'\)\.matches\?8:6/);
   assert.match(indexHtml, /list\.slice\(0,limit\)/);
