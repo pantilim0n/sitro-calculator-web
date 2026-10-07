@@ -45,7 +45,14 @@ export function removeCategoryFromItems(items, categoryName) {
   return changed;
 }
 
-export function filterPortfolioItems(items, {query = '', category = '', visibility = '', featuredOnly = false} = {}) {
+export const portfolioDetailKeys = ['material', 'dimensions', 'leadTime', 'priceFrom'];
+
+export function portfolioDetailProgress(item) {
+  const completed = portfolioDetailKeys.filter(key => String(item?.[key] || '').trim()).length;
+  return {completed, total: portfolioDetailKeys.length, complete: completed === portfolioDetailKeys.length};
+}
+
+export function filterPortfolioItems(items, {query = '', category = '', visibility = '', featuredOnly = false, details = ''} = {}) {
   const needle = String(query).trim().toLowerCase();
   return items.filter(item => {
     const title = String(item.title || '').toLowerCase();
@@ -55,7 +62,9 @@ export function filterPortfolioItems(items, {query = '', category = '', visibili
     const matchesText = !needle || title.includes(needle) || description.includes(needle) || searchableCategories;
     const matchesCategory = !category || categories.includes(category);
     const matchesVisibility = !visibility || (visibility === 'visible' ? item.visible !== false : item.visible === false);
-    return matchesText && matchesCategory && matchesVisibility && (!featuredOnly || item.featured);
+    const progress = portfolioDetailProgress(item);
+    const matchesDetails = !details || (details === 'complete' ? progress.complete : !progress.complete);
+    return matchesText && matchesCategory && matchesVisibility && matchesDetails && (!featuredOnly || item.featured);
   });
 }
 

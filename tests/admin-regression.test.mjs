@@ -10,6 +10,7 @@ import {
   categoriesOf,
   filterPortfolioItems,
   generateDescription,
+  portfolioDetailProgress,
   removeCategoryFromItems,
   renameCategoryInItems,
   setItemCategories
@@ -129,6 +130,17 @@ test('search includes descriptions and generated descriptions remain category-aw
   assert.match(generateDescription('Корпус', ['Технические']), /точность и прочность/);
 });
 
+test('portfolio readiness filter separates incomplete work cards', () => {
+  const items = [
+    {id: 'complete', material: 'PETG', dimensions: '100 × 50 мм', leadTime: '2 дня', priceFrom: 'от 900 ₽'},
+    {id: 'incomplete', material: 'PLA', dimensions: '', leadTime: '', priceFrom: ''}
+  ];
+  assert.deepEqual(portfolioDetailProgress(items[0]), {completed: 4, total: 4, complete: true});
+  assert.deepEqual(portfolioDetailProgress(items[1]), {completed: 1, total: 4, complete: false});
+  assert.deepEqual(filterPortfolioItems(items, {details: 'complete'}).map(item => item.id), ['complete']);
+  assert.deepEqual(filterPortfolioItems(items, {details: 'incomplete'}).map(item => item.id), ['incomplete']);
+});
+
 test('admin UI keeps required controls, upload optimization and responsive layout', () => {
   assert.match(adminHtml, /id="bulkGenerateDescriptions">Сгенерировать описание выбранным/);
   assert.match(adminHtml, /function renderNewUploadCategories\(\)/);
@@ -154,12 +166,15 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminSettings, /action:'saveSiteContent'/);
   assert.match(adminHtml, /id="previewChanges"/);
   assert.match(adminPreview, /Предпросмотр до публикации/);
-  assert.match(adminHtml, /class="m"[^>]+Материал/);
-  assert.match(adminHtml, /class="z"[^>]+Размер/);
+  assert.match(adminHtml, /placeholder="Материал, например PETG"/);
+  assert.match(adminHtml, /placeholder="Размер, например 120 × 80 мм"/);
   assert.match(adminHtml, /id="statMissingDescription"/);
   assert.match(adminHtml, /id="statDetailed"/);
+  assert.match(adminHtml, /id="statNeedsDetails"/);
+  assert.match(adminHtml, /id="workDetailsFilter"/);
+  assert.match(adminHtml, /Характеристики:/);
   assert.match(adminHtml, /id="statProduction"/);
-  assert.match(adminHtml, /\['material','dimensions','leadTime','priceFrom'\]/);
+  assert.match(adminHtml, /portfolioDetailProgress/);
   assert.match(adminSettings, /heroMobileScale/);
   assert.match(adminHtml, /admin-orders\.js/);
   assert.match(adminHtml, /admin-orders\.css/);
@@ -175,7 +190,7 @@ test('admin UI keeps required controls, upload optimization and responsive layou
   assert.match(adminThemeStyles, /\[data-admin-theme="light"\] body/);
   assert.match(adminThemeStyles, /\.orders-stat/);
   assert.match(adminThemeStyles, /\[data-admin-theme="light"\] \.admin-preview\{color:#f5f5f5\}/);
-  assert.match(adminHtml, /admin-theme\.css\?v=20261001-2/);
+  assert.match(adminHtml, /admin-theme\.css\?v=20261007-1/);
 
   const script = adminHtml.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1] || '';
   assert.doesNotThrow(() => new Function(script.replace(/^import .*;$/gm, '')));
