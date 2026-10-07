@@ -222,7 +222,15 @@ test('single workshop photo is featured without losing its description', () => {
 test('portfolio starts with complete rows on desktop and smaller screens', () => {
   assert.match(indexHtml, /portfolioLimit=\(\)=>matchMedia\('\(min-width:1000px\)'\)\.matches\?8:6/);
   assert.match(indexHtml, /list\.slice\(0,limit\)/);
+  assert.match(indexHtml, /list\.map\(\(x,itemIndex\)=>/);
+  assert.match(indexHtml, /itemIndex>=limit\?' hidden':''/);
   assert.match(indexHtml, /@media\(min-width:1000px\)\{\.portfolio-grid\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)\}\}/);
+});
+
+test('portfolio lightbox navigates every work, including collapsed cards', () => {
+  assert.match(indexHtml, /function visibleWorks\(\)\{return \[\.\.\.portfolioGrid\.querySelectorAll\('\.work'\)\]\}/);
+  assert.doesNotMatch(indexHtml, /querySelectorAll\('\.work:not\(\[hidden\]\)'\)/);
+  assert.match(indexHtml, /lbNext\.onclick=\(\)=>showLightboxItem\(lightboxIndex\+1\)/);
 });
 
 test('a browser refresh returns to the top instead of restoring the portfolio anchor', () => {
