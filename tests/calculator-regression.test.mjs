@@ -19,6 +19,8 @@ const siteEnhancements = await readFile(new URL('../site-enhancements.js', impor
 const siteEnhancementStyles = await readFile(new URL('../site-enhancements.css', import.meta.url), 'utf8');
 const designKit = await readFile(new URL('../design-kit.css', import.meta.url), 'utf8');
 const designKitScript = await readFile(new URL('../design-kit.js', import.meta.url), 'utf8');
+const servicePages = await Promise.all(['3d-pechat-lipeck.html','3d-modelirovanie.html','tehnicheskie-detali.html'].map(path=>readFile(new URL('../'+path,import.meta.url),'utf8')));
+const privacyHtml = await readFile(new URL('../privacy.html', import.meta.url), 'utf8');
 const businessStructuredData = JSON.parse(indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] || '{}');
 
 test('calculator loads editable pricing and keeps current production tariffs', () => {
@@ -171,6 +173,18 @@ test('messenger preview uses a dedicated branded social card', () => {
   assert.match(indexHtml, /property="og:image:width" content="1200"/);
   assert.match(indexHtml, /property="og:image:height" content="630"/);
   assert.match(indexHtml, /name="twitter:image" content="https:\/\/ситро-3д\.рф\/design-assets\/sitro-share-card\.png\?v=20261002"/);
+});
+
+test('service pages have share previews and local service structured data', () => {
+  for(const page of servicePages){
+    assert.match(page,/property="og:image" content="https:\/\/ситро-3д\.рф\/design-assets\/sitro-share-card\.png\?v=20261002"/);
+    assert.match(page,/name="twitter:card" content="summary_large_image"/);
+    const data=JSON.parse(page.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1]||'{}');
+    assert.equal(data['@type'],'Service');
+    assert.equal(data.areaServed.name,'Липецк');
+    assert.equal(data.provider.address.streetAddress,'ул. Свиридова, 9, 2 этаж');
+  }
+  assert.match(privacyHtml,/rel="canonical" href="https:\/\/ситро-3д\.рф\/privacy\.html"/);
 });
 
 test('portfolio supports optional production details without inventing values', () => {
