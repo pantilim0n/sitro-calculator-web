@@ -70,3 +70,6 @@
   .lightbox-nav{position:fixed;top:42%;z-index:2}
   .lightbox-prev{left:8px}.lightbox-next{right:8px}
 }
+
+/* Keep rapid gallery navigation taps from becoming browser double-tap zoom. */
+.lightbox-nav,.lightbox-close{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}

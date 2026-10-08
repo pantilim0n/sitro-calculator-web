@@ -332,6 +332,8 @@ test('portfolio lightbox supports mouse, keyboard, navigation and mobile swipe',
   assert.match(indexHtml, /e\.key==='ArrowRight'/);
   assert.match(indexHtml, /e\.key==='Escape'/);
   assert.match(indexHtml, /addEventListener\('touchend'/);
+  assert.match(siteEnhancementStyles, /\.lightbox-nav,\.lightbox-close\{touch-action:manipulation/);
+  assert.match(indexHtml, /addEventListener\('dblclick',event=>event\.preventDefault\(\)\)/);
   assert.match(indexHtml, /document\.body\.classList\.add\('lightbox-open'\)/);
   assert.match(indexHtml, /role="button" tabindex="0" aria-label="Открыть:/);
 });
