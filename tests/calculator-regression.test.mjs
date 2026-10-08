@@ -336,10 +336,18 @@ test('portfolio lightbox supports mouse, keyboard, navigation and mobile swipe',
   assert.match(indexHtml, /role="button" tabindex="0" aria-label="Открыть:/);
 });
 
+test('the All portfolio filter expands the complete mobile carousel', () => {
+  assert.match(indexHtml, /active=b\.dataset\.cat;expanded=active==='Все'/);
+  assert.match(indexHtml, /const hidden=!expanded&&itemIndex>=limit\?' hidden':''/);
+});
+
 test('portfolio lightbox places details beside the image on desktop and below it on mobile', () => {
   assert.match(indexHtml, /\.lightbox-stage\{[^}]*grid-template-columns:minmax\(0,1fr\) minmax\(260px,340px\)/);
   assert.match(indexHtml, /@media\(max-width:760px\)\{[\s\S]{0,200}\.lightbox-stage\{grid-template-columns:1fr/);
   assert.match(indexHtml, /\.lightbox-info\{[^}]*max-height:calc\(100vh - 80px\);overflow:auto/);
+  assert.match(siteEnhancementStyles, /\.lightbox\.open\{display:block;overflow-x:hidden;overflow-y:auto/);
+  assert.match(siteEnhancementStyles, /\.lightbox-stage\{display:flex;flex-direction:column/);
+  assert.match(indexHtml, /function showLightboxItem\(index\)\{lb\.scrollTop=0/);
 });
 
 test('quantity changes recalculate MakerWorld totals for input and change events', () => {

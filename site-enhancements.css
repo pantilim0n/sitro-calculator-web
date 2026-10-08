@@ -59,3 +59,14 @@
 .makerworld-url-help>span{color:#e87522;font-size:16px;font-weight:900;line-height:1.2}
 @media(max-width:700px){.makerworld-heading{align-items:stretch;flex-direction:column;margin-top:16px}.makerworld-help{max-width:none;width:100%}.makerworld-heading>label{font-size:15px}}
 .makerworld-help-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+
+/* The mobile portfolio viewer scrolls as one sheet: image first, details next. */
+@media(max-width:760px){
+  .lightbox.open{display:block;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:58px 10px calc(24px + env(safe-area-inset-bottom))}
+  .lightbox-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;max-height:none;min-height:100%;gap:0;padding-bottom:12px}
+  .lightbox-stage>img{width:auto;max-width:100%;max-height:min(58svh,520px);flex:0 0 auto;object-fit:contain}
+  .lightbox-info{position:static;display:block;width:100%;max-height:none;overflow:visible;flex:0 0 auto;margin:12px 0 0;padding:16px;border-radius:12px}
+  .lightbox-close{position:fixed;top:calc(8px + env(safe-area-inset-top));right:10px;z-index:3}
+  .lightbox-nav{position:fixed;top:42%;z-index:2}
+  .lightbox-prev{left:8px}.lightbox-next{right:8px}
+}
