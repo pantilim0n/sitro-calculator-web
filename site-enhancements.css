@@ -38,3 +38,24 @@
 @media(max-width:700px){.calc-progress{gap:4px}.calc-progress li{justify-content:center;padding:7px 4px;gap:5px}.calc-progress li::after{display:none}.calc-progress span{display:block;font-size:10px}.stl-order-fields{grid-template-columns:1fr!important;padding:15px!important}.order-form-heading,.order-comment-field,.order-contact-help,.order-continue{grid-column:1!important}.makerworld-url-help{font-size:13px}.keyboard-safe-field{scroll-margin-top:84px;scroll-margin-bottom:calc(env(safe-area-inset-bottom) + 28px)}}
 @media(max-width:560px){.contact{padding:14px!important;border-radius:18px!important}.contact-primary{padding:4px}.contact-lead{font-size:14px}.contact .contact-address{padding:15px!important}.contact-address .route-link{width:100%!important;justify-content:center}.contact .social-links{padding:12px!important}.reviews-grid{grid-template-columns:1fr}.review-card{padding:17px}.review-invitation{padding:18px}.review-actions{display:grid;grid-template-columns:1fr}.review-action{width:100%;justify-content:flex-start}.result .price,.stl-total-price{font-size:30px}.trust-note{text-align:left}}
 .lightbox-description.collapsed{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:7;overflow:hidden}.lightbox-description-toggle{margin:7px 0 0;padding:0;border:0;background:transparent;color:#e99456;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.lightbox-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-top:12px}.lightbox-actions .lightbox-order{justify-content:center;margin-top:0;padding-inline:12px;text-align:center}.lightbox-share{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border:1px solid #444;border-radius:10px;background:#17191a;color:#eee;font:inherit;font-weight:800;cursor:pointer}.lightbox-share:hover{border-color:#e87522;color:#f08b43}@media(max-width:560px){.lightbox-actions{grid-template-columns:1fr}.lightbox-actions>*{width:100%}}
+
+/* Calculator guidance and accessible contrast */
+.calc-mode-note{color:#bdc1c4!important;font-size:14px!important}
+.calc .calc-mode{color:#d4d7d9!important;background:#141719!important;border-color:#353a3e!important}
+.calc .calc-mode.active{color:#111!important;background:#e87522!important;border-color:#f4934e!important}
+.calc-progress li{color:#b9bec1!important;border-color:#3d4347!important}
+.calc-progress b{color:#dde0e2!important;background:#2e3336!important}
+.calc-progress .active{color:#fff!important;border-color:#e87522!important}
+.makerworld-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0 8px}
+.makerworld-heading>label{margin:0!important;color:#f4f5f5;font-size:16px;font-weight:750}
+.makerworld-help{display:flex;align-items:center;gap:10px;max-width:360px;padding:10px 12px;border:1px solid #4a382c;border-radius:12px;background:#1d1611;color:#f2a16a!important;text-decoration:none!important;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.makerworld-help:hover{border-color:#e87522;background:#261a12;transform:translateY(-1px)}
+.makerworld-help-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#e87522;color:#111;font-size:22px;font-weight:900}
+.makerworld-help span:last-child{display:grid;gap:1px;line-height:1.25}
+.makerworld-help small{color:#c4c7c9;font-size:11px;font-weight:650}
+.makerworld-help strong{color:#f4f5f5;font-size:13px;font-weight:850}
+#makerworldUrl::placeholder{color:#adb2b5;opacity:1}
+.makerworld-url-help{display:flex;align-items:flex-start;gap:7px;margin:8px 2px 0;color:#bdc1c4;font-size:13px;line-height:1.5}
+.makerworld-url-help>span{color:#e87522;font-size:16px;font-weight:900;line-height:1.2}
+@media(max-width:700px){.makerworld-heading{align-items:stretch;flex-direction:column;margin-top:16px}.makerworld-help{max-width:none;width:100%}.makerworld-heading>label{font-size:15px}}
+.makerworld-help-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}

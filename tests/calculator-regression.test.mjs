@@ -48,8 +48,9 @@ test('calculator directs customers to MakerWorld when they need a model', () => 
   assert.equal((indexHtml.match(/href="https:\/\/makerworld\.com\/en\/3d-models"/g) || []).length, 2);
   assert.match(indexHtml, /Найти модель на MakerWorld/);
   assert.match(indexHtml, /профиль <a href="https:\/\/makerworld\.com\/en\/3d-models"[^>]*>MakerWorld ↗<\/a>/);
-  assert.match(indexHtml, /placeholder="Вставьте ссылку на модель MakerWorld"/);
-  assert.match(indexHtml, /Пример: makerworld\.com\/models\/123456/);
+  assert.match(indexHtml, /placeholder="Вставьте сюда ссылку на выбранную модель"/);
+  assert.match(indexHtml, /Скопируйте адрес страницы выбранной модели и вставьте его в поле выше/);
+  assert.match(indexHtml, /Нет готовой модели\?/);
   assert.match(indexHtml, /function normalizeMakerWorldUrl\(value\)/);
   assert.match(indexHtml, /Нужна ссылка вида makerworld\.com\/models\/123456/);
   assert.match(siteEnhancements, /keepCalculatorFieldsAboveKeyboard/);
