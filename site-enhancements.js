@@ -154,6 +154,7 @@ function enhanceCalculator(){
     }
     const files=kind==='stl'&&typeof window.SitroOrderFiles==='function'?window.SitroOrderFiles():[];
     if(kind==='stl'&&!files.length){if(status){status.textContent='Добавьте файл STL перед отправкой.';status.className='order-status err'}return}
+    window.SitroMetrikaGoal?.('order_attempt',{type:kind});
     const original=formButton.textContent;
     formButton.disabled=true;
     formButton.textContent='Подготавливаю заявку…';
@@ -174,6 +175,7 @@ function enhanceCalculator(){
       if(!submitResponse.ok)throw new Error(submitted.error||'Не удалось отправить заявку');
       formButton.textContent='Заявка отправлена ✓';
       if(status){status.textContent='Готово. Заявка №'+submitted.orderId+' отправлена. Мы свяжемся с вами по указанному телефону.';status.className='order-status ok'}
+      window.SitroMetrikaGoal?.('order_success',{type:kind});
     }catch(error){
       formButton.disabled=false;
       formButton.textContent='Повторить отправку';

@@ -523,3 +523,13 @@ test('public pages use the privacy-conscious Yandex Metrika counter', () => {
   assert.match(privacy, /Яндекс Метрика/);
   assert.match(privacy, /содержимое всех полей ввода скрывается и не записывается/);
 });
+
+test('calculator and contacts report anonymous conversion goals', () => {
+  const metrikaScript = readFileSync(new URL('../yandex-metrika.js', import.meta.url), 'utf8');
+  assert.match(metrikaScript,/SitroMetrikaGoal/);
+  assert.match(metrikaScript,/contact_click/);
+  assert.match(indexHtml,/calculator_result/);
+  assert.match(siteEnhancements,/order_attempt/);
+  assert.match(siteEnhancements,/order_success/);
+  assert.doesNotMatch(metrikaScript,/stlCustomerName|stlCustomerContact|stlCustomerComment/);
+});
