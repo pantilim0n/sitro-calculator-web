@@ -46,3 +46,21 @@ test('main page and sitemap link every SEO service page', async () => {
   }
   assert.ok(index.includes('Популярные задачи для 3D-печати'));
 });
+
+test('public pages expose consistent local business and image metadata', async () => {
+  const allPages = ['index.html', ...pages];
+  const documents = await Promise.all(allPages.map(read));
+  for (const [index, html] of documents.entries()) {
+    assert.match(html, /<meta name="robots" content="index,follow,max-image-preview:large">/, `${allPages[index]} should allow large search previews`);
+  }
+
+  const schemas = [...documents[0].matchAll(/<script type="application\/ld\+json"(?: id="[^"]+")?>([\s\S]*?)<\/script>/g)]
+    .map(match => JSON.parse(match[1]));
+  const business = schemas.find(schema => schema['@type'] === 'LocalBusiness');
+  const website = schemas.find(schema => schema['@type'] === 'WebSite');
+  assert.equal(business?.['@id'], 'https://ситро-3д.рф/#business');
+  assert.equal(business?.address?.addressLocality, 'Липецк');
+  assert.equal(business?.telephone, '+7 905 688-44-43');
+  assert.ok(business?.logo?.startsWith('https://ситро-3д.рф/'));
+  assert.equal(website?.publisher?.['@id'], business['@id']);
+});

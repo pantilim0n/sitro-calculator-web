@@ -5,6 +5,8 @@ import {dirname, join} from 'node:path';
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const domain = 'https://ситро-3д.рф';
 const image = `${domain}/design-assets/sitro-share-card.png?v=20261002`;
+const logo = `${domain}/design-assets/sitro-logo.png`;
+const map = 'https://yandex.ru/maps/?rtext=~52.578173,39.510493&rtt=automt';
 
 const pages = [
   {
@@ -155,9 +157,9 @@ function esc(value) {
 }
 
 function jsonLd(page, url) {
-  const business = {'@type':'LocalBusiness','@id':`${domain}/#business`,name:'СИТРО — фабрика 3D-печати',url:`${domain}/`,telephone:'+7 905 688-44-43',email:'sitmaker@yandex.ru',priceRange:'₽₽',address:{'@type':'PostalAddress',streetAddress:'ул. Свиридова, 9, 2 этаж',addressLocality:'Липецк',addressRegion:'Липецкая область',addressCountry:'RU'}};
+  const business = {'@type':'LocalBusiness','@id':`${domain}/#business`,name:'СИТРО — фабрика 3D-печати',alternateName:'СИТРО',description:'3D-печать и моделирование на заказ в Липецке: технические детали, корпуса, прототипы, сувениры и малые серии.',url:`${domain}/`,logo,image,telephone:'+7 905 688-44-43',email:'sitmaker@yandex.ru',priceRange:'₽₽',currenciesAccepted:'RUB',address:{'@type':'PostalAddress',streetAddress:'ул. Свиридова, 9, 2 этаж',addressLocality:'Липецк',addressRegion:'Липецкая область',postalCode:'398024',addressCountry:'RU'},geo:{'@type':'GeoCoordinates',latitude:52.578173,longitude:39.510493},areaServed:[{'@type':'City',name:'Липецк'},{'@type':'Country',name:'Россия'}],hasMap:map,sameAs:['https://t.me/sitro48','https://vk.ru/sitmaker'],contactPoint:{'@type':'ContactPoint',telephone:'+7 905 688-44-43',contactType:'customer service',areaServed:'RU',availableLanguage:'Russian'}};
   return [
-    {'@context':'https://schema.org','@type':'Service','@id':`${url}#service`,name:page.service,serviceType:page.type,description:page.description,url,image,areaServed:[{'@type':'City',name:'Липецк'},{'@type':'Country',name:'Россия'}],provider:business},
+    {'@context':'https://schema.org','@type':'Service','@id':`${url}#service`,name:page.service,serviceType:page.type,description:page.description,url,image,areaServed:[{'@type':'City',name:'Липецк'},{'@type':'Country',name:'Россия'}],provider:{'@id':`${domain}/#business`}},
     {'@context':'https://schema.org','@graph':[business,{'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Главная',item:`${domain}/`},{'@type':'ListItem',position:2,name:page.service,item:url}]},{'@type':'FAQPage',mainEntity:page.faq.map(([name,text])=>({'@type':'Question',name,acceptedAnswer:{'@type':'Answer',text}}))}]}
   ];
 }
@@ -172,8 +174,8 @@ function render(page) {
   const footer = links.map(([href,label])=>`<a href="${href}">${esc(label)}</a>`).join('');
   return `<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>${esc(page.title)}</title><meta name="description" content="${esc(page.description)}"><link rel="canonical" href="${url}">
-<meta name="geo.region" content="RU-LIP"><meta name="geo.placename" content="Липецк"><meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:site_name" content="СИТРО"><meta property="og:url" content="${url}"><meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}"><meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}"><meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${image}">
+<title>${esc(page.title)}</title><meta name="description" content="${esc(page.description)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="${url}">
+<meta name="geo.region" content="RU-LIP"><meta name="geo.placename" content="Липецк"><meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:site_name" content="СИТРО"><meta property="og:url" content="${url}"><meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}"><meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="СИТРО — 3D-печать и моделирование в Липецке"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}"><meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${image}"><meta name="twitter:image:alt" content="СИТРО — 3D-печать и моделирование в Липецке">
 ${schemas}
 <link rel="stylesheet" href="/service-page.css?v=20261008-3"><script defer src="/yandex-metrika.js?v=2"></script></head><body>
 <header class="top"><div class="wrap"><a class="brand" href="/"><img src="/design-assets/sitro-logo-small.png" alt="СИТРО"></a><a class="back" href="/#services">← Все услуги</a></div></header>
