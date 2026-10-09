@@ -244,5 +244,18 @@
     "featured": false,
     "visible": true,
     "sort": 15
+  },
+  {
+    "id": "w17915797041930k0i",
+    "src": "portfolio/1791579704191-643vkv-IMG_0386.jpg",
+    "title": "Дверная петля",
+    "description": "Петля скрытого монтажа , отдельно не найти , выполнили заказ и заказчик остался доволен.",
+    "categories": [
+      "Технические",
+      "Для дома"
+    ],
+    "featured": false,
+    "visible": true,
+    "sort": 16
   }
 ]
