@@ -1,0 +1,24 @@
+name: Copy new SITRO posts from Telegram to MAX
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-to-max
+  cancel-in-progress: false
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish new posts
+        env:
+          TELEGRAM_RELAY_KEY: ${{ secrets.TELEGRAM_RELAY_KEY }}
+        run: python3 scripts/telegram-to-max.py
