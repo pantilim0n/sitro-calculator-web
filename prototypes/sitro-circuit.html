@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>СИТРО — прототип интерактивной схемы</title>
+  <style>
+    :root{color-scheme:dark;--bg:#111314;--panel:#191c1d;--ink:#f6f4ef;--muted:#b3b4b1;--line:#343839;--orange:#f48b56;--orange-soft:#ffc19d}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,a{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+    :focus-visible{outline:3px solid var(--orange);outline-offset:4px}
+    .shell{max-width:1510px;margin:0 auto;padding:0 clamp(18px,3.5vw,54px)}
+    .topbar{position:sticky;top:0;z-index:30;background:#111314e8;border-bottom:1px solid #303435;backdrop-filter:blur(16px)}
+    .topbar .shell{display:flex;align-items:center;gap:26px;min-height:76px}
+    .wordmark{font-weight:950;font-size:29px;letter-spacing:-.08em;white-space:nowrap;line-height:1}
+    .wordmark span{color:var(--orange)}
+    .topnav{display:flex;gap:25px;margin-left:auto;color:#c6c9c8;font-size:14px}
+    .topnav a:hover{color:var(--orange-soft)}
+    .top-cta{border:1px solid var(--orange);color:var(--orange-soft);border-radius:12px;padding:11px 15px;font-size:13px;font-weight:800;white-space:nowrap}
+    .prototype-badge{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.13em;color:#141414;background:var(--orange);border-radius:5px;padding:6px 8px;white-space:nowrap}
+    .intro{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(25px,4vw,70px);align-items:start;padding-top:clamp(30px,5vw,76px)}
+    .copy{position:sticky;top:112px;padding:8vh 0 0;min-width:0}
+    .eyebrow{display:flex;align-items:center;gap:12px;color:var(--orange);font-size:12px;font-weight:900;letter-spacing:.19em;text-transform:uppercase}
+    .eyebrow::before{content:"";width:30px;height:2px;background:currentColor}
+    h1{font-size:clamp(45px,5.6vw,85px);line-height:.99;letter-spacing:-.065em;margin:25px 0 24px;max-width:720px}
+    h1 em{font-style:normal;color:var(--orange)}
+    .lead{font-size:clamp(17px,1.35vw,21px);line-height:1.55;color:#d4d5d2;max-width:600px;margin:0 0 32px}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:45px}
+    .primary,.secondary{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 20px;border-radius:12px;font-size:14px;font-weight:850;border:1px solid var(--orange)}
+    .primary{background:var(--orange);color:#161413}.primary:hover{background:#ffa16e}
+    .secondary{background:transparent;color:var(--ink);border-color:#707776}.secondary:hover{border-color:var(--orange)}
+    .status{display:flex;align-items:center;gap:9px;color:#b5b9b7;font-size:12px;letter-spacing:.03em}
+    .status i{display:block;width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 5px #f48b5624}
+    .detail{display:none;position:fixed;z-index:35;left:max(22px,calc((100vw - 1510px)/2 + 54px));bottom:20px;width:min(470px,calc(100vw - 44px));padding:24px;border:1px solid #ec8b5f;border-radius:22px;background:linear-gradient(145deg,#212526,#171a1b);box-shadow:0 16px 40px #0009}
+    .detail.is-active{display:block}
+    .detail-close{position:absolute;right:14px;top:12px;width:30px;height:30px;border:0;background:#ffffff16;color:#fff;border-radius:50%;font-size:20px;line-height:1}
+    .detail-label{color:var(--orange-soft);font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}
+    .detail h2{font-size:clamp(24px,2.3vw,35px);line-height:1.12;letter-spacing:-.04em;margin:12px 0}
+    .detail p{color:#c5c8c6;line-height:1.52;margin:0 0 18px;font-size:15px}
+    .detail a{display:inline-flex;color:var(--orange-soft);font-weight:800;font-size:14px;border-bottom:1px solid #f48b5670;padding-bottom:3px}
+    .art-wrap{position:relative;padding-bottom:60px;min-width:0}
+    .art-frame{position:relative;width:100%;max-width:680px;margin-left:auto;background:#fff;border-radius:25px;overflow:hidden;box-shadow:0 30px 80px #0008;isolation:isolate}
+    .art-frame::before{content:"";position:absolute;z-index:2;inset:0;border:1px solid #ffffff55;border-radius:25px;pointer-events:none}
+    .art-frame img{display:block;width:100%;height:auto;user-select:none;pointer-events:none}
+    .hotspot{position:absolute;z-index:3;display:block;padding:0;border:0;border-radius:50%;background:transparent;color:#111;touch-action:manipulation;transform:translate(-50%,-50%)}
+    .hotspot::before{content:"";position:absolute;inset:-4px;border:2px solid transparent;border-radius:50%;transition:inset .3s,border-color .3s,box-shadow .3s;pointer-events:none}
+    .hotspot:hover::before,.hotspot:focus-visible::before,.hotspot[aria-pressed=true]::before{inset:-9px;border-color:#f48b56;box-shadow:0 0 0 8px #f48b5629}
+    .hotspot[aria-pressed=true]::after{content:"";position:absolute;inset:-15px;border:2px solid #f48b56aa;border-radius:50%;animation:pulse 2.5s ease-out infinite;pointer-events:none}
+    .hotspot .tip{position:absolute;left:50%;top:calc(100% + 13px);transform:translateX(-50%) translateY(-4px);width:max-content;max-width:190px;padding:9px 12px;color:#fff;background:#141616;border:1px solid #555b5a;border-radius:8px;font-size:12px;font-weight:850;line-height:1.25;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 6px 18px #0005}
+    .hotspot:hover .tip,.hotspot:focus-visible .tip,.hotspot[aria-pressed=true] .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+    .hotspot.qr{left:65.2%;top:28.9%;width:25%;aspect-ratio:1}
+    .hotspot.materials{left:22.7%;top:45.7%;width:13%;aspect-ratio:1}
+    .hotspot.calculator{left:45.3%;top:49.7%;width:18%;aspect-ratio:1}
+    .hotspot.portfolio{left:30.8%;top:64.8%;width:20%;aspect-ratio:1}
+    .hotspot.contacts{left:56.8%;top:60.5%;width:11%;aspect-ratio:1}
+    .route{position:absolute;z-index:2;pointer-events:none;border-radius:50%;background:#f48b56;filter:blur(8px);opacity:0;animation:glow 5s ease-in-out infinite}
+    .route.one{left:42%;top:39%;width:11px;height:11px;animation-delay:.5s}
+    .route.two{left:61%;top:39%;width:9px;height:9px;animation-delay:1.8s}
+    .route.three{left:38%;top:56%;width:12px;height:12px;animation-delay:3.1s}
+    .scroll-hint{position:absolute;z-index:5;right:18px;top:21%;writing-mode:vertical-rl;color:#141414a6;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+    .ideas{border-top:1px solid #333839;padding:60px 0 90px}
+    .ideas .shell{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+    .idea{padding:24px;border:1px solid #383d3e;border-radius:18px;background:#1b1e1f}
+    .idea small{color:var(--orange);font-weight:900;letter-spacing:.15em}
+    .idea h3{font-size:21px;margin:13px 0 9px}
+    .idea p{color:#b8bcb9;font-size:14px;line-height:1.55;margin:0}
+    @keyframes pulse{0%{opacity:.8;transform:scale(.95)}100%{opacity:0;transform:scale(1.18)}}
+    @keyframes glow{0%,100%{opacity:0;transform:translateY(20px)}45%{opacity:.9;transform:translateY(-20px)}}
+    @media(max-width:1050px){.intro{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:20px}.copy{padding-top:20px}.topnav{display:none}.detail{margin-top:20px}.art-frame{max-width:630px}}
+    @media(max-width:760px){.topbar .shell{min-height:64px;gap:12px}.wordmark{font-size:25px}.top-cta{margin-left:auto;padding:9px 11px}.prototype-badge{font-size:9px;padding:5px 6px}.intro{display:block;padding-top:39px}.copy{position:static;padding:0}.copy h1{font-size:clamp(43px,10vw,62px);margin:19px 0}.lead{font-size:17px}.hero-actions{margin-bottom:25px}.detail{display:none!important}.art-wrap{margin:35px -18px 0;padding-bottom:35px}.art-frame{border-radius:0;max-width:none;box-shadow:none}.art-frame::before{border-radius:0}.scroll-hint{top:21%;right:12px}.hotspot .tip{font-size:10px;max-width:130px;padding:6px 8px}.mobile-detail{display:none;position:sticky;bottom:10px;z-index:10;margin:-1px 14px 0;padding:15px 17px;border:1px solid #f48b56a8;border-radius:15px;background:#141718ed;backdrop-filter:blur(15px);box-shadow:0 14px 25px #0007}.mobile-detail.is-active{display:block}.mobile-detail strong{font-size:16px}.mobile-detail p{margin:4px 0 0;color:#d1d3d1;font-size:12px;line-height:1.35}.ideas{padding:35px 0}.ideas .shell{grid-template-columns:1fr}.idea{padding:18px}}
+    @media(min-width:761px){.mobile-detail{display:none}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="shell"><a class="wordmark" href="#top" aria-label="СИТРО, наверх">СИТРО<span>.</span></a><span class="prototype-badge">Прототип</span><nav class="topnav" aria-label="Разделы прототипа"><a href="#scheme">Схема</a><a href="#ideas">Идея</a></nav><a class="top-cta" href="#scheme">Исследовать схему ↘</a></div></header>
+  <main id="top">
+    <section class="intro shell" aria-labelledby="headline"><div class="copy"><div class="eyebrow">Фабрика 3D-печати · Липецк</div><h1 id="headline">От идеи<br>до готовой <em>детали.</em></h1><p class="lead">Новая главная страница может работать как интерактивная карта СИТРО: каждый оранжевый узел ведёт к конкретному действию.</p><div class="hero-actions"><a class="primary" href="#scheme">Посмотреть схему <span aria-hidden="true">↘</span></a><a class="secondary" href="#ideas">Как это работает</a></div><div class="status"><i aria-hidden="true"></i> Нажмите на оранжевый круг в схеме</div><div class="detail" id="detail" aria-live="polite"></div></div>
+    <div class="art-wrap" id="scheme"><div class="art-frame"><img src="../design-assets/sitro-entry-web.jpg" alt="Фирменная схема СИТРО: от логотипа расходятся линии к оранжевым кругам" width="1360" height="2200"><span class="route one" aria-hidden="true"></span><span class="route two" aria-hidden="true"></span><span class="route three" aria-hidden="true"></span><span class="scroll-hint">Нажмите на узлы ↙</span>
+      <button class="hotspot qr" type="button" data-node="services" aria-label="Услуги СИТРО" aria-pressed="false"><span class="tip">Услуги</span></button>
+      <button class="hotspot materials" type="button" data-node="materials" aria-label="Материалы для печати" aria-pressed="false"><span class="tip">Материалы</span></button>
+      <button class="hotspot calculator" type="button" data-node="calculator" aria-label="Калькулятор 3D-печати" aria-pressed="false"><span class="tip">Рассчитать стоимость</span></button>
+      <button class="hotspot portfolio" type="button" data-node="portfolio" aria-label="Примеры работ" aria-pressed="false"><span class="tip">Наши работы</span></button>
+      <button class="hotspot contacts" type="button" data-node="contacts" aria-label="Контакты СИТРО" aria-pressed="false"><span class="tip">Контакты</span></button>
+    </div><div class="mobile-detail" id="mobileDetail" aria-live="polite"></div></div></section>
+    <section class="ideas" id="ideas"><div class="shell"><div class="idea"><small>01 / ДВИЖЕНИЕ</small><h3>Спокойная анимация</h3><p>Подсветка идёт по линиям к узлам. Выбранный круг мягко пульсирует. При настройке «Уменьшить движение» анимация отключается.</p></div><div class="idea"><small>02 / НАВИГАЦИЯ</small><h3>Каждый круг — действие</h3><p>Услуги, материалы, расчёт, работы и контакты доступны через кликабельные узлы с ясными подписями.</p></div><div class="idea"><small>03 / ТЕЛЕФОН</small><h3>Вертикальная история</h3><p>Исходный рисунок сохраняет пропорции и прокручивается как карта. Выбранный раздел остаётся подписанным в нижней карточке.</p></div></div></section>
+  </main>
+  <script>
+    const data={
+      services:{number:'01',title:'Что мы можем изготовить',text:'Технические детали, корпуса, прототипы и сувениры. Этот узел откроет список услуг с подробными описаниями.',href:'#ideas',cta:'Посмотреть принцип раздела'},
+      materials:{number:'02',title:'Материалы для печати',text:'PLA, PETG, ABS, ASA и PA. Здесь можно показать свойства и помочь выбрать пластик под задачу.',href:'#ideas',cta:'Посмотреть принцип раздела'},
+      calculator:{number:'03',title:'Рассчитать стоимость',text:'Главное действие сайта: загрузить STL или вставить ссылку MakerWorld и увидеть предварительную стоимость.',href:'#ideas',cta:'Посмотреть принцип раздела'},
+      portfolio:{number:'04',title:'Наши работы',text:'Галерея реальных изделий: фото, материал, задача и короткое описание результата.',href:'#ideas',cta:'Посмотреть принцип раздела'},
+      contacts:{number:'05',title:'Связаться с СИТРО',text:'Телефон, мессенджеры, адрес мастерской в Липецке и кнопка маршрута.',href:'#ideas',cta:'Посмотреть принцип раздела'}
+    };
+    const buttons=[...document.querySelectorAll('.hotspot')];
+    const detail=document.getElementById('detail');
+    const mobileDetail=document.getElementById('mobileDetail');
+    function selectNode(button){
+      buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+      const item=data[button.dataset.node];
+      detail.innerHTML=`<button class="detail-close" type="button" aria-label="Закрыть описание">×</button><div class="detail-label">Узел ${item.number} / СИТРО</div><h2>${item.title}</h2><p>${item.text}</p><a href="${item.href}">${item.cta} →</a>`;
+      detail.classList.add('is-active');
+      mobileDetail.innerHTML=`<strong>${item.title}</strong><p>${item.text}</p>`;
+      mobileDetail.classList.add('is-active');
+    }
+    buttons.forEach(button=>button.addEventListener('click',()=>selectNode(button)));
+    detail.addEventListener('click',event=>{if(event.target.closest('.detail-close')){detail.classList.remove('is-active');mobileDetail.classList.remove('is-active');buttons.forEach(item=>item.setAttribute('aria-pressed','false'));}});
+  </script>
+</body>
+</html>
