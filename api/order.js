@@ -196,7 +196,7 @@ async function publishFiles(paths, token, req) {
   return links;
 }
 
-async function saveOrderRecord(orderId, record, token) {
+export async function saveOrderRecord(orderId, record, token) {
   const path = `${orderFolder(orderId)}/заявка.json`;
   if (localOrderRoot()) return writeLocalJson(path, record);
   const {response, data} = await diskRequest('/resources/upload', {
@@ -213,10 +213,10 @@ async function saveOrderRecord(orderId, record, token) {
 }
 
 export function telegramText({orderId, kind, customer, message, files}) {
-  const type = kind === 'stl' ? 'STL / 3MF' : 'MakerWorld';
+  const type = kind === 'stl' ? 'STL / 3MF' : kind === 'max' ? 'Бот MAX' : 'MakerWorld';
   const fileLines = files.length
     ? files.map((file, index) => `${index + 1}. ${file.name}: ${file.url}`).join('\n')
-    : 'Файлы: модель указана ссылкой MakerWorld';
+    : kind === 'max' ? 'Файлы не приложены' : 'Файлы: модель указана ссылкой MakerWorld';
   return [
     `Новая заявка СИТРО №${orderId}`,
     `Тип: ${type}`,

@@ -32,7 +32,7 @@ export function normalizeOrderRecord(value) {
   return {
     orderId: String(value.orderId),
     createdAt: cleanText(value.createdAt, 60),
-    kind: value.kind === 'stl' ? 'stl' : 'maker',
+    kind: value.kind === 'stl' ? 'stl' : value.kind === 'max' ? 'max' : 'maker',
     customer: {
       name: cleanText(value.customer?.name, 120),
       contact: cleanText(value.customer?.contact, 160),
