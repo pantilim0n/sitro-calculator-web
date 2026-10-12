@@ -4,113 +4,141 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>СИТРО — прототип интерактивной схемы</title>
+  <title>СИТРО — живой прототип</title>
   <style>
-    :root{color-scheme:dark;--bg:#111314;--panel:#191c1d;--ink:#f6f4ef;--muted:#b3b4b1;--line:#343839;--orange:#f48b56;--orange-soft:#ffc19d}
+    :root{--paper:#f3f0e9;--ink:#111210;--orange:#ee8752;--orange-light:#f9b28b;--muted:#686a65}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    button,a{font:inherit}
-    button{cursor:pointer}
-    a{color:inherit;text-decoration:none}
-    :focus-visible{outline:3px solid var(--orange);outline-offset:4px}
-    .shell{max-width:1510px;margin:0 auto;padding:0 clamp(18px,3.5vw,54px)}
-    .topbar{position:sticky;top:0;z-index:30;background:#111314e8;border-bottom:1px solid #303435;backdrop-filter:blur(16px)}
-    .topbar .shell{display:flex;align-items:center;gap:26px;min-height:76px}
-    .wordmark{font-weight:950;font-size:29px;letter-spacing:-.08em;white-space:nowrap;line-height:1}
-    .wordmark span{color:var(--orange)}
-    .topnav{display:flex;gap:25px;margin-left:auto;color:#c6c9c8;font-size:14px}
-    .topnav a:hover{color:var(--orange-soft)}
-    .top-cta{border:1px solid var(--orange);color:var(--orange-soft);border-radius:12px;padding:11px 15px;font-size:13px;font-weight:800;white-space:nowrap}
-    .prototype-badge{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.13em;color:#141414;background:var(--orange);border-radius:5px;padding:6px 8px;white-space:nowrap}
-    .intro{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(25px,4vw,70px);align-items:start;padding-top:clamp(30px,5vw,76px)}
-    .copy{position:sticky;top:112px;padding:8vh 0 0;min-width:0}
-    .eyebrow{display:flex;align-items:center;gap:12px;color:var(--orange);font-size:12px;font-weight:900;letter-spacing:.19em;text-transform:uppercase}
-    .eyebrow::before{content:"";width:30px;height:2px;background:currentColor}
-    h1{font-size:clamp(45px,5.6vw,85px);line-height:.99;letter-spacing:-.065em;margin:25px 0 24px;max-width:720px}
-    h1 em{font-style:normal;color:var(--orange)}
-    .lead{font-size:clamp(17px,1.35vw,21px);line-height:1.55;color:#d4d5d2;max-width:600px;margin:0 0 32px}
-    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:45px}
-    .primary,.secondary{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 20px;border-radius:12px;font-size:14px;font-weight:850;border:1px solid var(--orange)}
-    .primary{background:var(--orange);color:#161413}.primary:hover{background:#ffa16e}
-    .secondary{background:transparent;color:var(--ink);border-color:#707776}.secondary:hover{border-color:var(--orange)}
-    .status{display:flex;align-items:center;gap:9px;color:#b5b9b7;font-size:12px;letter-spacing:.03em}
-    .status i{display:block;width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 5px #f48b5624}
-    .detail{display:none;position:fixed;z-index:35;left:max(22px,calc((100vw - 1510px)/2 + 54px));bottom:20px;width:min(470px,calc(100vw - 44px));padding:24px;border:1px solid #ec8b5f;border-radius:22px;background:linear-gradient(145deg,#212526,#171a1b);box-shadow:0 16px 40px #0009}
-    .detail.is-active{display:block}
-    .detail-close{position:absolute;right:14px;top:12px;width:30px;height:30px;border:0;background:#ffffff16;color:#fff;border-radius:50%;font-size:20px;line-height:1}
-    .detail-label{color:var(--orange-soft);font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}
-    .detail h2{font-size:clamp(24px,2.3vw,35px);line-height:1.12;letter-spacing:-.04em;margin:12px 0}
-    .detail p{color:#c5c8c6;line-height:1.52;margin:0 0 18px;font-size:15px}
-    .detail a{display:inline-flex;color:var(--orange-soft);font-weight:800;font-size:14px;border-bottom:1px solid #f48b5670;padding-bottom:3px}
-    .art-wrap{position:relative;padding-bottom:60px;min-width:0}
-    .art-frame{position:relative;width:100%;max-width:680px;margin-left:auto;background:#fff;border-radius:25px;overflow:hidden;box-shadow:0 30px 80px #0008;isolation:isolate}
-    .art-frame::before{content:"";position:absolute;z-index:2;inset:0;border:1px solid #ffffff55;border-radius:25px;pointer-events:none}
-    .art-frame img{display:block;width:100%;height:auto;user-select:none;pointer-events:none}
-    .hotspot{position:absolute;z-index:3;display:block;padding:0;border:0;border-radius:50%;background:transparent;color:#111;touch-action:manipulation;transform:translate(-50%,-50%)}
-    .hotspot::before{content:"";position:absolute;inset:-4px;border:2px solid transparent;border-radius:50%;transition:inset .3s,border-color .3s,box-shadow .3s;pointer-events:none}
-    .hotspot:hover::before,.hotspot:focus-visible::before,.hotspot[aria-pressed=true]::before{inset:-9px;border-color:#f48b56;box-shadow:0 0 0 8px #f48b5629}
-    .hotspot[aria-pressed=true]::after{content:"";position:absolute;inset:-15px;border:2px solid #f48b56aa;border-radius:50%;animation:pulse 2.5s ease-out infinite;pointer-events:none}
-    .hotspot .tip{position:absolute;left:50%;top:calc(100% + 13px);transform:translateX(-50%) translateY(-4px);width:max-content;max-width:190px;padding:9px 12px;color:#fff;background:#141616;border:1px solid #555b5a;border-radius:8px;font-size:12px;font-weight:850;line-height:1.25;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 6px 18px #0005}
-    .hotspot:hover .tip,.hotspot:focus-visible .tip,.hotspot[aria-pressed=true] .tip{opacity:1;transform:translateX(-50%) translateY(0)}
-    .hotspot.qr{left:65.2%;top:28.9%;width:25%;aspect-ratio:1}
-    .hotspot.materials{left:22.7%;top:45.7%;width:13%;aspect-ratio:1}
-    .hotspot.calculator{left:45.3%;top:49.7%;width:18%;aspect-ratio:1}
-    .hotspot.portfolio{left:30.8%;top:64.8%;width:20%;aspect-ratio:1}
-    .hotspot.contacts{left:56.8%;top:60.5%;width:11%;aspect-ratio:1}
-    .route{position:absolute;z-index:2;pointer-events:none;border-radius:50%;background:#f48b56;filter:blur(8px);opacity:0;animation:glow 5s ease-in-out infinite}
-    .route.one{left:42%;top:39%;width:11px;height:11px;animation-delay:.5s}
-    .route.two{left:61%;top:39%;width:9px;height:9px;animation-delay:1.8s}
-    .route.three{left:38%;top:56%;width:12px;height:12px;animation-delay:3.1s}
-    .scroll-hint{position:absolute;z-index:5;right:18px;top:21%;writing-mode:vertical-rl;color:#141414a6;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
-    .ideas{border-top:1px solid #333839;padding:60px 0 90px}
-    .ideas .shell{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-    .idea{padding:24px;border:1px solid #383d3e;border-radius:18px;background:#1b1e1f}
-    .idea small{color:var(--orange);font-weight:900;letter-spacing:.15em}
-    .idea h3{font-size:21px;margin:13px 0 9px}
-    .idea p{color:#b8bcb9;font-size:14px;line-height:1.55;margin:0}
-    @keyframes pulse{0%{opacity:.8;transform:scale(.95)}100%{opacity:0;transform:scale(1.18)}}
-    @keyframes glow{0%,100%{opacity:0;transform:translateY(20px)}45%{opacity:.9;transform:translateY(-20px)}}
-    @media(max-width:1050px){.intro{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:20px}.copy{padding-top:20px}.topnav{display:none}.detail{margin-top:20px}.art-frame{max-width:630px}}
-    @media(max-width:760px){.topbar .shell{min-height:64px;gap:12px}.wordmark{font-size:25px}.top-cta{margin-left:auto;padding:9px 11px}.prototype-badge{font-size:9px;padding:5px 6px}.intro{display:block;padding-top:39px}.copy{position:static;padding:0}.copy h1{font-size:clamp(43px,10vw,62px);margin:19px 0}.lead{font-size:17px}.hero-actions{margin-bottom:25px}.detail{display:none!important}.art-wrap{margin:35px -18px 0;padding-bottom:35px}.art-frame{border-radius:0;max-width:none;box-shadow:none}.art-frame::before{border-radius:0}.scroll-hint{top:21%;right:12px}.hotspot .tip{font-size:10px;max-width:130px;padding:6px 8px}.mobile-detail{display:none;position:sticky;bottom:10px;z-index:10;margin:-1px 14px 0;padding:15px 17px;border:1px solid #f48b56a8;border-radius:15px;background:#141718ed;backdrop-filter:blur(15px);box-shadow:0 14px 25px #0007}.mobile-detail.is-active{display:block}.mobile-detail strong{font-size:16px}.mobile-detail p{margin:4px 0 0;color:#d1d3d1;font-size:12px;line-height:1.35}.ideas{padding:35px 0}.ideas .shell{grid-template-columns:1fr}.idea{padding:18px}}
-    @media(min-width:761px){.mobile-detail{display:none}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button{font:inherit;cursor:pointer}
+    :focus-visible{outline:3px solid var(--orange);outline-offset:5px}
+    .topbar{height:72px;background:#111210;color:#fff;display:flex;align-items:center;padding:0 clamp(20px,4vw,68px);gap:25px}
+    .brand{font-weight:950;font-size:30px;letter-spacing:-.085em;line-height:1}.brand i{font-style:normal;color:var(--orange)}
+    .badge{font-size:10px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;padding:7px 9px;border:1px solid #aaadab;border-radius:4px;color:#d8d8d4}
+    .top-note{margin-left:auto;color:#bfc1bd;font-size:12px;letter-spacing:.03em}
+    .hero{max-width:1640px;margin:auto;min-height:calc(100svh - 72px);display:grid;grid-template-columns:minmax(330px,39%) minmax(0,61%);overflow:hidden}
+    .copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:65px 22px 80px clamp(24px,4vw,68px)}
+    .eyebrow{display:flex;align-items:center;gap:13px;color:#bb5e34;font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+    .eyebrow:before{content:"";width:27px;height:2px;background:currentColor}
+    h1{font-size:clamp(55px,6.2vw,102px);line-height:.91;letter-spacing:-.08em;margin:28px 0 28px;font-weight:900;max-width:700px}
+    h1 .accent{color:#db7443}
+    .lead{font-size:clamp(16px,1.33vw,19px);line-height:1.58;max-width:480px;color:#4a4d49;margin:0 0 30px}
+    .micro{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#5a5d58;margin-bottom:26px}.micro b{width:8px;height:8px;background:var(--orange);border-radius:50%;box-shadow:0 0 0 5px #ee87522b}
+    .feature{position:relative;min-height:174px;max-width:480px;background:#141615;color:white;border-radius:19px;padding:23px 25px;box-shadow:12px 15px 0 #e7e0d4;transition:transform .25s}
+    .feature-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border:1px solid #ffffff44;border-radius:50%;background:transparent;color:#fff;font-size:20px;line-height:1}
+    .feature.pop{transform:translateY(-4px)}
+    .feature small{font-size:10px;font-weight:900;letter-spacing:.18em;color:var(--orange-light);text-transform:uppercase}
+    .feature h2{font-size:clamp(25px,2.2vw,34px);line-height:1.05;margin:12px 0 10px;letter-spacing:-.045em}
+    .feature p{font-size:14px;line-height:1.48;color:#c5cac5;margin:0;max-width:410px}
+    .feature-foot{margin-top:16px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#eea47d}
+    .stage-side{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;padding:14px 18px 18px 0}
+    .stage{position:relative;width:100%;max-width:920px;aspect-ratio:900/760;background:radial-gradient(circle at 50% 48%,#fdfcf8 0%,var(--paper) 71%);overflow:hidden;touch-action:pan-y}
+    .stage:before{content:"";position:absolute;inset:0;opacity:.21;background-image:radial-gradient(#a8a39a 1px,transparent 1px);background-size:30px 30px;mask-image:radial-gradient(circle at 50% 50%,#000,transparent 78%)}
+    svg{position:relative;width:100%;height:100%;display:block;overflow:visible}
+    .wire{fill:none;stroke:#171816;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .wire.secondary{stroke-width:3.2}.wire.ghost{stroke:#d3cec3;stroke-width:1.5}
+    .signal{fill:none;stroke:#f18b55;stroke-width:4;stroke-linecap:round;stroke-dasharray:18 650;animation:travel 5s linear infinite}
+    .dot{fill:#171816}.dot.open{fill:var(--paper);stroke:#171816;stroke-width:4}
+    .node{cursor:grab;touch-action:none;outline:none}.node.dragging{cursor:grabbing}
+    .node .halo{fill:none;stroke:#ee8752;stroke-width:1.7;opacity:0;transition:opacity .3s}
+    .node .body{fill:#f18d59;stroke:#171816;stroke-width:8;transition:fill .2s}
+    .node:hover .halo,.node:focus-visible .halo,.node.selected .halo{opacity:1}
+    .node:hover .body,.node.selected .body{fill:#f5a276}
+    .node text{fill:#141513;text-anchor:middle;dominant-baseline:middle;font-size:15px;font-weight:950;letter-spacing:.055em;pointer-events:none;user-select:none}
+    .node.hub .body{fill:#121413}.node.hub text{fill:#fff;font-size:21px;letter-spacing:-.065em}.node.hub .halo{stroke:#171816}
+    .diagram-caption{position:absolute;bottom:21px;right:20px;display:flex;align-items:center;gap:7px;color:#5b5e59;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+    .diagram-caption span{width:21px;height:1px;background:#72746f}
+    .foot{max-width:1640px;margin:auto;padding:17px clamp(24px,4vw,68px) 22px;border-top:1px solid #dcd6cb;display:flex;gap:20px;justify-content:space-between;font-size:12px;color:#61645e}
+    @keyframes travel{to{stroke-dashoffset:-668}}
+    @media(max-width:980px){.hero{grid-template-columns:42% 58%}.copy{padding-right:0}h1{font-size:clamp(48px,6vw,72px)}.stage-side{padding-right:5px}.feature{min-height:185px}}
+    @media(max-width:740px){.topbar{height:62px;padding:0 18px;gap:12px}.brand{font-size:26px}.badge{font-size:8px}.top-note{font-size:10px;max-width:130px;text-align:right}.hero{display:block;min-height:0}.copy{padding:31px 22px 8px}h1{font-size:clamp(51px,12vw,72px);margin:16px 0}.lead{font-size:15px;line-height:1.45;margin-bottom:17px}.micro{margin-bottom:14px;font-size:11px}.feature{display:none;position:fixed;z-index:20;bottom:12px;left:12px;right:12px;max-width:none;min-height:0;padding:19px 20px;box-shadow:0 14px 45px #0007}.feature.has-selection{display:block}.feature h2{font-size:26px}.feature p{font-size:13px}.stage-side{padding:0 0 10px}.stage{aspect-ratio:460/720;max-width:560px}.diagram-caption{bottom:10px;right:15px;font-size:9px}.foot{padding:16px 22px;display:block;line-height:1.6}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.signal{animation:none}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="shell"><a class="wordmark" href="#top" aria-label="СИТРО, наверх">СИТРО<span>.</span></a><span class="prototype-badge">Прототип</span><nav class="topnav" aria-label="Разделы прототипа"><a href="#scheme">Схема</a><a href="#ideas">Идея</a></nav><a class="top-cta" href="#scheme">Исследовать схему ↘</a></div></header>
-  <main id="top">
-    <section class="intro shell" aria-labelledby="headline"><div class="copy"><div class="eyebrow">Фабрика 3D-печати · Липецк</div><h1 id="headline">От идеи<br>до готовой <em>детали.</em></h1><p class="lead">Новая главная страница может работать как интерактивная карта СИТРО: каждый оранжевый узел ведёт к конкретному действию.</p><div class="hero-actions"><a class="primary" href="#scheme">Посмотреть схему <span aria-hidden="true">↘</span></a><a class="secondary" href="#ideas">Как это работает</a></div><div class="status"><i aria-hidden="true"></i> Нажмите на оранжевый круг в схеме</div><div class="detail" id="detail" aria-live="polite"></div></div>
-    <div class="art-wrap" id="scheme"><div class="art-frame"><img src="../design-assets/sitro-entry-web.jpg" alt="Фирменная схема СИТРО: от логотипа расходятся линии к оранжевым кругам" width="1360" height="2200"><span class="route one" aria-hidden="true"></span><span class="route two" aria-hidden="true"></span><span class="route three" aria-hidden="true"></span><span class="scroll-hint">Нажмите на узлы ↙</span>
-      <button class="hotspot qr" type="button" data-node="services" aria-label="Услуги СИТРО" aria-pressed="false"><span class="tip">Услуги</span></button>
-      <button class="hotspot materials" type="button" data-node="materials" aria-label="Материалы для печати" aria-pressed="false"><span class="tip">Материалы</span></button>
-      <button class="hotspot calculator" type="button" data-node="calculator" aria-label="Калькулятор 3D-печати" aria-pressed="false"><span class="tip">Рассчитать стоимость</span></button>
-      <button class="hotspot portfolio" type="button" data-node="portfolio" aria-label="Примеры работ" aria-pressed="false"><span class="tip">Наши работы</span></button>
-      <button class="hotspot contacts" type="button" data-node="contacts" aria-label="Контакты СИТРО" aria-pressed="false"><span class="tip">Контакты</span></button>
-    </div><div class="mobile-detail" id="mobileDetail" aria-live="polite"></div></div></section>
-    <section class="ideas" id="ideas"><div class="shell"><div class="idea"><small>01 / ДВИЖЕНИЕ</small><h3>Спокойная анимация</h3><p>Подсветка идёт по линиям к узлам. Выбранный круг мягко пульсирует. При настройке «Уменьшить движение» анимация отключается.</p></div><div class="idea"><small>02 / НАВИГАЦИЯ</small><h3>Каждый круг — действие</h3><p>Услуги, материалы, расчёт, работы и контакты доступны через кликабельные узлы с ясными подписями.</p></div><div class="idea"><small>03 / ТЕЛЕФОН</small><h3>Вертикальная история</h3><p>Исходный рисунок сохраняет пропорции и прокручивается как карта. Выбранный раздел остаётся подписанным в нижней карточке.</p></div></div></section>
+  <header class="topbar"><div class="brand">СИТРО<i>.</i></div><span class="badge">Живой прототип</span><div class="top-note">Фабрика 3D-печати · Липецк</div></header>
+  <main class="hero">
+    <section class="copy" aria-labelledby="headline">
+      <div class="eyebrow">Новая идея для СИТРО</div>
+      <h1 id="headline">Идея<br>находит<br><span class="accent">форму.</span></h1>
+      <p class="lead">Живая схема собирает услуги, материалы, работы и расчёт в одну систему. Это не картинка: каждый узел реагирует на движение и открывает своё направление.</p>
+      <div class="micro"><b aria-hidden="true"></b> Подведи курсор, потяни круг или нажми на него</div>
+      <div class="feature" id="feature" aria-live="polite"><small>Навигация по схеме</small><h2>Выбери свой путь</h2><p>Круги тянутся к курсору, меняют размер и возвращаются на место. Нажатие раскрывает смысл каждого узла.</p><div class="feature-foot">СИТРО → идея становится деталью</div></div>
+    </section>
+    <div class="stage-side"><div class="stage" id="stage" aria-label="Интерактивная схема СИТРО">
+      <svg id="diagram" viewBox="0 0 900 760" role="group" aria-labelledby="diagramTitle diagramDesc">
+        <title id="diagramTitle">Живая схема СИТРО</title><desc id="diagramDesc">Шесть подвижных кругов соединены линиями. Круги можно выбрать и перетаскивать.</desc>
+        <g id="backgroundLines"></g><g id="wires"></g><g id="signals"></g><g id="branches"></g><g id="nodes"></g>
+      </svg>
+      <div class="diagram-caption"><span></span>Потяни за узел</div>
+    </div></div>
   </main>
+  <footer class="foot"><span>Концепт интерактивной главной страницы. Действующий сайт не изменён.</span><span>Движение отключается системной настройкой «Уменьшить движение».</span></footer>
   <script>
-    const data={
-      services:{number:'01',title:'Что мы можем изготовить',text:'Технические детали, корпуса, прототипы и сувениры. Этот узел откроет список услуг с подробными описаниями.',href:'#ideas',cta:'Посмотреть принцип раздела'},
-      materials:{number:'02',title:'Материалы для печати',text:'PLA, PETG, ABS, ASA и PA. Здесь можно показать свойства и помочь выбрать пластик под задачу.',href:'#ideas',cta:'Посмотреть принцип раздела'},
-      calculator:{number:'03',title:'Рассчитать стоимость',text:'Главное действие сайта: загрузить STL или вставить ссылку MakerWorld и увидеть предварительную стоимость.',href:'#ideas',cta:'Посмотреть принцип раздела'},
-      portfolio:{number:'04',title:'Наши работы',text:'Галерея реальных изделий: фото, материал, задача и короткое описание результата.',href:'#ideas',cta:'Посмотреть принцип раздела'},
-      contacts:{number:'05',title:'Связаться с СИТРО',text:'Телефон, мессенджеры, адрес мастерской в Липецке и кнопка маршрута.',href:'#ideas',cta:'Посмотреть принцип раздела'}
+    const NS='http://www.w3.org/2000/svg';
+    const features={
+      services:{num:'01',label:'УСЛУГИ',title:'От задачи к решению',text:'Печать деталей, прототипирование, моделирование и новые направления можно раскрывать прямо из схемы.'},
+      calculator:{num:'02',label:'РАСЧЁТ',title:'Узнать стоимость',text:'Самый заметный узел ведёт к расчёту: модель STL или ссылка MakerWorld, материал, количество и цена.'},
+      materials:{num:'03',label:'МАТЕРИАЛЫ',title:'Материал под задачу',text:'Наглядный выбор пластика: где важна прочность, где внешний вид, а где устойчивость к температуре.'},
+      works:{num:'04',label:'РАБОТЫ',title:'Реальные изделия',text:'Короткий путь к портфолио с фотографиями, материалами и историями выполненных заказов.'},
+      contacts:{num:'05',label:'КОНТАКТЫ',title:'Давайте обсудим идею',text:'Телефон, мессенджеры, адрес и маршрут — все способы связи собраны в одной точке.'}
     };
-    const buttons=[...document.querySelectorAll('.hotspot')];
-    const detail=document.getElementById('detail');
-    const mobileDetail=document.getElementById('mobileDetail');
-    function selectNode(button){
-      buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
-      const item=data[button.dataset.node];
-      detail.innerHTML=`<button class="detail-close" type="button" aria-label="Закрыть описание">×</button><div class="detail-label">Узел ${item.number} / СИТРО</div><h2>${item.title}</h2><p>${item.text}</p><a href="${item.href}">${item.cta} →</a>`;
-      detail.classList.add('is-active');
-      mobileDetail.innerHTML=`<strong>${item.title}</strong><p>${item.text}</p>`;
-      mobileDetail.classList.add('is-active');
+    const layouts={
+      desktop:{view:'0 0 900 760',hub:[455,375,72],services:[230,175,65],calculator:[685,205,81],materials:[210,480,65],works:[705,520,73],contacts:[445,655,61]},
+      mobile:{view:'0 0 460 720',hub:[230,335,55],services:[105,150,49],calculator:[355,205,56],materials:[105,465,49],works:[355,475,50],contacts:[225,610,48]}
+    };
+    const ids=['hub','services','calculator','materials','works','contacts'];
+    const stage=document.getElementById('stage'),svg=document.getElementById('diagram'),feature=document.getElementById('feature');
+    const nodeLayer=document.getElementById('nodes'),wireLayer=document.getElementById('wires'),signalLayer=document.getElementById('signals'),branchLayer=document.getElementById('branches'),backgroundLayer=document.getElementById('backgroundLines');
+    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+    const nodes={},links=[],branches=[];
+    let mobile=false,pointer=null,dragged=null,dragMoved=false,dragStart=null,selected=null,last=0;
+    function element(name,attrs={},parent){const el=document.createElementNS(NS,name);for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));parent?.appendChild(el);return el;}
+    function point(event){const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+    function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
+    function layout(){mobile=window.matchMedia('(max-width:740px)').matches;const l=mobile?layouts.mobile:layouts.desktop;svg.setAttribute('viewBox',l.view);for(const id of ids){const [x,y,r]=l[id];Object.assign(nodes[id],{ax:x,ay:y,r,x,y,size:r});nodes[id].group.querySelector('.body').setAttribute('r',r);nodes[id].group.querySelector('.halo').setAttribute('r',r+13);}drawFixed();render(0);}
+    function drawFixed(){backgroundLayer.innerHTML='';branchLayer.innerHTML='';branches.length=0;const w=mobile?460:900,h=mobile?720:760;
+      for(let i=0;i<8;i++){const start=mobile?25+i*54:58+i*109;element('path',{d:`M ${start} 0 V ${22+(i%3)*22} h ${i%2?19:-20}`,class:'wire ghost'},backgroundLayer);}
+      const ends=mobile?[
+        ['services',20,87],['services',43,265],['calculator',438,116],['calculator',425,325],['materials',20,565],['materials',42,365],['works',440,605],['works',420,370],['contacts',120,690],['contacts',360,695]
+      ]:[
+        ['services',62,77],['services',345,55],['services',65,327],['calculator',825,84],['calculator',855,325],['calculator',485,58],['materials',36,515],['materials',118,680],['works',860,445],['works',831,688],['contacts',320,735],['contacts',575,735]
+      ];
+      for(const [id,x,y] of ends){const path=element('path',{class:'wire secondary'},branchLayer);element('circle',{cx:x,cy:y,r:mobile?5:7,class:(x+y)%3===0?'dot':'dot open'},branchLayer);branches.push({id,x,y,path});}
+      for(const [x,y,r] of mobile?[[36,334,7],[418,46,6],[405,685,8]]:[[385,222,8],[92,417,7],[793,363,10],[596,686,6]])element('circle',{cx:x,cy:y,r,class:'dot open'},branchLayer);
     }
-    buttons.forEach(button=>button.addEventListener('click',()=>selectNode(button)));
-    detail.addEventListener('click',event=>{if(event.target.closest('.detail-close')){detail.classList.remove('is-active');mobileDetail.classList.remove('is-active');buttons.forEach(item=>item.setAttribute('aria-pressed','false'));}});
+    function drawWire(a,b,thin=false){const dx=b.x-a.x,dy=b.y-a.y;const sx=a.x+dx*.42,sy=a.y+dy*.14,ex=b.x-dx*.36,ey=b.y-dy*.14;return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} C ${sx.toFixed(1)} ${sy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;}
+    function drawBranch(node,x,y){const dx=x-node.x,dy=y-node.y;return `M ${node.x.toFixed(1)} ${node.y.toFixed(1)} L ${(node.x+dx*.52).toFixed(1)} ${(node.y+dy*.24).toFixed(1)} L ${x} ${y}`;}
+    function render(time){const moving=!reduced.matches;for(const id of ids){const n=nodes[id];let tx=n.ax,ty=n.ay,scale=1;
+      if(pointer&&moving&&id!=='hub'){const distance=Math.hypot(pointer.x-n.ax,pointer.y-n.ay);const reach=mobile?102:170;const power=clamp(1-distance/reach,0,1);tx+=(pointer.x-n.ax)*power*.48;ty+=(pointer.y-n.ay)*power*.48;scale+=power*.23;}
+      if(moving&&!dragged&&id!=='hub'){tx+=Math.sin(time*.0007+n.phase)*2.8;ty+=Math.cos(time*.00057+n.phase)*2.8;}
+      if(dragged===id&&pointer){tx=clamp(pointer.x,n.r+12,(mobile?460:900)-n.r-12);ty=clamp(pointer.y,n.r+12,(mobile?720:760)-n.r-12);scale=1.17;}
+      if(selected===id)scale+=.08;
+      const factor=dragged===id?.36:.13;n.x+=(tx-n.x)*factor;n.y+=(ty-n.y)*factor;n.size+=(n.r*scale-n.size)*.15;
+      n.group.setAttribute('transform',`translate(${n.x.toFixed(2)} ${n.y.toFixed(2)}) scale(${(n.size/n.r).toFixed(3)})`);
+    }
+    for(const link of links){const d=drawWire(nodes.hub,nodes[link.id]);link.path.setAttribute('d',d);link.signal.setAttribute('d',d);}
+    for(const branch of branches)branch.path.setAttribute('d',drawBranch(nodes[branch.id],branch.x,branch.y));
+    }
+    function tick(time){if(time-last>12){render(time);last=time;}requestAnimationFrame(tick);}
+    function select(id){if(id==='hub'){selected=null;feature.classList.remove('has-selection');feature.innerHTML='<small>Навигация по схеме</small><h2>Выбери свой путь</h2><p>Круги тянутся к курсору, меняют размер и возвращаются на место. Нажатие раскрывает смысл каждого узла.</p><div class="feature-foot">СИТРО → идея становится деталью</div>';}else{selected=id;feature.classList.add('has-selection');const item=features[id];feature.innerHTML=`<button class="feature-close" type="button" aria-label="Закрыть описание">×</button><small>Узел ${item.num} / СИТРО</small><h2>${item.title}</h2><p>${item.text}</p><div class="feature-foot">${item.label} ↗</div>`;}
+      for(const key of ids){nodes[key].group.classList.toggle('selected',selected===key);nodes[key].group.setAttribute('aria-pressed',String(selected===key));}
+      feature.classList.remove('pop');void feature.offsetWidth;feature.classList.add('pop');
+    }
+    for(let index=0;index<ids.length;index++){const id=ids[index],r=layouts.desktop[id][2];const group=element('g',{class:`node${id==='hub'?' hub':''}`,role:'button',tabindex:'0','aria-label':id==='hub'?'СИТРО, сбросить выбор':features[id].title,'aria-pressed':'false'},nodeLayer);element('circle',{class:'halo',r:r+13},group);element('circle',{class:'body',r},group);const text=element('text',{},group);text.textContent=id==='hub'?'СИТРО':features[id].label;
+      nodes[id]={group,r,size:r,x:0,y:0,ax:0,ay:0,phase:index*1.75};
+      group.addEventListener('pointerdown',event=>{event.preventDefault();dragged=id;dragMoved=false;dragStart=point(event);pointer=dragStart;group.classList.add('dragging');group.setPointerCapture(event.pointerId);});
+      group.addEventListener('pointermove',event=>{if(dragged===id){pointer=point(event);if(Math.hypot(pointer.x-dragStart.x,pointer.y-dragStart.y)>7)dragMoved=true;}});
+      group.addEventListener('pointerup',event=>{if(dragged!==id)return;group.classList.remove('dragging');dragged=null;pointer=event.pointerType==='mouse'?point(event):null;if(!dragMoved)select(id);});
+      group.addEventListener('pointercancel',()=>{group.classList.remove('dragging');dragged=null;pointer=null;});
+      group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(id);}});
+      if(id!=='hub'){const path=element('path',{class:'wire'},wireLayer),signal=element('path',{class:'signal',style:`animation-delay:-${index*.8}s`},signalLayer);links.push({id,path,signal});}
+    }
+    stage.addEventListener('pointermove',event=>{if(!dragged&&event.pointerType==='mouse')pointer=point(event);});
+    stage.addEventListener('pointerleave',()=>{if(!dragged)pointer=null;});
+    feature.addEventListener('click',event=>{if(event.target.closest('.feature-close'))select('hub');});
+    window.addEventListener('resize',()=>{const changed=window.matchMedia('(max-width:740px)').matches!==mobile;if(changed)layout();});
+    layout();requestAnimationFrame(tick);
   </script>
 </body>
 </html>
