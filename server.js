@@ -6,6 +6,8 @@ import {fileURLToPath} from 'node:url';
 import adminOrders from './api/admin-orders.js';
 import adminPortfolio from './api/admin-portfolio.js';
 import makerworld from './api/makerworld.js';
+import maxCustomerBot, {drainMaxCustomerInbox} from './api/max-customer-bot.js';
+import telegramToMax from './api/telegram-to-max.js';
 import order from './api/order.js';
 import {verifySignedOrderRequest} from './api/_local-order-storage.js';
 import {localSitePath, localSiteRoot} from './api/_local-site-storage.js';
@@ -18,6 +20,8 @@ const MAX_ORDER_FILE_BYTES = 50 * 1024 * 1024;
 const API_HANDLERS = new Map([
   ['/api/admin-orders', adminOrders],
   ['/api/admin-portfolio', adminPortfolio],
+  ['/api/max-customer-bot', maxCustomerBot],
+  ['/api/telegram-to-max', telegramToMax],
   ['/api/order', order]
 ]);
 const CONTENT_TYPES = {
@@ -64,8 +68,9 @@ async function readJsonBody(req) {
     }
     chunks.push(chunk);
   }
+  req.rawBody = Buffer.concat(chunks);
   if (!chunks.length) return {};
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+  try { return JSON.parse(req.rawBody.toString('utf8')); }
   catch { const error = new Error('Некорректный JSON'); error.statusCode = 400; throw error; }
 }
 
@@ -161,6 +166,7 @@ function serveStatic(req, res, pathname) {
 }
 
 export function createServer() {
+  setImmediate(() => { void drainMaxCustomerInbox(); });
   return http.createServer(async (req, rawRes) => {
     const res = enhanceResponse(rawRes);
     let pathname = '/';
