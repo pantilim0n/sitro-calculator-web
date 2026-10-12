@@ -4,141 +4,133 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>СИТРО — живой прототип</title>
+  <title>СИТРО — концепт живой главной</title>
   <style>
-    :root{--paper:#f3f0e9;--ink:#111210;--orange:#ee8752;--orange-light:#f9b28b;--muted:#686a65}
+    :root{--bg:#0c0e10;--ink:#f4f2ed;--soft:#b1b3b1;--orange:#ed8650;--line:#363b3c}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    button{font:inherit;cursor:pointer}
-    :focus-visible{outline:3px solid var(--orange);outline-offset:5px}
-    .topbar{height:72px;background:#111210;color:#fff;display:flex;align-items:center;padding:0 clamp(20px,4vw,68px);gap:25px}
-    .brand{font-weight:950;font-size:30px;letter-spacing:-.085em;line-height:1}.brand i{font-style:normal;color:var(--orange)}
-    .badge{font-size:10px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;padding:7px 9px;border:1px solid #aaadab;border-radius:4px;color:#d8d8d4}
-    .top-note{margin-left:auto;color:#bfc1bd;font-size:12px;letter-spacing:.03em}
-    .hero{max-width:1640px;margin:auto;min-height:calc(100svh - 72px);display:grid;grid-template-columns:minmax(330px,39%) minmax(0,61%);overflow:hidden}
-    .copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:65px 22px 80px clamp(24px,4vw,68px)}
-    .eyebrow{display:flex;align-items:center;gap:13px;color:#bb5e34;font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
-    .eyebrow:before{content:"";width:27px;height:2px;background:currentColor}
-    h1{font-size:clamp(55px,6.2vw,102px);line-height:.91;letter-spacing:-.08em;margin:28px 0 28px;font-weight:900;max-width:700px}
-    h1 .accent{color:#db7443}
-    .lead{font-size:clamp(16px,1.33vw,19px);line-height:1.58;max-width:480px;color:#4a4d49;margin:0 0 30px}
-    .micro{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#5a5d58;margin-bottom:26px}.micro b{width:8px;height:8px;background:var(--orange);border-radius:50%;box-shadow:0 0 0 5px #ee87522b}
-    .feature{position:relative;min-height:174px;max-width:480px;background:#141615;color:white;border-radius:19px;padding:23px 25px;box-shadow:12px 15px 0 #e7e0d4;transition:transform .25s}
-    .feature-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border:1px solid #ffffff44;border-radius:50%;background:transparent;color:#fff;font-size:20px;line-height:1}
-    .feature.pop{transform:translateY(-4px)}
-    .feature small{font-size:10px;font-weight:900;letter-spacing:.18em;color:var(--orange-light);text-transform:uppercase}
-    .feature h2{font-size:clamp(25px,2.2vw,34px);line-height:1.05;margin:12px 0 10px;letter-spacing:-.045em}
-    .feature p{font-size:14px;line-height:1.48;color:#c5cac5;margin:0;max-width:410px}
-    .feature-foot{margin-top:16px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#eea47d}
-    .stage-side{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;padding:14px 18px 18px 0}
-    .stage{position:relative;width:100%;max-width:920px;aspect-ratio:900/760;background:radial-gradient(circle at 50% 48%,#fdfcf8 0%,var(--paper) 71%);overflow:hidden;touch-action:pan-y}
-    .stage:before{content:"";position:absolute;inset:0;opacity:.21;background-image:radial-gradient(#a8a39a 1px,transparent 1px);background-size:30px 30px;mask-image:radial-gradient(circle at 50% 50%,#000,transparent 78%)}
-    svg{position:relative;width:100%;height:100%;display:block;overflow:visible}
-    .wire{fill:none;stroke:#171816;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
-    .wire.secondary{stroke-width:3.2}.wire.ghost{stroke:#d3cec3;stroke-width:1.5}
-    .signal{fill:none;stroke:#f18b55;stroke-width:4;stroke-linecap:round;stroke-dasharray:18 650;animation:travel 5s linear infinite}
-    .dot{fill:#171816}.dot.open{fill:var(--paper);stroke:#171816;stroke-width:4}
-    .node{cursor:grab;touch-action:none;outline:none}.node.dragging{cursor:grabbing}
-    .node .halo{fill:none;stroke:#ee8752;stroke-width:1.7;opacity:0;transition:opacity .3s}
-    .node .body{fill:#f18d59;stroke:#171816;stroke-width:8;transition:fill .2s}
-    .node:hover .halo,.node:focus-visible .halo,.node.selected .halo{opacity:1}
-    .node:hover .body,.node.selected .body{fill:#f5a276}
-    .node text{fill:#141513;text-anchor:middle;dominant-baseline:middle;font-size:15px;font-weight:950;letter-spacing:.055em;pointer-events:none;user-select:none}
-    .node.hub .body{fill:#121413}.node.hub text{fill:#fff;font-size:21px;letter-spacing:-.065em}.node.hub .halo{stroke:#171816}
-    .diagram-caption{position:absolute;bottom:21px;right:20px;display:flex;align-items:center;gap:7px;color:#5b5e59;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
-    .diagram-caption span{width:21px;height:1px;background:#72746f}
-    .foot{max-width:1640px;margin:auto;padding:17px clamp(24px,4vw,68px) 22px;border-top:1px solid #dcd6cb;display:flex;gap:20px;justify-content:space-between;font-size:12px;color:#61645e}
-    @keyframes travel{to{stroke-dashoffset:-668}}
-    @media(max-width:980px){.hero{grid-template-columns:42% 58%}.copy{padding-right:0}h1{font-size:clamp(48px,6vw,72px)}.stage-side{padding-right:5px}.feature{min-height:185px}}
-    @media(max-width:740px){.topbar{height:62px;padding:0 18px;gap:12px}.brand{font-size:26px}.badge{font-size:8px}.top-note{font-size:10px;max-width:130px;text-align:right}.hero{display:block;min-height:0}.copy{padding:31px 22px 8px}h1{font-size:clamp(51px,12vw,72px);margin:16px 0}.lead{font-size:15px;line-height:1.45;margin-bottom:17px}.micro{margin-bottom:14px;font-size:11px}.feature{display:none;position:fixed;z-index:20;bottom:12px;left:12px;right:12px;max-width:none;min-height:0;padding:19px 20px;box-shadow:0 14px 45px #0007}.feature.has-selection{display:block}.feature h2{font-size:26px}.feature p{font-size:13px}.stage-side{padding:0 0 10px}.stage{aspect-ratio:460/720;max-width:560px}.diagram-caption{bottom:10px;right:15px;font-size:9px}.foot{padding:16px 22px;display:block;line-height:1.6}}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+    button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer}
+    :focus-visible{outline:2px solid #ffad79;outline-offset:5px}
+    .page{min-height:100svh;overflow:hidden;background:radial-gradient(ellipse 55% 73% at 89% 40%,#272018 0%,#141617 47%,#0c0e10 100%)}
+    .nav{height:86px;max-width:1720px;margin:auto;padding:0 clamp(24px,4.7vw,80px);display:flex;align-items:center;gap:30px;border-bottom:1px solid #ffffff19;position:relative;z-index:20}
+    .logo{font-size:31px;font-weight:950;letter-spacing:-.095em;line-height:1;white-space:nowrap}.logo span{color:var(--orange)}
+    .nav-sub{border-left:1px solid #666b6a;padding-left:20px;color:#a7aaa8;font-size:10px;line-height:1.35;letter-spacing:.13em;text-transform:uppercase;font-weight:750}
+    .nav-links{display:flex;gap:36px;margin-left:auto;color:#c7c9c6;font-size:13px;font-weight:650}.nav-links a{transition:color .25s}.nav-links a:hover{color:var(--orange)}
+    .nav-tag{margin-left:12px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#f4b38e;border:1px solid #ae684c;border-radius:999px;padding:9px 12px;white-space:nowrap}
+    .hero{max-width:1720px;margin:auto;min-height:740px;display:grid;grid-template-columns:minmax(420px,44%) minmax(0,56%);align-items:center;position:relative}
+    .hero:before{content:"";position:absolute;left:44%;top:0;bottom:0;width:1px;background:linear-gradient(transparent,#ffffff16,transparent)}
+    .copy{position:relative;z-index:5;padding:55px 0 62px clamp(24px,4.7vw,80px)}
+    .eyebrow{display:flex;align-items:center;gap:14px;color:#f5a579;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:850}
+    .eyebrow:before{content:"";width:31px;height:1px;background:#f5a579}
+    h1{font-size:clamp(60px,6.5vw,110px);line-height:.94;letter-spacing:-.085em;margin:34px 0 29px;font-weight:850;max-width:740px}
+    h1 span{display:block}h1 .last{color:var(--orange);text-shadow:0 10px 55px #eb73351f}
+    .lead{max-width:510px;font-size:clamp(17px,1.34vw,20px);line-height:1.55;color:#bfc1be;margin:0 0 34px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
+    .btn{min-height:54px;display:inline-flex;align-items:center;justify-content:center;gap:22px;border-radius:10px;padding:0 21px;font-size:13px;font-weight:800;letter-spacing:.005em;transition:transform .25s,background .25s,border-color .25s}.btn:hover{transform:translateY(-3px)}
+    .btn.primary{background:#ed8650;color:#171311;border:1px solid #f7a36d;box-shadow:0 10px 32px #d966252e}.btn.primary:hover{background:#ff9a61}
+    .btn.ghost{border:1px solid #717575;color:#f1f0ec}.btn.ghost:hover{border-color:#efa072}
+    .btn i{font-size:19px;font-style:normal;font-weight:400}
+    .selection{position:relative;width:min(520px,calc(100% - 25px));min-height:170px;padding:24px 27px 22px;border:1px solid #514b46;border-radius:15px;background:linear-gradient(135deg,#232626de,#17191ac4);box-shadow:0 17px 50px #0004;backdrop-filter:blur(14px);transition:border-color .25s,transform .25s}
+    .selection.active{border-color:#b56d4d;transform:translateY(-3px)}
+    .selection:before{content:"";position:absolute;left:0;top:29px;width:3px;height:46px;background:var(--orange);border-radius:0 3px 3px 0}
+    .selection small{color:#f3a67d;letter-spacing:.2em;font-size:10px;font-weight:900;text-transform:uppercase}
+    .selection h2{font-size:27px;letter-spacing:-.045em;line-height:1.1;margin:12px 0 9px}.selection p{color:#bec2be;font-size:14px;line-height:1.5;max-width:430px;margin:0}
+    .selection .index{position:absolute;top:22px;right:25px;color:#777d7a;font-size:11px;font-weight:850;letter-spacing:.12em}
+    .selection .close{position:absolute;z-index:2;top:12px;right:12px;width:32px;height:32px;border:1px solid #ffffff45;border-radius:50%;background:#252827;color:#fff;font-size:19px;line-height:1;display:none}
+    .selection.active .close{display:block}.selection.active .index{right:57px}
+    .stage-wrap{position:relative;min-width:0;align-self:stretch;display:flex;align-items:center;justify-content:center;padding:10px 22px 15px 0}
+    .stage{position:relative;width:100%;max-width:880px;aspect-ratio:800/720;isolation:isolate;touch-action:pan-y}
+    .stage:before{content:"";position:absolute;inset:0;z-index:-3;opacity:.46;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 64% 62% at 51% 49%,black,transparent)}
+    .ambient{position:absolute;border-radius:50%;filter:blur(75px);pointer-events:none;z-index:-2}.ambient.one{width:42%;height:44%;left:39%;top:17%;background:#b4522c32}.ambient.two{width:36%;height:36%;left:8%;top:55%;background:#843f2930}
+    .ghost-type{position:absolute;z-index:-1;left:9%;top:35%;font-size:clamp(95px,15vw,250px);font-weight:950;letter-spacing:-.13em;color:#ffffff08;transform:rotate(-12deg);white-space:nowrap;pointer-events:none}
+    .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+    .wire{fill:none;stroke:#8c6e5d;stroke-width:1.5;opacity:.6}.wire.soft{stroke:#5b5e5c;stroke-width:1;opacity:.5}
+    .signal{fill:none;stroke:#f49660;stroke-width:2;stroke-linecap:round;stroke-dasharray:16 650;animation:signal 5s linear infinite;filter:drop-shadow(0 0 5px #ed8650)}
+    .terminal{fill:#df8758;filter:drop-shadow(0 0 5px #ed8650)}.terminal.hollow{fill:#121516;stroke:#ad7557;stroke-width:2}
+    .orbit{position:absolute;border:1px solid #ffffff18;border-radius:50%;pointer-events:none;z-index:-1}.orbit.a{width:58%;aspect-ratio:1;left:19%;top:15%;transform:rotateX(65deg) rotate(-22deg)}.orbit.b{width:30%;aspect-ratio:1;left:44%;top:40%;border-color:#ee87521e;transform:rotateX(67deg) rotate(35deg)}
+    .node{position:absolute;z-index:4;display:block;border:1px solid #ffffff54;border-radius:50%;padding:0;color:#161413;text-align:left;touch-action:none;cursor:grab;will-change:left,top,transform;box-shadow:inset -17px -25px 31px #782f187a,inset 12px 16px 27px #ffd09f86,0 24px 38px #0009,0 0 48px #e4662440;background:radial-gradient(circle at 31% 23%,#ffe1b2 0%,#f4a260 24%,#de6935 54%,#8f3a23 83%,#50261e 100%);transform:translate(-50%,-50%) scale(var(--scale,1));transition:box-shadow .25s,filter .25s}
+    .node:before{content:"";position:absolute;inset:9%;border:1px solid #ffe5cc77;border-radius:50%;pointer-events:none}.node:after{content:"";position:absolute;inset:-8px;border:1px solid #e7895560;border-radius:50%;opacity:0;transition:opacity .25s}.node:hover:after,.node[aria-pressed=true]:after,.node:focus-visible:after{opacity:1}
+    .node:hover{filter:brightness(1.12)}.node.dragging{cursor:grabbing;z-index:8}
+    .node.dark{background:radial-gradient(circle at 30% 22%,#89918d 0%,#454b49 21%,#202627 58%,#0e1113 100%);color:#f8f4ed;box-shadow:inset -18px -23px 29px #0008,inset 8px 11px 19px #ffffff32,0 24px 40px #000b,0 0 36px #ffffff12;border-color:#a1a39b85}.node.dark:before{border-color:#ffffff36}.node.dark:after{border-color:#d8a07e85}
+    .node small{position:absolute;left:19%;top:20%;font-size:10px;letter-spacing:.12em;font-weight:900;opacity:.73}.node strong{position:absolute;left:17%;bottom:20%;font-size:clamp(12px,1.25vw,17px);line-height:1;font-weight:900;letter-spacing:-.025em;white-space:nowrap}.node.large strong{font-size:clamp(17px,1.7vw,24px)}
+    .node.tiny strong{left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);font-size:12px}.node.tiny small{display:none}
+    .stage-label{position:absolute;z-index:2;color:#a2a5a1;font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;pointer-events:none}.stage-label.top{left:6%;top:5%}.stage-label.bottom{right:7%;bottom:6%}
+    .stage-label.top:before,.stage-label.bottom:after{content:"";display:inline-block;vertical-align:middle;width:25px;height:1px;background:#c98b67;margin:0 9px}
+    .cursor-glow{position:absolute;z-index:-1;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,#ef844122,transparent 70%);pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s}
+    .process{max-width:1560px;margin:auto;padding:30px clamp(24px,4.7vw,80px) 48px;border-top:1px solid #ffffff1d;display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:25px;align-items:start}
+    .process h2{margin:0;font-size:15px;letter-spacing:.01em}.process h2 span{display:block;font-size:10px;letter-spacing:.17em;color:#e69568;text-transform:uppercase;margin-bottom:7px}
+    .process-item{border-left:1px solid #ffffff27;padding-left:20px;color:#c9cac7;font-size:13px;line-height:1.5}.process-item b{display:block;color:#f0a471;font-size:12px;letter-spacing:.12em;margin-bottom:4px}
+    @keyframes signal{to{stroke-dashoffset:-666}}
+    @media(max-width:1100px){.nav-links{gap:18px}.hero{grid-template-columns:minmax(360px,45%) minmax(0,55%)}.copy{padding-right:0}h1{font-size:clamp(58px,6.5vw,78px)}.stage-wrap{padding-right:0}.selection{min-height:175px}}
+    @media(max-width:900px){.page{background:radial-gradient(ellipse 95% 50% at 58% 64%,#23201d,#0d0f10 75%)}.nav{height:68px;padding:0 20px;gap:12px}.logo{font-size:27px}.nav-sub{font-size:8px;padding-left:10px}.nav-links{display:none}.nav-tag{margin-left:auto;font-size:8px;padding:7px 8px}.hero{display:flex;flex-direction:column;min-height:0}.hero:before{display:none}.copy{padding:42px 22px 4px;width:100%}.eyebrow{font-size:9px}h1{font-size:clamp(56px,12.9vw,82px);margin:24px 0 18px}.lead{font-size:15px;line-height:1.5;max-width:500px;margin-bottom:25px}.actions{margin-bottom:20px}.btn{min-height:47px;padding:0 15px;font-size:12px;gap:10px}.selection{display:none;position:fixed;z-index:30;left:12px;right:12px;bottom:12px;width:auto;max-width:none;min-height:0;padding:20px 22px;box-shadow:0 20px 55px #000d}.selection.active{display:block}.selection h2{font-size:25px}.selection p{font-size:13px}.stage-wrap{padding:0 5px 12px;width:100%}.stage{aspect-ratio:390/520;max-width:550px}.stage-label{font-size:8px}.stage-label.top{top:3%}.stage-label.bottom{bottom:2%}.node strong,.node.large strong{font-size:clamp(9px,2.6vw,13px)}.node small{font-size:8px}.node.tiny strong{font-size:9px}.process{padding:28px 22px 40px;display:grid;grid-template-columns:1fr 1fr;gap:23px}.process h2{grid-column:1/-1}.process-item{font-size:12px}}
+    @media(max-width:400px){.nav-tag{display:none}.lead{max-width:340px}.btn{font-size:11px}.process{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.signal{animation:none}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="brand">СИТРО<i>.</i></div><span class="badge">Живой прототип</span><div class="top-note">Фабрика 3D-печати · Липецк</div></header>
-  <main class="hero">
-    <section class="copy" aria-labelledby="headline">
-      <div class="eyebrow">Новая идея для СИТРО</div>
-      <h1 id="headline">Идея<br>находит<br><span class="accent">форму.</span></h1>
-      <p class="lead">Живая схема собирает услуги, материалы, работы и расчёт в одну систему. Это не картинка: каждый узел реагирует на движение и открывает своё направление.</p>
-      <div class="micro"><b aria-hidden="true"></b> Подведи курсор, потяни круг или нажми на него</div>
-      <div class="feature" id="feature" aria-live="polite"><small>Навигация по схеме</small><h2>Выбери свой путь</h2><p>Круги тянутся к курсору, меняют размер и возвращаются на место. Нажатие раскрывает смысл каждого узла.</p><div class="feature-foot">СИТРО → идея становится деталью</div></div>
+<div class="page">
+  <header class="nav"><div class="logo">СИТРО<span>.</span></div><div class="nav-sub">Фабрика<br>3D-печати</div><nav class="nav-links" aria-label="Разделы концепта"><a href="#concept">Концепт</a><a href="#process">Как работает</a></nav><span class="nav-tag">Интерактивный прототип</span></header>
+  <main>
+    <section class="hero" id="concept" aria-labelledby="headline">
+      <div class="copy"><div class="eyebrow">Липецк / 3D-производство</div><h1 id="headline"><span>Идея</span><span>обретает</span><span class="last">форму.</span></h1><p class="lead">От первого эскиза до точной детали. Печатаем, проектируем и помогаем выбрать материал для вашей задачи.</p><div class="actions"><a class="btn primary" href="#stage">Исследовать возможности <i aria-hidden="true">↗</i></a><a class="btn ghost" href="#process">Как это работает <i aria-hidden="true">↓</i></a></div><div class="selection" id="selection" aria-live="polite"><span class="index">00 / 05</span><small>Живая карта СИТРО</small><h2>Начните с идеи</h2><p>Подведите курсор к кругам. Они откликаются на движение; любой можно потянуть и открыть нажатием.</p></div></div>
+      <div class="stage-wrap"><div class="stage" id="stage" aria-label="Интерактивная карта услуг СИТРО"><div class="ambient one"></div><div class="ambient two"></div><div class="ghost-type" aria-hidden="true">3D</div><div class="orbit a"></div><div class="orbit b"></div><svg id="wires" viewBox="0 0 800 720" aria-hidden="true"><g id="edgeLayer"></g><g id="branchLayer"></g></svg><div class="cursor-glow" id="cursorGlow"></div><div class="stage-label top">01 / от замысла к изделию</div><div class="stage-label bottom">проведите курсором по узлам</div></div></div>
     </section>
-    <div class="stage-side"><div class="stage" id="stage" aria-label="Интерактивная схема СИТРО">
-      <svg id="diagram" viewBox="0 0 900 760" role="group" aria-labelledby="diagramTitle diagramDesc">
-        <title id="diagramTitle">Живая схема СИТРО</title><desc id="diagramDesc">Шесть подвижных кругов соединены линиями. Круги можно выбрать и перетаскивать.</desc>
-        <g id="backgroundLines"></g><g id="wires"></g><g id="signals"></g><g id="branches"></g><g id="nodes"></g>
-      </svg>
-      <div class="diagram-caption"><span></span>Потяни за узел</div>
-    </div></div>
+    <section class="process" id="process"><h2><span>Как устроен концепт</span>Каждая идея становится действием</h2><div class="process-item"><b>01 / ДВИЖЕНИЕ</b>Узлы реагируют на курсор, растут и следуют за рукой.</div><div class="process-item"><b>02 / СВЯЗЬ</b>Тонкие линии сохраняют связь между разделами при движении.</div><div class="process-item"><b>03 / ПУТЬ</b>Нажатие раскрывает направление без перехода со страницы.</div></section>
   </main>
-  <footer class="foot"><span>Концепт интерактивной главной страницы. Действующий сайт не изменён.</span><span>Движение отключается системной настройкой «Уменьшить движение».</span></footer>
-  <script>
-    const NS='http://www.w3.org/2000/svg';
-    const features={
-      services:{num:'01',label:'УСЛУГИ',title:'От задачи к решению',text:'Печать деталей, прототипирование, моделирование и новые направления можно раскрывать прямо из схемы.'},
-      calculator:{num:'02',label:'РАСЧЁТ',title:'Узнать стоимость',text:'Самый заметный узел ведёт к расчёту: модель STL или ссылка MakerWorld, материал, количество и цена.'},
-      materials:{num:'03',label:'МАТЕРИАЛЫ',title:'Материал под задачу',text:'Наглядный выбор пластика: где важна прочность, где внешний вид, а где устойчивость к температуре.'},
-      works:{num:'04',label:'РАБОТЫ',title:'Реальные изделия',text:'Короткий путь к портфолио с фотографиями, материалами и историями выполненных заказов.'},
-      contacts:{num:'05',label:'КОНТАКТЫ',title:'Давайте обсудим идею',text:'Телефон, мессенджеры, адрес и маршрут — все способы связи собраны в одной точке.'}
-    };
-    const layouts={
-      desktop:{view:'0 0 900 760',hub:[455,375,72],services:[230,175,65],calculator:[685,205,81],materials:[210,480,65],works:[705,520,73],contacts:[445,655,61]},
-      mobile:{view:'0 0 460 720',hub:[230,335,55],services:[105,150,49],calculator:[355,205,56],materials:[105,465,49],works:[355,475,50],contacts:[225,610,48]}
-    };
-    const ids=['hub','services','calculator','materials','works','contacts'];
-    const stage=document.getElementById('stage'),svg=document.getElementById('diagram'),feature=document.getElementById('feature');
-    const nodeLayer=document.getElementById('nodes'),wireLayer=document.getElementById('wires'),signalLayer=document.getElementById('signals'),branchLayer=document.getElementById('branches'),backgroundLayer=document.getElementById('backgroundLines');
-    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-    const nodes={},links=[],branches=[];
-    let mobile=false,pointer=null,dragged=null,dragMoved=false,dragStart=null,selected=null,last=0;
-    function element(name,attrs={},parent){const el=document.createElementNS(NS,name);for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));parent?.appendChild(el);return el;}
-    function point(event){const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
-    function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
-    function layout(){mobile=window.matchMedia('(max-width:740px)').matches;const l=mobile?layouts.mobile:layouts.desktop;svg.setAttribute('viewBox',l.view);for(const id of ids){const [x,y,r]=l[id];Object.assign(nodes[id],{ax:x,ay:y,r,x,y,size:r});nodes[id].group.querySelector('.body').setAttribute('r',r);nodes[id].group.querySelector('.halo').setAttribute('r',r+13);}drawFixed();render(0);}
-    function drawFixed(){backgroundLayer.innerHTML='';branchLayer.innerHTML='';branches.length=0;const w=mobile?460:900,h=mobile?720:760;
-      for(let i=0;i<8;i++){const start=mobile?25+i*54:58+i*109;element('path',{d:`M ${start} 0 V ${22+(i%3)*22} h ${i%2?19:-20}`,class:'wire ghost'},backgroundLayer);}
-      const ends=mobile?[
-        ['services',20,87],['services',43,265],['calculator',438,116],['calculator',425,325],['materials',20,565],['materials',42,365],['works',440,605],['works',420,370],['contacts',120,690],['contacts',360,695]
-      ]:[
-        ['services',62,77],['services',345,55],['services',65,327],['calculator',825,84],['calculator',855,325],['calculator',485,58],['materials',36,515],['materials',118,680],['works',860,445],['works',831,688],['contacts',320,735],['contacts',575,735]
-      ];
-      for(const [id,x,y] of ends){const path=element('path',{class:'wire secondary'},branchLayer);element('circle',{cx:x,cy:y,r:mobile?5:7,class:(x+y)%3===0?'dot':'dot open'},branchLayer);branches.push({id,x,y,path});}
-      for(const [x,y,r] of mobile?[[36,334,7],[418,46,6],[405,685,8]]:[[385,222,8],[92,417,7],[793,363,10],[596,686,6]])element('circle',{cx:x,cy:y,r,class:'dot open'},branchLayer);
-    }
-    function drawWire(a,b,thin=false){const dx=b.x-a.x,dy=b.y-a.y;const sx=a.x+dx*.42,sy=a.y+dy*.14,ex=b.x-dx*.36,ey=b.y-dy*.14;return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} C ${sx.toFixed(1)} ${sy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;}
-    function drawBranch(node,x,y){const dx=x-node.x,dy=y-node.y;return `M ${node.x.toFixed(1)} ${node.y.toFixed(1)} L ${(node.x+dx*.52).toFixed(1)} ${(node.y+dy*.24).toFixed(1)} L ${x} ${y}`;}
-    function render(time){const moving=!reduced.matches;for(const id of ids){const n=nodes[id];let tx=n.ax,ty=n.ay,scale=1;
-      if(pointer&&moving&&id!=='hub'){const distance=Math.hypot(pointer.x-n.ax,pointer.y-n.ay);const reach=mobile?102:170;const power=clamp(1-distance/reach,0,1);tx+=(pointer.x-n.ax)*power*.48;ty+=(pointer.y-n.ay)*power*.48;scale+=power*.23;}
-      if(moving&&!dragged&&id!=='hub'){tx+=Math.sin(time*.0007+n.phase)*2.8;ty+=Math.cos(time*.00057+n.phase)*2.8;}
-      if(dragged===id&&pointer){tx=clamp(pointer.x,n.r+12,(mobile?460:900)-n.r-12);ty=clamp(pointer.y,n.r+12,(mobile?720:760)-n.r-12);scale=1.17;}
-      if(selected===id)scale+=.08;
-      const factor=dragged===id?.36:.13;n.x+=(tx-n.x)*factor;n.y+=(ty-n.y)*factor;n.size+=(n.r*scale-n.size)*.15;
-      n.group.setAttribute('transform',`translate(${n.x.toFixed(2)} ${n.y.toFixed(2)}) scale(${(n.size/n.r).toFixed(3)})`);
-    }
-    for(const link of links){const d=drawWire(nodes.hub,nodes[link.id]);link.path.setAttribute('d',d);link.signal.setAttribute('d',d);}
-    for(const branch of branches)branch.path.setAttribute('d',drawBranch(nodes[branch.id],branch.x,branch.y));
-    }
-    function tick(time){if(time-last>12){render(time);last=time;}requestAnimationFrame(tick);}
-    function select(id){if(id==='hub'){selected=null;feature.classList.remove('has-selection');feature.innerHTML='<small>Навигация по схеме</small><h2>Выбери свой путь</h2><p>Круги тянутся к курсору, меняют размер и возвращаются на место. Нажатие раскрывает смысл каждого узла.</p><div class="feature-foot">СИТРО → идея становится деталью</div>';}else{selected=id;feature.classList.add('has-selection');const item=features[id];feature.innerHTML=`<button class="feature-close" type="button" aria-label="Закрыть описание">×</button><small>Узел ${item.num} / СИТРО</small><h2>${item.title}</h2><p>${item.text}</p><div class="feature-foot">${item.label} ↗</div>`;}
-      for(const key of ids){nodes[key].group.classList.toggle('selected',selected===key);nodes[key].group.setAttribute('aria-pressed',String(selected===key));}
-      feature.classList.remove('pop');void feature.offsetWidth;feature.classList.add('pop');
-    }
-    for(let index=0;index<ids.length;index++){const id=ids[index],r=layouts.desktop[id][2];const group=element('g',{class:`node${id==='hub'?' hub':''}`,role:'button',tabindex:'0','aria-label':id==='hub'?'СИТРО, сбросить выбор':features[id].title,'aria-pressed':'false'},nodeLayer);element('circle',{class:'halo',r:r+13},group);element('circle',{class:'body',r},group);const text=element('text',{},group);text.textContent=id==='hub'?'СИТРО':features[id].label;
-      nodes[id]={group,r,size:r,x:0,y:0,ax:0,ay:0,phase:index*1.75};
-      group.addEventListener('pointerdown',event=>{event.preventDefault();dragged=id;dragMoved=false;dragStart=point(event);pointer=dragStart;group.classList.add('dragging');group.setPointerCapture(event.pointerId);});
-      group.addEventListener('pointermove',event=>{if(dragged===id){pointer=point(event);if(Math.hypot(pointer.x-dragStart.x,pointer.y-dragStart.y)>7)dragMoved=true;}});
-      group.addEventListener('pointerup',event=>{if(dragged!==id)return;group.classList.remove('dragging');dragged=null;pointer=event.pointerType==='mouse'?point(event):null;if(!dragMoved)select(id);});
-      group.addEventListener('pointercancel',()=>{group.classList.remove('dragging');dragged=null;pointer=null;});
-      group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(id);}});
-      if(id!=='hub'){const path=element('path',{class:'wire'},wireLayer),signal=element('path',{class:'signal',style:`animation-delay:-${index*.8}s`},signalLayer);links.push({id,path,signal});}
-    }
-    stage.addEventListener('pointermove',event=>{if(!dragged&&event.pointerType==='mouse')pointer=point(event);});
-    stage.addEventListener('pointerleave',()=>{if(!dragged)pointer=null;});
-    feature.addEventListener('click',event=>{if(event.target.closest('.feature-close'))select('hub');});
-    window.addEventListener('resize',()=>{const changed=window.matchMedia('(max-width:740px)').matches!==mobile;if(changed)layout();});
-    layout();requestAnimationFrame(tick);
-  </script>
+</div>
+<script>
+  const stage=document.getElementById('stage'),svg=document.getElementById('wires'),edgeLayer=document.getElementById('edgeLayer'),branchLayer=document.getElementById('branchLayer'),selection=document.getElementById('selection'),glow=document.getElementById('cursorGlow');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const content={
+    services:{number:'01',label:'УСЛУГИ',title:'Любая задача — точка старта',text:'Прототипы, технические детали, малые серии и моделирование. Выберите задачу, а мы подскажем способ изготовления.'},
+    calculation:{number:'02',label:'РАСЧЁТ',title:'Цена становится понятной',text:'Загрузите модель или ссылку MakerWorld, задайте материал и количество — получите предварительный расчёт.'},
+    materials:{number:'03',label:'МАТЕРИАЛЫ',title:'Материал под вашу задачу',text:'От PETG для повседневных деталей до инженерных пластиков. Свойства и применение — без сложных терминов.'},
+    works:{number:'04',label:'РАБОТЫ',title:'Смотрите, что уже сделано',text:'Реальные изделия, детали и результаты клиентов. Каждая работа — доказательство того, что идея стала вещью.'},
+    contacts:{number:'05',label:'КОНТАКТЫ',title:'Обсудим вашу идею',text:'Напишите, позвоните или приезжайте в мастерскую в Липецке. Подберём решение вместе.'}
+  };
+  const layouts={desktop:{w:800,h:720,services:[278,176,61],calculation:[590,218,95],materials:[206,455,78],works:[592,509,79],contacts:[403,613,49]},mobile:{w:390,h:520,services:[90,105,43],calculation:[272,115,65],materials:[92,318,51],works:[300,344,54],contacts:[205,460,36]}};
+  const order=['services','calculation','materials','works','contacts'];
+  const nodes={};let layout=layouts.desktop,selected=null,pointer=null,drag=null,last=0,dragStart=null,dragMoved=false;
+  const edges=[['services','calculation',-58],['services','materials',41],['services','works',-48],['calculation','works',34],['materials','contacts',-30],['works','contacts',33],['materials','calculation',65]];
+  const edgePaths=[];const branches=[];
+  function svgEl(type,attrs={},parent){const e=document.createElementNS('http://www.w3.org/2000/svg',type);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.appendChild(e);return e;}
+  function pos(ev){const rect=stage.getBoundingClientRect();return{x:(ev.clientX-rect.left)/rect.width*layout.w,y:(ev.clientY-rect.top)/rect.height*layout.h};}
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+  function curve(a,b,bend){const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy)||1,px=-dy/length*bend,py=dx/length*bend;return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} C ${(a.x+dx*.32+px).toFixed(1)} ${(a.y+dy*.32+py).toFixed(1)} ${(b.x-dx*.32+px).toFixed(1)} ${(b.y-dy*.32+py).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;}
+  function setupBranches(){branchLayer.innerHTML='';branches.length=0;const ends=layout===layouts.mobile?[
+    ['services',14,35],['services',14,190],['calculation',375,35],['calculation',376,217],['materials',6,397],['works',387,402],['contacts',116,515],['contacts',298,515]
+  ]:[
+    ['services',102,37],['services',78,282],['services',372,45],['calculation',743,54],['calculation',786,328],['materials',26,500],['materials',92,675],['works',793,458],['works',730,689],['contacts',310,708],['contacts',533,707]
+  ];
+  ends.forEach(([id,x,y],i)=>{const path=svgEl('path',{class:'wire soft'},branchLayer);svgEl('circle',{class:`terminal${i%3===0?' hollow':''}`,cx:x,cy:y,r:i%3===0?5:3.5},branchLayer);branches.push({id,x,y,path});});
+  }
+  function resize(){const isMobile=matchMedia('(max-width:900px)').matches;layout=isMobile?layouts.mobile:layouts.desktop;svg.setAttribute('viewBox',`0 0 ${layout.w} ${layout.h}`);const rect=stage.getBoundingClientRect();for(const id of order){const [x,y,r]=layout[id],n=nodes[id];Object.assign(n,{baseX:x,baseY:y,r,x,y,vx:0,vy:0,scale:1});n.el.style.width=`${2*r*rect.width/layout.w}px`;n.el.style.height=`${2*r*rect.width/layout.w}px`;}setupBranches();render(0);}
+  function render(t){for(const id of order){const n=nodes[id];let tx=n.baseX,ty=n.baseY,scale=1;if(!reduced.matches&&pointer){const d=Math.hypot(pointer.x-n.baseX,pointer.y-n.baseY),reach=layout===layouts.mobile?105:175,weight=Math.pow(clamp(1-d/reach,0,1),1.3);tx+=(pointer.x-n.baseX)*weight*.75;ty+=(pointer.y-n.baseY)*weight*.75;scale+=weight*.26;}
+    if(!reduced.matches&&drag!==id){tx+=Math.sin(t*.00055+n.phase)*3;ty+=Math.cos(t*.00063+n.phase)*3;}
+    if(drag===id&&pointer){tx=clamp(pointer.x,n.r,layout.w-n.r);ty=clamp(pointer.y,n.r,layout.h-n.r);scale=1.22;}
+    if(selected===id)scale+=.07;
+    n.vx=(n.vx+(tx-n.x)*.048)*.78;n.vy=(n.vy+(ty-n.y)*.048)*.78;n.x+=n.vx;n.y+=n.vy;n.scale+=(scale-n.scale)*.17;
+    n.el.style.left=`${n.x/layout.w*100}%`;n.el.style.top=`${n.y/layout.h*100}%`;n.el.style.setProperty('--scale',n.scale.toFixed(3));
+  }
+  edgePaths.forEach(({a,b,bend,base,signal})=>{const d=curve(nodes[a],nodes[b],bend);base.setAttribute('d',d);signal.setAttribute('d',d);});
+  branches.forEach(({id,x,y,path})=>{const n=nodes[id],dx=x-n.x,dy=y-n.y;path.setAttribute('d',`M ${n.x.toFixed(1)} ${n.y.toFixed(1)} C ${(n.x+dx*.35).toFixed(1)} ${n.y.toFixed(1)} ${(x-dx*.2).toFixed(1)} ${y.toFixed(1)} ${x} ${y}`);});
+  }
+  function frame(t){if(t-last>13){render(t);last=t;}requestAnimationFrame(frame);}
+    function choose(id){selected=id;order.forEach(key=>nodes[key].el.setAttribute('aria-pressed',String(key===id)));const item=content[id];selection.innerHTML=`<button class="close" type="button" aria-label="Закрыть описание">×</button><span class="index">${item.number} / 05</span><small>${item.label} / СИТРО</small><h2>${item.title}</h2><p>${item.text}</p>`;selection.classList.add('active');}
+    selection.addEventListener('click',ev=>{if(ev.target.closest('.close')){selected=null;order.forEach(key=>nodes[key].el.setAttribute('aria-pressed','false'));selection.classList.remove('active');selection.innerHTML='<span class="index">00 / 05</span><small>Живая карта СИТРО</small><h2>Начните с идеи</h2><p>Подведите курсор к кругам. Они откликаются на движение; любой можно потянуть и открыть нажатием.</p>';}});
+  order.forEach((id,index)=>{const item=content[id],btn=document.createElement('button');btn.type='button';btn.className=`node ${id==='services'||id==='materials'?'dark':''} ${id==='calculation'?'large':''} ${id==='contacts'?'tiny':''}`;btn.setAttribute('aria-label',item.title);btn.setAttribute('aria-pressed','false');btn.innerHTML=`<small>${item.number} / 05</small><strong>${item.label}</strong>`;stage.appendChild(btn);nodes[id]={el:btn,x:0,y:0,vx:0,vy:0,phase:index*1.7,scale:1};
+    btn.addEventListener('pointerdown',ev=>{ev.preventDefault();drag=id;dragMoved=false;dragStart=pos(ev);pointer=dragStart;btn.classList.add('dragging');btn.setPointerCapture(ev.pointerId);});
+    btn.addEventListener('pointermove',ev=>{if(drag===id){pointer=pos(ev);if(Math.hypot(pointer.x-dragStart.x,pointer.y-dragStart.y)>8)dragMoved=true;}});
+    btn.addEventListener('pointerup',ev=>{if(drag!==id)return;drag=null;btn.classList.remove('dragging');pointer=ev.pointerType==='mouse'?pos(ev):null;if(!dragMoved)choose(id);});
+    btn.addEventListener('pointercancel',()=>{drag=null;pointer=null;btn.classList.remove('dragging');});
+    btn.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();choose(id);}});
+  });
+  edges.forEach(([a,b,bend],i)=>{const base=svgEl('path',{class:'wire'},edgeLayer),signal=svgEl('path',{class:'signal',style:`animation-delay:-${i*.8}s`},edgeLayer);edgePaths.push({a,b,bend,base,signal});});
+  stage.addEventListener('pointermove',ev=>{if(!drag&&ev.pointerType==='mouse')pointer=pos(ev);if(ev.pointerType==='mouse'){const r=stage.getBoundingClientRect();glow.style.left=`${ev.clientX-r.left}px`;glow.style.top=`${ev.clientY-r.top}px`;glow.style.opacity='1';}});
+  stage.addEventListener('pointerleave',()=>{if(!drag)pointer=null;glow.style.opacity='0';});
+  document.querySelectorAll('a[href="#stage"]').forEach(a=>a.addEventListener('click',ev=>{ev.preventDefault();stage.scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'center'});}));
+  window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
+</script>
 </body>
 </html>
