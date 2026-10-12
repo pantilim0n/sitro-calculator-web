@@ -46,7 +46,7 @@ def main():
         posts = parse_posts(response.read().decode())
     data = json.dumps({'posts': posts}, ensure_ascii=False, separators=(',', ':')).encode()
     signature = hmac.new(key, data, hashlib.sha256).hexdigest()
-    relay = Request('https://ситро-3д.рф/api/telegram-to-max', data=data, headers={
+    relay = Request('https://xn---3-llcn4alfj.xn--p1ai/api/telegram-to-max', data=data, headers={
         'Content-Type': 'application/json', 'X-Sitro-Relay-Signature': signature
     }, method='POST')
     with urlopen(relay, timeout=120) as response:
