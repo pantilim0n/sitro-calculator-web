@@ -45,7 +45,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": true,
+    "featured": false,
     "visible": true,
     "sort": 3
   },
@@ -78,7 +78,7 @@
       "Сувениры",
       "Авто"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 5
   },
@@ -110,7 +110,7 @@
     "categories": [
       "Для дома"
     ],
-    "featured": true,
+    "featured": false,
     "visible": true,
     "sort": 7
   },
@@ -143,7 +143,7 @@
       "Фигурки",
       "Сувениры"
     ],
-    "featured": true,
+    "featured": false,
     "visible": true,
     "sort": 9
   },
@@ -159,7 +159,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": true,
+    "featured": false,
     "visible": true,
     "sort": 10
   },
@@ -192,7 +192,7 @@
     "categories": [
       "Фигурки"
     ],
-    "featured": true,
+    "featured": false,
     "visible": true,
     "sort": 12
   },
@@ -258,7 +258,7 @@
       "Технические",
       "Для дома"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 16
   },
@@ -274,7 +274,7 @@
     "categories": [
       "Технические"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 17
   }
