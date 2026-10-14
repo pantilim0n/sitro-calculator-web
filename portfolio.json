@@ -31,7 +31,7 @@
     ],
     "featured": true,
     "visible": true,
-    "sort": 2
+    "sort": 4
   },
   {
     "id": "w1",
@@ -63,7 +63,7 @@
     ],
     "featured": false,
     "visible": true,
-    "sort": 4
+    "sort": 2
   },
   {
     "id": "w7",
@@ -176,7 +176,7 @@
       "Технические",
       "Прочее"
     ],
-    "featured": false,
+    "featured": true,
     "visible": true,
     "sort": 11
   },
