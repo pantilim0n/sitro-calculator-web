@@ -265,12 +265,15 @@ test('services open full descriptions and mobile portfolio is a horizontal strip
   assert.match(indexHtml, /\.portfolio-grid\{display:flex;overflow-x:auto/);
 });
 
-test('STL result exposes the contact fields immediately after the price', () => {
+test('STL result shows the price before opening the contact form', () => {
   assert.doesNotMatch(indexHtml, /id="shareStlOrder"/);
   assert.doesNotMatch(indexHtml, /id="copyStlOrder"/);
   assert.doesNotMatch(indexHtml, /id="downloadStlOrder"/);
   assert.match(indexHtml, /showOrderFormAfterResult\('stl',stlResult,status\)/);
   assert.match(indexHtml, /resultNode\.after\(fields\)/);
+  assert.match(indexHtml, /fields\.style\.display='none'/);
+  assert.match(indexHtml, /next\.textContent='Продолжить оформление →'/);
+  assert.match(indexHtml, /next\.onclick=\(\)=>\{fields\.style\.display='grid'/);
   assert.doesNotMatch(indexHtml, /showStlOrderStep|Перейти к заявке/);
   assert.doesNotMatch(indexHtml, /taplink\.cc/i);
 });
@@ -543,4 +546,18 @@ test('calculator and contacts report anonymous conversion goals', () => {
   assert.match(siteEnhancements,/order_attempt/);
   assert.match(siteEnhancements,/order_success/);
   assert.doesNotMatch(metrikaScript,/stlCustomerName|stlCustomerContact|stlCustomerComment/);
+});
+
+test('calculation shows the price before the customer form', () => {
+  assert.match(indexHtml, /Продолжить оформление →/);
+  assert.match(indexHtml, /fields\.style\.display='none'/);
+  assert.match(indexHtml, /order_form_open/);
+  assert.match(indexHtml, /Телефон нужен, чтобы подтвердить стоимость и срок/);
+  assert.doesNotMatch(indexHtml, /Телефон для обратной связи <small>необязательно<\/small>/);
+});
+
+test('homepage targets the commercial Lipetsk query and separates customers without a model', () => {
+  assert.match(indexHtml, /<title>3D-печать на заказ в Липецке — расчёт цены \| СИТРО<\/title>/);
+  assert.match(indexHtml, /Нет готовой 3D-модели/);
+  assert.match(indexHtml, /href="\/3d-modelirovanie\.html"/);
 });
