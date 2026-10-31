@@ -3,6 +3,7 @@ import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
+const today = new Date().toISOString().slice(0, 10);
 const pages = [
   ['/3d-pechat-lipeck.html', '3D-печать'],
   ['/3d-modelirovanie.html', '3D-моделирование'],
@@ -37,7 +38,7 @@ const sitemapPath = join(root,'sitemap.xml');
 let sitemap = await readFile(sitemapPath,'utf8');
 for (const [href] of pages.slice(3)) {
   const loc = `https://ситро-3д.рф${href}`;
-  if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace('</urlset>', `  <url>\n    <loc>${loc}</loc>\n    <lastmod>2026-10-08</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n</urlset>`);
+  if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace('</urlset>', `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n</urlset>`);
 }
 await writeFile(sitemapPath,sitemap,'utf8');
 

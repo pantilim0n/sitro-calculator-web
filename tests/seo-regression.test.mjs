@@ -45,6 +45,9 @@ test('main page and sitemap link every SEO service page', async () => {
     assert.ok(sitemap.includes(`<loc>https://ситро-3д.рф/${page}</loc>`));
   }
   assert.ok(index.includes('Популярные задачи для 3D-печати'));
+  for (const lastmod of sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) {
+    assert.match(lastmod[1], /^\d{4}-\d{2}-\d{2}$/, 'sitemap lastmod must use ISO date format');
+  }
 });
 
 test('public pages expose consistent local business and image metadata', async () => {
